@@ -1,16 +1,12 @@
-# Estudio Documental EI V12
+# Estudio Documental EI V13
 
-Ajustes incorporados:
+Ajustes finales de exportación PDF:
 
-- Alineación del texto de OBJETIVO:
-  - izquierda,
-  - centrado,
-  - derecha,
-  - justificado.
-- Alineación del texto de ALCANCE:
-  - izquierda,
-  - centrado,
-  - derecha,
-  - justificado.
-- Se conserva la alineación de títulos de pasos, subpasos y notas.
-- Se conserva la opción de ubicar notas antes o después de la imagen/lista.
+- Se mejoró la exportación a PDF.
+- Se eliminan barra lateral, barra superior, separadores, botones y controles de imagen durante la exportación.
+- Se elimina el problema de barras de scroll impresas.
+- Cada hoja queda en tamaño carta completo.
+- Se evita el corte interno de una misma hoja.
+- Márgenes del instructivo ajustados a 2 cm para mejorar espacio útil y exportación.
+- Se retiraron definitivamente los botones Guardar JSON y Abrir JSON del menú.
+- La exportación usa un modo temporal de impresión para limpiar la vista antes de imprimir.

@@ -59,7 +59,9 @@ function bind(){
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>setMode(b.dataset.open));
   $('goHome').onclick=()=>setMode('home'); $('openProcedure').onclick=openProcedure;
   $('zoomIn').onclick=()=>setZoom(zoom+.05); $('zoomOut').onclick=()=>setZoom(zoom-.05); $('zoomFit').onclick=()=>setZoom(.72);
-  $('printPdf').onclick=()=>window.print(); $('saveJson').onclick=saveJson; $('openJson').onchange=openJson;
+  const printBtn=$('printPdf'); if(printBtn) printBtn.onclick=exportPdf;
+  const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
+  const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
   $('docBody').oninput=e=>{doc.body=e.target.value;render()};
   $('addSection').onclick=()=>{doc.sections.push({n:String(doc.sections.length+1),t:'NUEVA SECCIÓN',c:'Contenido'});render()};
@@ -460,6 +462,23 @@ function bindCanvasImages(){
       window.addEventListener('pointerup',up);
     };
   });
+}
+
+function exportPdf(){
+  const prevZoom = zoom;
+  document.body.classList.add('print-mode');
+  const stage=$('stage');
+  if(stage){
+    stage.style.transform='none';
+  }
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      document.body.classList.remove('print-mode');
+      setZoom(prevZoom);
+      render();
+    },350);
+  },120);
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
