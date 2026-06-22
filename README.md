@@ -1,15 +1,16 @@
-# Estudio Documental EI V11
+# Estudio Documental EI V12
 
 Ajustes incorporados:
 
-- Control de alineación del título del paso.
-- Control de alineación por cada subpaso:
+- Alineación del texto de OBJETIVO:
   - izquierda,
   - centrado,
   - derecha,
   - justificado.
-- Control de alineación por cada nota.
-- Control de ubicación de notas:
-  - antes de la imagen/lista,
-  - después de la imagen/lista.
-- Se conserva la barra lateral fija y el cambio entre pasos corregido.
+- Alineación del texto de ALCANCE:
+  - izquierda,
+  - centrado,
+  - derecha,
+  - justificado.
+- Se conserva la alineación de títulos de pasos, subpasos y notas.
+- Se conserva la opción de ubicar notas antes o después de la imagen/lista.

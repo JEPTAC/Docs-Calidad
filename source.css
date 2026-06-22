@@ -513,3 +513,25 @@ html, body{
   font-weight:900;
   margin:2px 0 4px;
 }
+
+
+/* V12: alineación configurable para objetivo y alcance */
+.info-value.align-left{
+  justify-content:flex-start!important;
+  text-align:left!important;
+}
+
+.info-value.align-center{
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+.info-value.align-right{
+  justify-content:flex-end!important;
+  text-align:right!important;
+}
+
+.info-value.align-justify{
+  justify-content:flex-start!important;
+  text-align:justify!important;
+}

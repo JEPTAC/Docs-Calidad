@@ -29,6 +29,8 @@ let doc={
   instrCode:'S-IN-9',
   instrVersion:'Versión 3',
   activeStep:0,
+  objectiveAlign:'center',
+  scopeAlign:'center',
   objective:'Indicar los pasos que se deben seguir en el CRM para la creación de una cotización de venta.',
   scope:'Aplica a todos los asesores comerciales de la Unidad de Negocio de Suministros Eléctricos de ELECTROINGENIERÍA S.A.S.',
   steps:[
@@ -64,6 +66,7 @@ function bind(){
   $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
   $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
+  ['objectiveAlign','scopeAlign'].forEach(id=>{const el=$(id); if(el) el.onchange=e=>{doc[id]=e.target.value;render()}});
   $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',titleAlign:'left',notePosition:'after',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',align:'left',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});doc.activeStep=doc.steps.length-1;render()};
   $('addNote').onclick=()=>{const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push({text:'Escriba la nota del paso.',align:'left'});render()};
 
@@ -74,9 +77,10 @@ function syncInputs(){
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.value=doc[fieldMap(id)]??''});
   if($('docBody')) $('docBody').value=doc.body;
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??''});
+  ['objectiveAlign','scopeAlign'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??'center'});
   renderStepEditor();
 }
-function render(){ensureSubDefaults();setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
+function render(){ensureDocDefaults();ensureSubDefaults();setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
 function letterPage(){
   const isCircular=doc.wordType==='circular';
   return `<div class="page"><div class="word-letter-bg" style="background-image:url('${LETTERHEAD}')"></div><div class="text-layer" contenteditable="true" id="letterEdit"><p>${esc(doc.cityDate)}</p>${isCircular?`<p class="center"><b>CIRCULAR No. ${esc(doc.circularNo)}</b></p><p><b>PARA:</b> ${esc(doc.para)}</p><p><b>DE:</b> ${esc(doc.de)}</p><p><b>ASUNTO:</b> ${esc(doc.asunto)}</p><div class="line"></div>`:''}<p>${esc(doc.body).replace(/\n/g,'<br>')}</p><div class="sign"><div class="line" style="width:240px"></div><b>${esc(doc.remitente)}</b><span>${esc(doc.cargo)}</span></div></div></div>`;
@@ -102,6 +106,12 @@ function instrHeader(){
 }
 function instrFooter(i,total){
   return `<div class="instr-page-line"></div><div class="instr-footer"><div>${today()}</div><div>Pág. ${i} de ${total}</div></div>`;
+}
+
+
+function ensureDocDefaults(){
+  doc.objectiveAlign = doc.objectiveAlign || 'center';
+  doc.scopeAlign = doc.scopeAlign || 'center';
 }
 
 function ensureSubDefaults(){
@@ -254,8 +264,8 @@ function renderInstructivo(){
 function instructivoHtml(){
   const total = 1;
   return `<div class="instr-page">${instrHeader()}<div class="instr-content">
-    <div class="info-row"><div class="info-label">OBJETIVO:</div><div class="info-value">${esc(doc.objective)}</div></div>
-    <div class="info-row"><div class="info-label">ALCANCE:</div><div class="info-value">${esc(doc.scope)}</div></div>
+    <div class="info-row"><div class="info-label">OBJETIVO:</div><div class="info-value align-${doc.objectiveAlign||'center'}">${esc(doc.objective)}</div></div>
+    <div class="info-row"><div class="info-label">ALCANCE:</div><div class="info-value align-${doc.scopeAlign||'center'}">${esc(doc.scope)}</div></div>
     <div class="band">PASO A PASO</div>
     ${doc.steps.map((s,i)=>stepsPreviewHtml(i, true)).join('')}
   </div>${instrFooter(1,total)}</div>`;

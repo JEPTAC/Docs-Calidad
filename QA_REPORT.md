@@ -1,10 +1,9 @@
-# QA V11
+# QA V12
 
 - node --check source.js ejecutado.
-- Alineación de título del paso.
-- Alineación de subpasos.
-- Alineación de notas.
-- Ubicación de notas antes/después del contenido visual.
-- Compatibilidad con notas antiguas tipo string normalizadas a objeto.
+- objectiveAlign y scopeAlign agregados.
+- Objetivo renderiza con clase de alineación dinámica.
+- Alcance renderiza con clase de alineación dinámica.
+- Compatible con JSON anterior mediante valores por defecto.
 
 Resultado node --check: PASS
