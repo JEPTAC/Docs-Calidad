@@ -1,11 +1,17 @@
-# QA V18
+# QA V19
 
 - node --check source.js ejecutado.
-- stepListHtml reescrito.
-- listImageSlotHtml reescrito.
-- renderStepEditor reescrito para el panel de imágenes múltiples.
-- bindCanvasImages reescrito con soporte robusto para kind="list".
-- loadListImg y removeListImage reescritos.
-- ensureSubDefaults normaliza stepImages y listImageCount.
+- stepListHtml renderiza imagenes con o sin subpasos.
+- listImageSlotHtml robusto con medidas numéricas.
+- loadListImg robusto.
+- loadListImgBulk agregado.
+- paginateSteps ajustado para reducir espacios grandes.
+- CSS compacta step-compact, list layout, notes y grids.
 
 Resultado node --check: PASS
+{
+  "loadListImgBulk": true,
+  "bulk input listener": true,
+  "stepList no-sub blank": true,
+  "compact css": true
+}

@@ -914,3 +914,76 @@ body.print-mode .actions{
   user-select:none!important;
   touch-action:none!important;
 }
+
+
+/* V19: compactación real entre pasos y corrección visible de imágenes lista */
+.step-compact,
+.step-compact.compact-slice{
+  margin-top:3px!important;
+  margin-bottom:3px!important;
+}
+
+.step-compact-head{
+  min-height:.26in!important;
+}
+
+.step-list-layout{
+  gap:5px!important;
+  padding:4px!important;
+  align-items:start!important;
+}
+
+.step-list-left{
+  gap:3px!important;
+}
+
+.step-list-item{
+  min-height:.30in!important;
+}
+
+.step-list-text{
+  padding:4px!important;
+  line-height:1.12!important;
+}
+
+.substep-grid{
+  gap:4px!important;
+  padding:4px!important;
+}
+
+.note-row{
+  margin:3px 5px!important;
+  min-height:.28in!important;
+}
+
+.step-main-img,
+.step-shared-img{
+  min-height:0!important;
+}
+
+/* El alto real de la zona de imágenes se controla desde el panel */
+.step-shared-img.multi{
+  height:var(--step-img-h, 315px)!important;
+  min-height:var(--step-img-h, 315px)!important;
+  display:grid!important;
+  gap:4px!important;
+  overflow:hidden!important;
+}
+
+.shared-img-slot{
+  min-height:54px!important;
+  width:100%!important;
+  height:100%!important;
+}
+
+.shared-img-slot img{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  z-index:2!important;
+}
+
+/* Durante edición, si la imagen existe no se oculta aunque no tenga subpasos */
+.step-shared-img.multi .empty-img{
+  pointer-events:none;
+}

@@ -1,16 +1,12 @@
-# Estudio Documental EI V18
+# Estudio Documental EI V19
 
-Corrección del modo lista con varias imágenes:
+Correcciones puntuales:
 
-- Se reparó el render del modo "Lista + imagen".
-- Ya se visualizan correctamente 1, 2 o 3 imágenes.
-- Se mantiene el orden de carga:
-  - imagen 1,
-  - imagen 2,
-  - imagen 3.
-- Cada imagen conserva sus controles:
-  - ancho,
-  - alto,
-  - posición X,
-  - posición Y.
-- También se pueden mover y redimensionar desde la plantilla.
+- Se corrigió el espacio excesivo entre pasos generales.
+- La paginación calcula menos espacio fantasma y compacta mejor entre un paso y otro.
+- El modo lista ahora muestra imágenes aunque todavía no tenga subpasos.
+- Se corrigió el cargue de imágenes múltiples:
+  - carga individual por imagen;
+  - carga múltiple en orden desde un solo botón;
+  - render inmediato después de cargar.
+- Se conserva todo lo anterior: PDF, barra fija, alineaciones, paginación automática y modo lista.

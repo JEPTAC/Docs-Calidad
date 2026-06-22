@@ -259,6 +259,8 @@ function renderStepEditor(){
     ${isList ? `
       <div class="multi-image-panel">
         <h4>Imágenes del modo lista</h4>
+        <label class="file-btn">Cargar imágenes en orden<input type="file" accept="image/*" multiple data-list-img-bulk="${i}" hidden></label>
+        <small class="image-fit-warning">Puede cargar 1, 2 o 3 imágenes de una vez. Se ubican en el mismo orden seleccionado.</small>
         ${Array.from({length:Number(s.listImageCount||1)}).map((_,k)=>`<div class="sub-editor">
           <b>Imagen ${k+1}</b>
           <label class="file-btn">Agregar imagen ${k+1}<input type="file" accept="image/*" data-list-img="${i}-${k}" hidden></label>
@@ -317,6 +319,7 @@ function renderStepEditor(){
   box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
 
   box.querySelectorAll('[data-list-img]').forEach(inp=>inp.onchange=e=>{const [a,k]=e.target.dataset.listImg.split('-').map(Number);loadListImg(e,a,k)});
+  box.querySelectorAll('[data-list-img-bulk]').forEach(inp=>inp.onchange=e=>{loadListImgBulk(e,Number(e.target.dataset.listImgBulk))});
   box.querySelectorAll('[data-list-img-w]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgW.split('-').map(Number);doc.steps[a].stepImages[k].w=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-list-img-h]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgH.split('-').map(Number);doc.steps[a].stepImages[k].h=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-list-img-x]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgX.split('-').map(Number);doc.steps[a].stepImages[k].x=Number(e.target.value);renderInstructivoOnly()});
@@ -354,17 +357,18 @@ function estimateSubHeight(ss, s){
   return Math.max(Number(s.cardH||150), textH + imgH + 22);
 }
 function estimateStepImageHeight(s){
-  return Number(s.stepImgBoxH||315) + 48;
+  return Number(s.stepImgBoxH||315) + 20;
 }
 function estimateListItemHeight(ss){
   return Math.max(32, 18 + estimateTextRows(ss.text||'', 54)*12);
 }
 function estimateListSliceHeight(items,s){
-  const listH = items.reduce((a,x)=>a+estimateListItemHeight(x)+6, 0) + 14;
-  return Math.max(listH, Number(s.stepImgBoxH||315) + 22);
+  const listH = items.reduce((a,x)=>a+estimateListItemHeight(x)+3, 0) + 8;
+  const imgH = Number(s.stepImgBoxH||315) + 8;
+  return Math.max(listH, imgH);
 }
 function pageCapacity(first){
-  return first ? 720 : 800;
+  return first ? 790 : 840;
 }
 function notesHtmlFor(s,pos){
   return (s.notes||[]).filter(n=>String(n.text||'').trim()).map((n,j)=>noteHtml(n,doc.steps.indexOf(s),j)).join('');
@@ -376,30 +380,30 @@ function paginateSteps(){
   const addHtml=(html,h)=>{
     const cap=pageCapacity(current.first);
     if(current.html.length && current.used+h>cap){pushPage();}
-    current.html.push(html); current.used+=h;
+    current.html.push(html);
+    current.used += Math.min(h, cap);
   };
 
   doc.steps.forEach((s,idx)=>{
-    const headerH=52;
+    const headerH=34;
     const notesBefore = s.notePosition==='before' ? (s.notes||[]).reduce((a,n)=>a+estimateNoteHeight(n),0) : 0;
     const notesAfter = s.notePosition!=='before' ? (s.notes||[]).reduce((a,n)=>a+estimateNoteHeight(n),0) : 0;
-
-    if(!(s.sub||[]).length){
-      addHtml(stepBlockHtml(s, idx, null, false), headerH + estimateStepImageHeight(s) + notesBefore + notesAfter + 10);
-      return;
-    }
+    const noteH = notesBefore + notesAfter;
 
     if((s.viewMode||'cards')==='list'){
+      if(!(s.sub||[]).length){
+        addHtml(stepBlockHtml(s, idx, [], false), headerH + estimateListSliceHeight([],s) + noteH + 8);
+        return;
+      }
       let start=0;
       while(start<s.sub.length){
-        const baseH=headerH + notesBefore + notesAfter + 16;
+        const baseH=headerH + noteH + 10;
         let slice=[], h=baseH;
         for(let k=start;k<s.sub.length;k++){
           const candidate = [...slice, s.sub[k]];
           const sh = baseH + estimateListSliceHeight(candidate,s);
-          if(slice.length && h + estimateListItemHeight(s.sub[k]) + 6 > pageCapacity(current.first)) break;
-          if(sh > pageCapacity(current.first) && slice.length) break;
-          slice.push(s.sub[k]); h = sh;
+          if(slice.length && sh > pageCapacity(current.first)) break;
+          slice.push(s.sub[k]); h=sh;
         }
         if(!slice.length){slice=[s.sub[start]]; h=baseH+estimateListSliceHeight(slice,s);}
         addHtml(stepBlockHtml(s, idx, slice, start>0), h);
@@ -408,22 +412,27 @@ function paginateSteps(){
       return;
     }
 
+    if(!(s.sub||[]).length){
+      addHtml(stepBlockHtml(s, idx, null, false), headerH + estimateStepImageHeight(s) + noteH + 8);
+      return;
+    }
+
     const cols=Number(s.cols||2);
     let start=0;
     while(start<s.sub.length){
-      const baseH=headerH + notesBefore + notesAfter + 16;
-      let slice=[], rowsH=[], h=baseH;
+      const baseH=headerH + noteH + 10;
+      let slice=[], h=baseH;
       for(let k=start;k<s.sub.length;k++){
         const proposed=[...slice, s.sub[k]];
         const rows=[];
         for(let r=0;r<proposed.length;r+=cols){
           rows.push(Math.max(...proposed.slice(r,r+cols).map(ss=>estimateSubHeight(ss,s))));
         }
-        const sh=baseH + rows.reduce((a,x)=>a+x+8,0);
+        const sh=baseH + rows.reduce((a,x)=>a+x+4,0);
         if(slice.length && sh>pageCapacity(current.first)) break;
-        slice.push(s.sub[k]); h=sh; rowsH=rows;
+        slice.push(s.sub[k]); h=sh;
       }
-      if(!slice.length){slice=[s.sub[start]]; h=baseH+estimateSubHeight(s.sub[start],s)+8;}
+      if(!slice.length){slice=[s.sub[start]]; h=baseH+estimateSubHeight(s.sub[start],s)+4;}
       addHtml(stepBlockHtml(s, idx, slice, start>0), h);
       start += slice.length;
     }
@@ -446,10 +455,10 @@ function stepBlockHtml(s, idx, subSlice, continued){
   const notesBefore = s.notePosition==='before'?notesHtmlFor(s,'before'):'';
   const notesAfter = s.notePosition!=='before'?notesHtmlFor(s,'after'):'';
   let body='';
-  if(!subSlice){
+  if((s.viewMode||'cards')==='list'){
+    body=stepListHtml(s, subSlice || (s.sub||[]));
+  }else if(!subSlice){
     body=stepImageOnlyHtml(s);
-  }else if((s.viewMode||'cards')==='list'){
-    body=stepListHtml(s,subSlice);
   }else{
     body=`<div class="substep-grid cols-${s.cols||2}">${subSlice.map((ss,j)=>subStepMini(ss,idx,(s.sub||[]).indexOf(ss))).join('')}</div>`;
   }
@@ -466,9 +475,9 @@ function stepListHtml(s,items){
   const count = Math.max(1, Math.min(3, Number(s.listImageCount||1)));
   return `<div class="step-list-layout continued-list">
     <div class="step-list-left">
-      ${arr.map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join('')}
+      ${arr.length ? arr.map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join('') : `<div class="blank-hint no-print">Agregue subpasos para la lista.</div>`}
     </div>
-    <div class="step-shared-img multi count-${count}" style="--step-img-h:${s.stepImgBoxH||315}px">
+    <div class="step-shared-img multi count-${count}" style="--step-img-h:${Number(s.stepImgBoxH||315)}px">
       ${Array.from({length:count}).map((_,k)=>listImageSlotHtml(s,i,k)).join('')}
     </div>
   </div>`;
@@ -477,7 +486,7 @@ function listImageSlotHtml(s,i,k){
   const img = (s.stepImages && s.stepImages[k]) ? s.stepImages[k] : {src:'',w:100,h:100,x:50,y:50};
   const hasImg = !!img.src;
   return `<div class="shared-img-slot ${hasImg?'':'empty-print'}" data-img-box="list" data-i="${i}" data-k="${k}">
-    ${hasImg ? `<img data-img-el="list" data-i="${i}" data-k="${k}" src="${img.src}" style="width:${img.w||100}%;height:${img.h||100}%;left:${img.x??50}%;top:${img.y??50}%">` : `<span class="empty-img no-print">Imagen ${k+1}</span>`}
+    ${hasImg ? `<img data-img-el="list" data-i="${i}" data-k="${k}" src="${img.src}" style="width:${Number(img.w||100)}%;height:${Number(img.h||100)}%;left:${Number(img.x??50)}%;top:${Number(img.y??50)}%">` : `<span class="empty-img no-print">Imagen ${k+1}</span>`}
     ${hasImg ? `<div class="img-direct-tools no-print"><span>Mover imagen ${k+1}</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="list" data-i="${i}" data-k="${k}"></div>` : ``}
   </div>`;
 }
@@ -651,27 +660,52 @@ function bindCanvasImages(){
   });
 }
 function loadListImg(e,i,k){
-  const f=e.target.files[0];
+  const f=e.target.files && e.target.files[0];
   if(!f) return;
   const r=new FileReader();
   r.onload=()=>{
-    doc.steps[i].stepImages = doc.steps[i].stepImages || [];
-    doc.steps[i].stepImages[k] = doc.steps[i].stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
-    doc.steps[i].stepImages[k].src = r.result;
-    doc.steps[i].stepImages[k].w = Number(doc.steps[i].stepImages[k].w||100);
-    doc.steps[i].stepImages[k].h = Number(doc.steps[i].stepImages[k].h||100);
-    doc.steps[i].stepImages[k].x = Number(doc.steps[i].stepImages[k].x??50);
-    doc.steps[i].stepImages[k].y = Number(doc.steps[i].stepImages[k].y??50);
+    ensureSubDefaults();
+    const s=doc.steps[i];
+    s.stepImages[k] = s.stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
+    s.stepImages[k].src = String(r.result || '');
+    s.stepImages[k].w = Number(s.stepImages[k].w||100);
+    s.stepImages[k].h = Number(s.stepImages[k].h||100);
+    s.stepImages[k].x = Number(s.stepImages[k].x??50);
+    s.stepImages[k].y = Number(s.stepImages[k].y??50);
+    s.listImageCount = Math.max(Number(s.listImageCount||1), k+1);
     render();
   };
   r.readAsDataURL(f);
 }
+function loadListImgBulk(e,i){
+  const files = Array.from(e.target.files || []).slice(0,3);
+  if(!files.length) return;
+  ensureSubDefaults();
+  doc.steps[i].listImageCount = Math.max(1, Math.min(3, files.length));
+  let loaded=0;
+  files.forEach((f,k)=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      doc.steps[i].stepImages[k] = doc.steps[i].stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
+      doc.steps[i].stepImages[k].src = String(r.result || '');
+      doc.steps[i].stepImages[k].w = Number(doc.steps[i].stepImages[k].w||100);
+      doc.steps[i].stepImages[k].h = Number(doc.steps[i].stepImages[k].h||100);
+      doc.steps[i].stepImages[k].x = Number(doc.steps[i].stepImages[k].x??50);
+      doc.steps[i].stepImages[k].y = Number(doc.steps[i].stepImages[k].y??50);
+      loaded++;
+      if(loaded===files.length) render();
+    };
+    r.readAsDataURL(f);
+  });
+}
 function removeListImage(i,k){
+  ensureSubDefaults();
   if(doc.steps[i] && doc.steps[i].stepImages && doc.steps[i].stepImages[k]){
     doc.steps[i].stepImages[k] = {src:'',w:100,h:100,x:50,y:50};
   }
   render();
 }
+
 function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');
