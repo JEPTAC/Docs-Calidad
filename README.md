@@ -1,12 +1,15 @@
-# Estudio Documental EI V19
+# Estudio Documental EI V20
 
-Correcciones puntuales:
+Cambio estructural solicitado:
 
-- Se corrigió el espacio excesivo entre pasos generales.
-- La paginación calcula menos espacio fantasma y compacta mejor entre un paso y otro.
-- El modo lista ahora muestra imágenes aunque todavía no tenga subpasos.
-- Se corrigió el cargue de imágenes múltiples:
-  - carga individual por imagen;
-  - carga múltiple en orden desde un solo botón;
-  - render inmediato después de cargar.
-- Se conserva todo lo anterior: PDF, barra fija, alineaciones, paginación automática y modo lista.
+- Se retiró el enfoque de 1, 2 o 3 imágenes dentro de un solo recuadro.
+- El modo lista ahora trabaja por SUBLISTAS.
+- Cada sublista tiene:
+  - título propio;
+  - subpasos propios;
+  - imagen propia;
+  - controles de imagen propios.
+- La numeración de subpasos continúa de forma consecutiva entre sublistas.
+  Ejemplo: 1.1, 1.2, 1.3 aunque cambie el título de la sublista.
+- Las notas ya no deben forzar el paso completo a otra hoja por el cálculo excesivo de espacio.
+- Se compactaron los espacios entre pasos.

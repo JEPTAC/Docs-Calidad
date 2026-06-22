@@ -994,6 +994,120 @@ body.print-mode .actions{
 .step-shared-img.multi .empty-img{
   pointer-events:none;
 }
+
+
+/* V20: modo lista por sublistas, una imagen por sublista */
+.list-group-block{
+  border:1px solid #D0D5DD;
+  border-radius:7px;
+  margin:4px 4px 6px!important;
+  overflow:hidden;
+  background:#fff;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+.list-group-title{
+  background:#001F73;
+  color:#EAC800;
+  font-weight:900;
+  font-size:8.6pt;
+  padding:4px 7px;
+  letter-spacing:.01em;
+}
+
+.list-group-body{
+  display:grid;
+  grid-template-columns:var(--list-w,45%) 1fr;
+  gap:5px;
+  padding:5px;
+  align-items:start;
+}
+
+.list-group-left{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.list-group-image{
+  position:relative;
+  height:var(--group-img-h,220px);
+  min-height:80px;
+  border:1px solid #D0D5DD;
+  border-radius:6px;
+  background:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#98A2B3;
+  font-size:8pt;
+}
+
+.list-group-image img{
+  position:absolute!important;
+  left:50%;
+  top:50%;
+  width:100%;
+  height:100%;
+  transform:translate(-50%,-50%);
+  object-fit:cover!important;
+  max-width:none!important;
+  max-height:none!important;
+  cursor:move;
+  user-select:none;
+  touch-action:none;
+}
+
+.list-group-editor{
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.20);
+  border-radius:10px;
+  padding:8px;
+  margin:8px 0;
+}
+
+.list-group-editor-title{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  color:#fff;
+  font-weight:900;
+  font-size:12px;
+}
+
+.list-group-tools{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:6px;
+}
+
+.step-compact,
+.step-compact.compact-slice{
+  margin-top:2px!important;
+  margin-bottom:3px!important;
+}
+
+.note-row{
+  margin:2px 5px!important;
+  min-height:.22in!important;
+}
+
+.note-text{
+  padding:3px 6px!important;
+  font-size:8pt!important;
+  line-height:1.08!important;
+}
+
+.note-icon{
+  width:.25in!important;
+}
+
+.step-shared-img.multi{display:none!important}
+.multi-image-panel{display:none!important}
 </style>
 </head>
 <body>
@@ -1204,27 +1318,13 @@ function ensureSubDefaults(){
     s.cardH = Number(s.cardH||150);
     s.imgH = Number(s.imgH||102);
     s.listW = Number(s.listW||45);
-    s.listImageCount = Math.max(1, Math.min(3, Number(s.listImageCount||1)));
     s.stepImage = s.stepImage || '';
-    s.stepImages = Array.isArray(s.stepImages) ? s.stepImages : [];
-    if(s.stepImage && !s.stepImages[0]){
-      s.stepImages[0] = {src:s.stepImage,w:Number(s.stepImgW||100),h:Number(s.stepImgH||100),x:Number(s.stepImgX??50),y:Number(s.stepImgY??50)};
-    }
-    for(let k=0;k<3;k++){
-      const img = s.stepImages[k] || {};
-      s.stepImages[k] = {
-        src: img.src || '',
-        w: Number(img.w||100),
-        h: Number(img.h||100),
-        x: Number(img.x??50),
-        y: Number(img.y??50)
-      };
-    }
     s.stepImgW = Number(s.stepImgW||100);
     s.stepImgH = Number(s.stepImgH||100);
     s.stepImgX = Number(s.stepImgX??50);
     s.stepImgY = Number(s.stepImgY??50);
-    s.stepImgBoxH = Number(s.stepImgBoxH||315);
+    s.stepImgBoxH = Number(s.stepImgBoxH||245);
+
     s.sub = (s.sub||[]).map((ss,ji)=>({
       code:ss.code || ((si+1)+'.'+(ji+1)),
       text:ss.text || '',
@@ -1235,8 +1335,50 @@ function ensureSubDefaults(){
       imgX:Number(ss.imgX??50),
       imgY:Number(ss.imgY??50)
     }));
+
+    if(!Array.isArray(s.listGroups)) s.listGroups = [];
+    if(s.viewMode==='list' && !s.listGroups.length){
+      const migratedSubs = (s.sub||[]).map(ss=>({text:ss.text||'',align:ss.align||'left',code:ss.code||''}));
+      const img0 = (s.stepImages && s.stepImages[0] && s.stepImages[0].src) ? s.stepImages[0] : null;
+      s.listGroups.push({
+        title:'',
+        image: img0 ? img0.src : (s.stepImage||''),
+        imgW: img0 ? Number(img0.w||100) : Number(s.stepImgW||100),
+        imgH: img0 ? Number(img0.h||100) : Number(s.stepImgH||100),
+        imgX: img0 ? Number(img0.x??50) : Number(s.stepImgX??50),
+        imgY: img0 ? Number(img0.y??50) : Number(s.stepImgY??50),
+        imgBoxH:Number(s.stepImgBoxH||245),
+        sub:migratedSubs
+      });
+      s.sub=[];
+    }
+    s.listGroups = (s.listGroups||[]).map((g,gi)=>({
+      title:g.title||'',
+      image:g.image || g.src || '',
+      imgW:Number(g.imgW || g.w || 100),
+      imgH:Number(g.imgH || g.h || 100),
+      imgX:Number(g.imgX ?? g.x ?? 50),
+      imgY:Number(g.imgY ?? g.y ?? 50),
+      imgBoxH:Number(g.imgBoxH || s.stepImgBoxH || 245),
+      sub:(g.sub||[]).map(ss=>({code:ss.code||'', text:ss.text||'', align:ss.align||'left'}))
+    }));
+    renumberListGroups(s);
   });
 }
+function renumberListGroups(s){
+  if((s.viewMode||'cards')==='list'){
+    let n=1;
+    (s.listGroups||[]).forEach(g=>{
+      (g.sub||[]).forEach(ss=>{ss.code=s.n+'.'+(n++);});
+    });
+  }else{
+    (s.sub||[]).forEach((ss,j)=>ss.code=s.n+'.'+(j+1));
+  }
+}
+function listSubCount(s){
+  return (s.listGroups||[]).reduce((a,g)=>a+(g.sub||[]).length,0);
+}
+
 
 function alignOptions(value){
   return `<option value="left" ${value==='left'?'selected':''}>Izquierda</option>
@@ -1264,20 +1406,19 @@ function renderStepEditor(){
   const i=Math.min(Number(doc.activeStep||0), doc.steps.length-1);
   doc.activeStep=i;
   const s=doc.steps[i];
-  const previewCount=Math.max((s.sub||[]).length,1);
   const isList = s.viewMode === 'list';
-  const isCards = s.viewMode !== 'list';
+  const previewCount = isList ? Math.max(listSubCount(s),1) : Math.max((s.sub||[]).length,1);
 
   box.innerHTML=`<div class="instr-side-step active">
     <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
-    <span class="step-mode-pill">${isList?'Lista + imagen':'Tarjetas por subpaso'}</span>
+    <span class="step-mode-pill">${isList?'Sublistas + imagen':'Tarjetas por subpaso'}</span>
 
     <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
     <div class="text-control-row">
       <label>Alineación título<select data-step-title-align="${i}">${alignOptions(s.titleAlign||'left')}</select></label>
       <label>Ubicación notas<select data-note-position="${i}">
-        <option value="before" ${s.notePosition==='before'?'selected':''}>Antes de imagen/lista</option>
-        <option value="after" ${s.notePosition!=='before'?'selected':''}>Después de imagen/lista</option>
+        <option value="before" ${s.notePosition==='before'?'selected':''}>Antes del contenido</option>
+        <option value="after" ${s.notePosition!=='before'?'selected':''}>Después del contenido</option>
       </select></label>
     </div>
 
@@ -1287,10 +1428,13 @@ function renderStepEditor(){
         <label>Modo del paso
           <select data-step-view="${i}">
             <option value="cards" ${s.viewMode==='cards'?'selected':''}>Tarjetas por subpaso</option>
-            <option value="list" ${s.viewMode==='list'?'selected':''}>Lista + imagen</option>
+            <option value="list" ${s.viewMode==='list'?'selected':''}>Sublistas + imagen</option>
           </select>
         </label>
-        ${isCards ? `
+        ${isList ? `
+          <label>Ancho lista %<input type="number" min="30" max="72" data-list-w="${i}" value="${s.listW||45}"></label>
+          <label>Alto imagen general px<input type="number" min="120" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||245}"></label>
+        ` : `
           <label>Columnas
             <select data-step-cols="${i}">
               <option value="1" ${s.cols==1?'selected':''}>1 columna</option>
@@ -1300,78 +1444,20 @@ function renderStepEditor(){
           </label>
           <label>Alto tarjeta px<input type="number" min="110" max="260" data-card-h="${i}" value="${s.cardH||150}"></label>
           <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>
-        ` : `
-          <label>Ancho lista %<input type="number" min="30" max="70" data-list-w="${i}" value="${s.listW||45}"></label>
-          <label>Alto zona imágenes px<input type="number" min="160" max="520" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
-          <label>Cantidad imágenes
-            <select data-list-img-count="${i}">
-              <option value="1" ${Number(s.listImageCount||1)===1?'selected':''}>1 imagen</option>
-              <option value="2" ${Number(s.listImageCount||1)===2?'selected':''}>2 imágenes</option>
-              <option value="3" ${Number(s.listImageCount||1)===3?'selected':''}>3 imágenes</option>
-            </select>
-          </label>
         `}
       </div>
-      ${isCards
-        ? `<div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>`
-        : `<div class="list-preview" style="--list-preview-w:${s.listW||45}%"><div>Lista</div><div>Imágenes</div></div>`
+      ${isList
+        ? `<div class="list-preview" style="--list-preview-w:${s.listW||45}%"><div>Lista</div><div>Imagen por sublista</div></div>`
+        : `<div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>`
       }
     </div>
 
     <div class="actions">
-      <button onclick="addSub(${i})">+ Subpaso</button>
-      <button onclick="clearSubsteps(${i})">Sin subpasos</button>
+      ${isList?`<button onclick="addListGroup(${i})">+ Sublista</button>`:`<button onclick="addSub(${i})">+ Subpaso</button>`}
       <button onclick="addNoteToStep(${i})">+ Nota</button>
     </div>
 
-    ${(s.sub||[]).length ? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
-      <b>${esc(ss.code)}</b>
-      <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
-      <label>Alineación subpaso<select data-sub-align="${i}-${j}">${alignOptions(ss.align||'left')}</select></label>
-      ${isCards ? `
-        <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
-        ${ss.image ? `<button class="danger" onclick="removeSubImage(${i},${j})">Quitar imagen</button>` : ``}
-        <div class="mini-grid">
-          <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
-          <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
-          <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
-          <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
-        </div>
-      ` : ``}
-      <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
-    </div>`).join('') : ''}
-
-    ${isList ? `
-      <div class="multi-image-panel">
-        <h4>Imágenes del modo lista</h4>
-        <label class="file-btn">Cargar imágenes en orden<input type="file" accept="image/*" multiple data-list-img-bulk="${i}" hidden></label>
-        <small class="image-fit-warning">Puede cargar 1, 2 o 3 imágenes de una vez. Se ubican en el mismo orden seleccionado.</small>
-        ${Array.from({length:Number(s.listImageCount||1)}).map((_,k)=>`<div class="sub-editor">
-          <b>Imagen ${k+1}</b>
-          <label class="file-btn">Agregar imagen ${k+1}<input type="file" accept="image/*" data-list-img="${i}-${k}" hidden></label>
-          ${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].src) ? `<button class="danger" onclick="removeListImage(${i},${k})">Quitar imagen ${k+1}</button>` : ``}
-          <div class="mini-grid">
-            <label>Ancho %<input type="number" min="40" max="260" data-list-img-w="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].w)||100}"></label>
-            <label>Alto %<input type="number" min="40" max="260" data-list-img-h="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].h)||100}"></label>
-            <label>Posición X<input type="range" min="0" max="100" data-list-img-x="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].x)??50}"></label>
-            <label>Posición Y<input type="range" min="0" max="100" data-list-img-y="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].y)??50}"></label>
-          </div>
-        </div>`).join('')}
-      </div>
-    ` : (!(s.sub||[]).length ? `
-      <div class="sub-editor">
-        <b>Imagen general del paso</b>
-        <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
-        ${s.stepImage?`<button class="danger" onclick="removeStepImage(${i})">Quitar imagen</button>`:''}
-        <div class="mini-grid">
-          <label>Ancho %<input type="number" min="40" max="240" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
-          <label>Alto %<input type="number" min="40" max="240" data-step-img-h="${i}" value="${s.stepImgH||100}"></label>
-          <label>Posición X<input type="range" min="0" max="100" data-step-img-x="${i}" value="${s.stepImgX??50}"></label>
-          <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
-          <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
-        </div>
-      </div>
-    ` : '')}
+    ${isList ? renderListGroupsEditor(i,s) : renderCardsEditor(i,s)}
 
     ${(s.notes||[]).map((n,j)=>`<div class="sub-editor">
       <b>Nota ${j+1}</b>
@@ -1381,40 +1467,81 @@ function renderStepEditor(){
     </div>`).join('')}
   </div>`;
 
+  bindStepEditorControls(box);
+}
+function renderCardsEditor(i,s){
+  return `${(s.sub||[]).length ? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
+    <b>${esc(ss.code)}</b>
+    <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
+    <label>Alineación subpaso<select data-sub-align="${i}-${j}">${alignOptions(ss.align||'left')}</select></label>
+    <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
+    ${ss.image?`<button class="danger" onclick="removeSubImage(${i},${j})">Quitar imagen</button>`:''}
+    <div class="mini-grid">
+      <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
+      <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
+      <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
+      <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
+    </div>
+    <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
+  </div>`).join('') : `<div class="sub-editor">
+    <b>Sin subpasos</b>
+    <div class="actions"><button onclick="addSub(${i})">+ Crear subpaso</button></div>
+  </div>`}`;
+}
+function renderListGroupsEditor(i,s){
+  if(!s.listGroups.length) s.listGroups.push({title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:s.stepImgBoxH||245,sub:[]});
+  return `${s.listGroups.map((g,gi)=>`<div class="list-group-editor">
+    <div class="list-group-editor-title"><span>Sublista ${gi+1}</span><button class="danger" onclick="removeListGroup(${i},${gi})">Eliminar</button></div>
+    <label>Título de la sublista<input data-list-title="${i}-${gi}" value="${esc(g.title||'')}"></label>
+    <div class="actions"><button onclick="addListSub(${i},${gi})">+ Subpaso en esta sublista</button></div>
+    <label class="file-btn">Agregar imagen de esta sublista<input type="file" accept="image/*" data-group-img="${i}-${gi}" hidden></label>
+    ${g.image?`<button class="danger" onclick="removeGroupImage(${i},${gi})">Quitar imagen</button>`:''}
+    <div class="list-group-tools">
+      <label>Alto recuadro px<input type="number" min="100" max="420" data-group-img-box-h="${i}-${gi}" value="${g.imgBoxH||s.stepImgBoxH||245}"></label>
+      <label>Ancho imagen %<input type="number" min="40" max="260" data-group-img-w="${i}-${gi}" value="${g.imgW||100}"></label>
+      <label>Alto imagen %<input type="number" min="40" max="260" data-group-img-h="${i}-${gi}" value="${g.imgH||100}"></label>
+      <label>Posición X<input type="range" min="0" max="100" data-group-img-x="${i}-${gi}" value="${g.imgX??50}"></label>
+      <label>Posición Y<input type="range" min="0" max="100" data-group-img-y="${i}-${gi}" value="${g.imgY??50}"></label>
+    </div>
+    ${(g.sub||[]).map((ss,sj)=>`<div class="sub-editor">
+      <b>${esc(ss.code)}</b>
+      <label>Texto del subpaso<textarea rows="3" data-list-sub-text="${i}-${gi}-${sj}">${esc(ss.text||'')}</textarea></label>
+      <label>Alineación<select data-list-sub-align="${i}-${gi}-${sj}">${alignOptions(ss.align||'left')}</select></label>
+      <button class="danger" onclick="removeListSub(${i},${gi},${sj})">Eliminar subpaso</button>
+    </div>`).join('')}
+  </div>`).join('')}`;
+}
+function bindStepEditorControls(box){
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-title-align]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepTitleAlign].titleAlign=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-position]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.notePosition].notePosition=e.target.value;renderInstructivoOnly()});
-  box.querySelectorAll('[data-step-view]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepView].viewMode=e.target.value;render()});
+  box.querySelectorAll('[data-step-view]').forEach(el=>el.onchange=e=>{const idx=+e.target.dataset.stepView;doc.steps[idx].viewMode=e.target.value;ensureSubDefaults();render()});
   box.querySelectorAll('[data-step-cols]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepCols].cols=Number(e.target.value)||2;render()});
   box.querySelectorAll('[data-list-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.listW].listW=Number(e.target.value)||45;renderInstructivoOnly()});
   box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
   box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
-  box.querySelectorAll('[data-list-img-count]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.listImgCount].listImageCount=Number(e.target.value)||1;render()});
-  box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||315;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||245;renderInstructivoOnly()});
 
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.subAlign.split('-').map(Number);doc.steps[a].sub[b].align=e.target.value;renderInstructivoOnly()});
-  box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b].text=e.target.value;renderInstructivoOnly()});
-  box.querySelectorAll('[data-note-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.noteAlign.split('-').map(Number);doc.steps[a].notes[b].align=e.target.value;renderInstructivoOnly()});
-
+  box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
   box.querySelectorAll('[data-img-w]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgW.split('-').map(Number);doc.steps[a].sub[b].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-h]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgH.split('-').map(Number);doc.steps[a].sub[b].imgH=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-x]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgX.split('-').map(Number);doc.steps[a].sub[b].imgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-img-y]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgY.split('-').map(Number);doc.steps[a].sub[b].imgY=Number(e.target.value);renderInstructivoOnly()});
-  box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
 
-  box.querySelectorAll('[data-list-img]').forEach(inp=>inp.onchange=e=>{const [a,k]=e.target.dataset.listImg.split('-').map(Number);loadListImg(e,a,k)});
-  box.querySelectorAll('[data-list-img-bulk]').forEach(inp=>inp.onchange=e=>{loadListImgBulk(e,Number(e.target.dataset.listImgBulk))});
-  box.querySelectorAll('[data-list-img-w]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgW.split('-').map(Number);doc.steps[a].stepImages[k].w=Number(e.target.value)||100;renderInstructivoOnly()});
-  box.querySelectorAll('[data-list-img-h]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgH.split('-').map(Number);doc.steps[a].stepImages[k].h=Number(e.target.value)||100;renderInstructivoOnly()});
-  box.querySelectorAll('[data-list-img-x]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgX.split('-').map(Number);doc.steps[a].stepImages[k].x=Number(e.target.value);renderInstructivoOnly()});
-  box.querySelectorAll('[data-list-img-y]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgY.split('-').map(Number);doc.steps[a].stepImages[k].y=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b].text=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.noteAlign.split('-').map(Number);doc.steps[a].notes[b].align=e.target.value;renderInstructivoOnly()});
 
-  box.querySelectorAll('[data-step-img]').forEach(inp=>inp.onchange=e=>{loadStepImg(e,Number(e.target.dataset.stepImg))});
-  box.querySelectorAll('[data-step-img-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgW].stepImgW=Number(e.target.value)||100;renderInstructivoOnly()});
-  box.querySelectorAll('[data-step-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgH].stepImgH=Number(e.target.value)||100;renderInstructivoOnly()});
-  box.querySelectorAll('[data-step-img-x]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgX].stepImgX=Number(e.target.value);renderInstructivoOnly()});
-  box.querySelectorAll('[data-step-img-y]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgY].stepImgY=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-list-title]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.listTitle.split('-').map(Number);doc.steps[a].listGroups[g].title=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-list-sub-text]').forEach(el=>el.oninput=e=>{const [a,g,sj]=e.target.dataset.listSubText.split('-').map(Number);doc.steps[a].listGroups[g].sub[sj].text=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-list-sub-align]').forEach(el=>el.onchange=e=>{const [a,g,sj]=e.target.dataset.listSubAlign.split('-').map(Number);doc.steps[a].listGroups[g].sub[sj].align=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-group-img]').forEach(inp=>inp.onchange=e=>{const [a,g]=e.target.dataset.groupImg.split('-').map(Number);loadGroupImg(e,a,g)});
+  box.querySelectorAll('[data-group-img-box-h]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgBoxH.split('-').map(Number);doc.steps[a].listGroups[g].imgBoxH=Number(e.target.value)||245;renderInstructivoOnly()});
+  box.querySelectorAll('[data-group-img-w]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgW.split('-').map(Number);doc.steps[a].listGroups[g].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-group-img-h]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgH.split('-').map(Number);doc.steps[a].listGroups[g].imgH=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-group-img-x]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgX.split('-').map(Number);doc.steps[a].listGroups[g].imgX=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-group-img-y]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgY.split('-').map(Number);doc.steps[a].listGroups[g].imgY=Number(e.target.value);renderInstructivoOnly()});
 }
 function renderInstructivoOnly(){
   const st=$('stage');
@@ -1434,26 +1561,27 @@ function estimateTextRows(text, charsPerRow=62){
   return Math.max(1, Math.ceil(t.length/charsPerRow));
 }
 function estimateNoteHeight(note){
-  return 28 + estimateTextRows(note.text||'', 95)*12;
+  return 12 + estimateTextRows(note.text||'', 120)*8;
 }
 function estimateSubHeight(ss, s){
-  const textH = 30 + estimateTextRows(ss.text||'', 44)*11;
+  const textH = 24 + estimateTextRows(ss.text||'', 48)*9;
   const imgH = Number(s.imgH||102);
-  return Math.max(Number(s.cardH||150), textH + imgH + 22);
+  return Math.max(Number(s.cardH||150), textH + imgH + 12);
 }
 function estimateStepImageHeight(s){
-  return Number(s.stepImgBoxH||315) + 20;
+  return Number(s.stepImgBoxH||245) + 18;
 }
 function estimateListItemHeight(ss){
-  return Math.max(32, 18 + estimateTextRows(ss.text||'', 54)*12);
+  return Math.max(24, 12 + estimateTextRows(ss.text||'', 62)*10);
 }
-function estimateListSliceHeight(items,s){
-  const listH = items.reduce((a,x)=>a+estimateListItemHeight(x)+3, 0) + 8;
-  const imgH = Number(s.stepImgBoxH||315) + 8;
-  return Math.max(listH, imgH);
+function estimateGroupHeight(g,s,items){
+  const arr=items||g.sub||[];
+  const listH = arr.reduce((a,x)=>a+estimateListItemHeight(x)+3, 0) + 26;
+  const imgH = Number(g.imgBoxH || s.stepImgBoxH || 245) + 26;
+  return Math.max(listH, imgH) + 8;
 }
 function pageCapacity(first){
-  return first ? 790 : 840;
+  return first ? 815 : 850;
 }
 function notesHtmlFor(s,pos){
   return (s.notes||[]).filter(n=>String(n.text||'').trim()).map((n,j)=>noteHtml(n,doc.steps.indexOf(s),j)).join('');
@@ -1466,46 +1594,50 @@ function paginateSteps(){
     const cap=pageCapacity(current.first);
     if(current.html.length && current.used+h>cap){pushPage();}
     current.html.push(html);
-    current.used += Math.min(h, cap);
+    current.used += Math.min(h,cap);
   };
 
   doc.steps.forEach((s,idx)=>{
-    const headerH=34;
+    const headerH=31;
     const notesBefore = s.notePosition==='before' ? (s.notes||[]).reduce((a,n)=>a+estimateNoteHeight(n),0) : 0;
     const notesAfter = s.notePosition!=='before' ? (s.notes||[]).reduce((a,n)=>a+estimateNoteHeight(n),0) : 0;
     const noteH = notesBefore + notesAfter;
 
     if((s.viewMode||'cards')==='list'){
-      if(!(s.sub||[]).length){
-        addHtml(stepBlockHtml(s, idx, [], false), headerH + estimateListSliceHeight([],s) + noteH + 8);
-        return;
-      }
-      let start=0;
-      while(start<s.sub.length){
-        const baseH=headerH + noteH + 10;
-        let slice=[], h=baseH;
-        for(let k=start;k<s.sub.length;k++){
-          const candidate = [...slice, s.sub[k]];
-          const sh = baseH + estimateListSliceHeight(candidate,s);
-          if(slice.length && sh > pageCapacity(current.first)) break;
-          slice.push(s.sub[k]); h=sh;
+      const groups=(s.listGroups&&s.listGroups.length)?s.listGroups:[{title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:s.stepImgBoxH||245,sub:[]}];
+      groups.forEach((g,gi)=>{
+        const arr=g.sub||[];
+        if(!arr.length){
+          addHtml(stepBlockHtml(s,idx,{group:g,groupIndex:gi,items:[],continued:false},false,gi>0), headerH+noteH+estimateGroupHeight(g,s,[]));
+          return;
         }
-        if(!slice.length){slice=[s.sub[start]]; h=baseH+estimateListSliceHeight(slice,s);}
-        addHtml(stepBlockHtml(s, idx, slice, start>0), h);
-        start += slice.length;
-      }
+        let start=0;
+        while(start<arr.length){
+          const baseH=headerH + noteH + 8;
+          let slice=[], h=baseH;
+          for(let k=start;k<arr.length;k++){
+            const candidate=[...slice,arr[k]];
+            const sh=baseH+estimateGroupHeight(g,s,candidate);
+            if(slice.length && sh>pageCapacity(current.first)) break;
+            slice.push(arr[k]); h=sh;
+          }
+          if(!slice.length){slice=[arr[start]]; h=baseH+estimateGroupHeight(g,s,slice);}
+          addHtml(stepBlockHtml(s,idx,{group:g,groupIndex:gi,items:slice,continued:start>0},start>0,gi>0),h);
+          start+=slice.length;
+        }
+      });
       return;
     }
 
     if(!(s.sub||[]).length){
-      addHtml(stepBlockHtml(s, idx, null, false), headerH + estimateStepImageHeight(s) + noteH + 8);
+      addHtml(stepBlockHtml(s, idx, null, false, false), headerH + estimateStepImageHeight(s) + noteH + 6);
       return;
     }
 
     const cols=Number(s.cols||2);
     let start=0;
     while(start<s.sub.length){
-      const baseH=headerH + noteH + 10;
+      const baseH=headerH + noteH + 8;
       let slice=[], h=baseH;
       for(let k=start;k<s.sub.length;k++){
         const proposed=[...slice, s.sub[k]];
@@ -1518,7 +1650,7 @@ function paginateSteps(){
         slice.push(s.sub[k]); h=sh;
       }
       if(!slice.length){slice=[s.sub[start]]; h=baseH+estimateSubHeight(s.sub[start],s)+4;}
-      addHtml(stepBlockHtml(s, idx, slice, start>0), h);
+      addHtml(stepBlockHtml(s, idx, slice, start>0, false), h);
       start += slice.length;
     }
   });
@@ -1527,6 +1659,7 @@ function paginateSteps(){
   return pages;
 }
 function instructivoHtml(){
+  ensureSubDefaults();
   const pages = paginateSteps();
   const total = pages.length;
   return pages.map((p,pi)=>`<div class="instr-page">${instrHeader()}<div class="instr-content">
@@ -1536,43 +1669,44 @@ function instructivoHtml(){
     ${p.html.join('') || '<div class="blank-hint">Hoja en blanco. Agregue pasos desde el panel lateral.</div>'}
   </div>${instrFooter(pi+1,total)}</div>`).join('<div class="instr-page-separator no-print">Separador de página</div>');
 }
-function stepBlockHtml(s, idx, subSlice, continued){
+function stepBlockHtml(s, idx, content, continued, groupContinuation){
   const notesBefore = s.notePosition==='before'?notesHtmlFor(s,'before'):'';
   const notesAfter = s.notePosition!=='before'?notesHtmlFor(s,'after'):'';
   let body='';
   if((s.viewMode||'cards')==='list'){
-    body=stepListHtml(s, subSlice || (s.sub||[]));
-  }else if(!subSlice){
+    body=listGroupHtml(s,content);
+  }else if(!content){
     body=stepImageOnlyHtml(s);
   }else{
-    body=`<div class="substep-grid cols-${s.cols||2}">${subSlice.map((ss,j)=>subStepMini(ss,idx,(s.sub||[]).indexOf(ss))).join('')}</div>`;
+    body=`<div class="substep-grid cols-${s.cols||2}">${content.map((ss,j)=>subStepMini(ss,idx,(s.sub||[]).indexOf(ss))).join('')}</div>`;
   }
-  return `<div class="step-compact compact-slice" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px;--list-w:${s.listW||45}%">
+  return `<div class="step-compact compact-slice" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||245}px;--list-w:${s.listW||45}%">
     <div class="step-compact-head ${continued?'has-cont':''}"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title align-${s.titleAlign||'left'}">${esc(s.title)}</div>${continued?'<div class="step-slice-label">CONT.</div>':''}</div>
     ${notesBefore}
     ${body}
     ${notesAfter}
   </div>`;
 }
-function stepListHtml(s,items){
-  const i = doc.steps.indexOf(s);
-  const arr = items || s.sub || [];
-  const count = Math.max(1, Math.min(3, Number(s.listImageCount||1)));
-  return `<div class="step-list-layout continued-list">
-    <div class="step-list-left">
-      ${arr.length ? arr.map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join('') : `<div class="blank-hint no-print">Agregue subpasos para la lista.</div>`}
-    </div>
-    <div class="step-shared-img multi count-${count}" style="--step-img-h:${Number(s.stepImgBoxH||315)}px">
-      ${Array.from({length:count}).map((_,k)=>listImageSlotHtml(s,i,k)).join('')}
+function listGroupHtml(s,data){
+  const g=data?.group || {title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:s.stepImgBoxH||245,sub:[]};
+  const items=data?.items || g.sub || [];
+  const gi=data?.groupIndex ?? 0;
+  const title = `${g.title?esc(g.title):'Sublista '+(gi+1)}${data?.continued?' (continuación)':''}`;
+  return `<div class="list-group-block" style="--list-w:${s.listW||45}%;--group-img-h:${g.imgBoxH||s.stepImgBoxH||245}px">
+    <div class="list-group-title">${title}</div>
+    <div class="list-group-body">
+      <div class="list-group-left">
+        ${items.length?items.map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join(''):`<div class="blank-hint no-print">Agregue subpasos a esta sublista.</div>`}
+      </div>
+      ${groupImageHtml(s,g,doc.steps.indexOf(s),gi)}
     </div>
   </div>`;
 }
-function listImageSlotHtml(s,i,k){
-  const img = (s.stepImages && s.stepImages[k]) ? s.stepImages[k] : {src:'',w:100,h:100,x:50,y:50};
-  const hasImg = !!img.src;
-  return `<div class="shared-img-slot ${hasImg?'':'empty-print'}" data-img-box="list" data-i="${i}" data-k="${k}">
-    ${hasImg ? `<img data-img-el="list" data-i="${i}" data-k="${k}" src="${img.src}" style="width:${Number(img.w||100)}%;height:${Number(img.h||100)}%;left:${Number(img.x??50)}%;top:${Number(img.y??50)}%">` : `<span class="empty-img no-print">Imagen ${k+1}</span>`}
-    ${hasImg ? `<div class="img-direct-tools no-print"><span>Mover imagen ${k+1}</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="list" data-i="${i}" data-k="${k}"></div>` : ``}
+function groupImageHtml(s,g,i,gi){
+  const has=!!g.image;
+  return `<div class="list-group-image ${has?'':'empty-print'}" data-img-box="group" data-i="${i}" data-g="${gi}">
+    ${has?`<img data-img-el="group" data-i="${i}" data-g="${gi}" src="${g.image}" style="width:${g.imgW||100}%;height:${g.imgH||100}%;left:${g.imgX??50}%;top:${g.imgY??50}%">`:`<span class="empty-img no-print">Imagen de la sublista</span>`}
+    ${has?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="group" data-i="${i}" data-g="${gi}"></div>`:''}
   </div>`;
 }
 function stepImageOnlyHtml(s){
@@ -1601,7 +1735,60 @@ function noteHtml(note,i,j){
     <div class="note-text align-${align}">${esc(clean)}</div>
   </div>`;
 }
+
+function addListGroup(i){
+  ensureSubDefaults();
+  doc.steps[i].viewMode='list';
+  doc.steps[i].listGroups.push({title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:doc.steps[i].stepImgBoxH||245,sub:[]});
+  render();
+}
+function removeListGroup(i,gi){
+  ensureSubDefaults();
+  doc.steps[i].listGroups.splice(gi,1);
+  if(!doc.steps[i].listGroups.length) doc.steps[i].listGroups.push({title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:doc.steps[i].stepImgBoxH||245,sub:[]});
+  renumberListGroups(doc.steps[i]);
+  render();
+}
+function addListSub(i,gi){
+  ensureSubDefaults();
+  const g=doc.steps[i].listGroups[gi];
+  g.sub.push({code:'',text:'',align:'left'});
+  renumberListGroups(doc.steps[i]);
+  render();
+}
+function removeListSub(i,gi,sj){
+  doc.steps[i].listGroups[gi].sub.splice(sj,1);
+  renumberListGroups(doc.steps[i]);
+  render();
+}
+function loadGroupImg(e,i,gi){
+  const f=e.target.files && e.target.files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    ensureSubDefaults();
+    const g=doc.steps[i].listGroups[gi];
+    g.image=String(r.result||'');
+    g.imgW=Number(g.imgW||100);
+    g.imgH=Number(g.imgH||100);
+    g.imgX=Number(g.imgX??50);
+    g.imgY=Number(g.imgY??50);
+    g.imgBoxH=Number(g.imgBoxH||doc.steps[i].stepImgBoxH||245);
+    render();
+  };
+  r.readAsDataURL(f);
+}
+function removeGroupImage(i,gi){
+  doc.steps[i].listGroups[gi].image='';
+  render();
+}
 function addSub(i){
+  ensureSubDefaults();
+  if((doc.steps[i].viewMode||'cards')==='list'){
+    if(!doc.steps[i].listGroups.length) addListGroup(i);
+    addListSub(i, doc.steps[i].listGroups.length-1);
+    return;
+  }
   doc.steps[i].sub=doc.steps[i].sub||[];
   doc.steps[i].sub.push({code:doc.steps[i].n+'.'+(doc.steps[i].sub.length+1),text:'',align:'left',image:'',imgW:100,imgH:100,imgX:50,imgY:50});
   render();
@@ -1653,20 +1840,17 @@ function removeStepImage(i){
 }
 
 function getImageTarget(kind,i,j,k){
-  i = Number(i);
+  i=Number(i);
   if(kind==='step') return doc.steps[i];
+  if(kind==='group') return doc.steps[i].listGroups[Number(j ?? k ?? 0)];
   if(kind==='list') return doc.steps[i].stepImages[Number(k)];
   return doc.steps[i].sub[Number(j)];
-}
-function setImageTarget(kind,i,j,k,vals){
-  const t = getImageTarget(kind,i,j,k);
-  Object.assign(t, vals);
 }
 function bindCanvasImages(){
   document.querySelectorAll('[data-img-box]').forEach(box=>{
     const kind=box.dataset.imgBox;
     const i=box.dataset.i;
-    const j=box.dataset.j;
+    const j=box.dataset.j ?? box.dataset.g;
     const k=box.dataset.k;
     const img=box.querySelector('img');
     if(!img) return;
@@ -1677,10 +1861,9 @@ function bindCanvasImages(){
       box.classList.add('img-box-active');
       const target=getImageTarget(kind,i,j,k);
       const startX=ev.clientX, startY=ev.clientY;
-      const startLeft=kind==='step' ? Number(target.stepImgX??50) : Number(target.x ?? target.imgX ?? 50);
-      const startTop=kind==='step' ? Number(target.stepImgY??50) : Number(target.y ?? target.imgY ?? 50);
+      const startLeft=kind==='step'?Number(target.stepImgX??50):Number(target.imgX ?? target.x ?? 50);
+      const startTop=kind==='step'?Number(target.stepImgY??50):Number(target.imgY ?? target.y ?? 50);
       const rect=box.getBoundingClientRect();
-
       const move=(mv)=>{
         const dx=(mv.clientX-startX)/rect.width*100;
         const dy=(mv.clientY-startY)/rect.height*100;
@@ -1689,16 +1872,11 @@ function bindCanvasImages(){
         img.style.left=nx+'%';
         img.style.top=ny+'%';
         if(kind==='step') Object.assign(target,{stepImgX:nx,stepImgY:ny});
+        else if(kind==='group') Object.assign(target,{imgX:nx,imgY:ny});
         else if(kind==='list') Object.assign(target,{x:nx,y:ny});
         else Object.assign(target,{imgX:nx,imgY:ny});
       };
-
-      const up=()=>{
-        window.removeEventListener('pointermove',move);
-        window.removeEventListener('pointerup',up);
-        box.classList.remove('img-box-active');
-        renderStepEditor();
-      };
+      const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);box.classList.remove('img-box-active');renderStepEditor();};
       window.addEventListener('pointermove',move);
       window.addEventListener('pointerup',up);
     };
@@ -1710,7 +1888,7 @@ function bindCanvasImages(){
       ev.stopPropagation();
       const kind=handle.dataset.imgResize;
       const i=handle.dataset.i;
-      const j=handle.dataset.j;
+      const j=handle.dataset.j ?? handle.dataset.g;
       const k=handle.dataset.k;
       const box=handle.closest('[data-img-box]');
       const img=box.querySelector('img');
@@ -1718,9 +1896,8 @@ function bindCanvasImages(){
       box.classList.add('img-box-active');
       const rect=box.getBoundingClientRect();
       const startX=ev.clientX, startY=ev.clientY;
-      const startW=kind==='step' ? Number(target.stepImgW||100) : Number(target.w || target.imgW || 100);
-      const startH=kind==='step' ? Number(target.stepImgH||100) : Number(target.h || target.imgH || 100);
-
+      const startW=kind==='step'?Number(target.stepImgW||100):Number(target.imgW || target.w || 100);
+      const startH=kind==='step'?Number(target.stepImgH||100):Number(target.imgH || target.h || 100);
       const move=(mv)=>{
         const dx=(mv.clientX-startX)/rect.width*100;
         const dy=(mv.clientY-startY)/rect.height*100;
@@ -1729,68 +1906,48 @@ function bindCanvasImages(){
         img.style.width=nw+'%';
         img.style.height=nh+'%';
         if(kind==='step') Object.assign(target,{stepImgW:nw,stepImgH:nh});
+        else if(kind==='group') Object.assign(target,{imgW:nw,imgH:nh});
         else if(kind==='list') Object.assign(target,{w:nw,h:nh});
         else Object.assign(target,{imgW:nw,imgH:nh});
       };
-
-      const up=()=>{
-        window.removeEventListener('pointermove',move);
-        window.removeEventListener('pointerup',up);
-        box.classList.remove('img-box-active');
-        renderStepEditor();
-      };
+      const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);box.classList.remove('img-box-active');renderStepEditor();};
       window.addEventListener('pointermove',move);
       window.addEventListener('pointerup',up);
     };
   });
 }
 function loadListImg(e,i,k){
+  /* Conservado por compatibilidad con documentos anteriores */
   const f=e.target.files && e.target.files[0];
-  if(!f) return;
+  if(!f)return;
   const r=new FileReader();
   r.onload=()=>{
     ensureSubDefaults();
-    const s=doc.steps[i];
-    s.stepImages[k] = s.stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
-    s.stepImages[k].src = String(r.result || '');
-    s.stepImages[k].w = Number(s.stepImages[k].w||100);
-    s.stepImages[k].h = Number(s.stepImages[k].h||100);
-    s.stepImages[k].x = Number(s.stepImages[k].x??50);
-    s.stepImages[k].y = Number(s.stepImages[k].y??50);
-    s.listImageCount = Math.max(Number(s.listImageCount||1), k+1);
+    if(!doc.steps[i].listGroups.length) addListGroup(i);
+    const g=doc.steps[i].listGroups[Math.min(Number(k)||0,doc.steps[i].listGroups.length-1)];
+    g.image=String(r.result||'');
     render();
   };
   r.readAsDataURL(f);
 }
 function loadListImgBulk(e,i){
-  const files = Array.from(e.target.files || []).slice(0,3);
-  if(!files.length) return;
+  /* Conservado por compatibilidad */
+  const files=Array.from(e.target.files||[]).slice(0,3);
+  if(!files.length)return;
   ensureSubDefaults();
-  doc.steps[i].listImageCount = Math.max(1, Math.min(3, files.length));
-  let loaded=0;
+  doc.steps[i].viewMode='list';
+  doc.steps[i].listGroups=[];
   files.forEach((f,k)=>{
+    doc.steps[i].listGroups.push({title:'',image:'',imgW:100,imgH:100,imgX:50,imgY:50,imgBoxH:doc.steps[i].stepImgBoxH||245,sub:[]});
     const r=new FileReader();
-    r.onload=()=>{
-      doc.steps[i].stepImages[k] = doc.steps[i].stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
-      doc.steps[i].stepImages[k].src = String(r.result || '');
-      doc.steps[i].stepImages[k].w = Number(doc.steps[i].stepImages[k].w||100);
-      doc.steps[i].stepImages[k].h = Number(doc.steps[i].stepImages[k].h||100);
-      doc.steps[i].stepImages[k].x = Number(doc.steps[i].stepImages[k].x??50);
-      doc.steps[i].stepImages[k].y = Number(doc.steps[i].stepImages[k].y??50);
-      loaded++;
-      if(loaded===files.length) render();
-    };
+    r.onload=()=>{doc.steps[i].listGroups[k].image=String(r.result||''); if(k===files.length-1) render();};
     r.readAsDataURL(f);
   });
 }
 function removeListImage(i,k){
-  ensureSubDefaults();
-  if(doc.steps[i] && doc.steps[i].stepImages && doc.steps[i].stepImages[k]){
-    doc.steps[i].stepImages[k] = {src:'',w:100,h:100,x:50,y:50};
-  }
+  if(doc.steps[i] && doc.steps[i].listGroups && doc.steps[i].listGroups[k]) doc.steps[i].listGroups[k].image='';
   render();
 }
-
 function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');
@@ -1819,18 +1976,13 @@ function makeBlankStep(){
     cardH:150,
     imgH:102,
     listW:45,
-    listImageCount:1,
+    listGroups:[],
     stepImage:'',
-    stepImages:[
-      {src:'',w:100,h:100,x:50,y:50},
-      {src:'',w:100,h:100,x:50,y:50},
-      {src:'',w:100,h:100,x:50,y:50}
-    ],
     stepImgW:100,
     stepImgH:100,
     stepImgX:50,
     stepImgY:50,
-    stepImgBoxH:315,
+    stepImgBoxH:245,
     sub:[]
   };
 }

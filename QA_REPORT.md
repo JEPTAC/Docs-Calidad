@@ -1,17 +1,23 @@
-# QA V19
+# QA V20
 
 - node --check source.js ejecutado.
-- stepListHtml renderiza imagenes con o sin subpasos.
-- listImageSlotHtml robusto con medidas numéricas.
-- loadListImg robusto.
-- loadListImgBulk agregado.
-- paginateSteps ajustado para reducir espacios grandes.
-- CSS compacta step-compact, list layout, notes y grids.
+- Modo lista reemplazado por sublistas.
+- listGroups normalizado en ensureSubDefaults.
+- renderStepEditor incluye:
+  - agregar sublista,
+  - título sublista,
+  - imagen por sublista,
+  - subpasos por sublista,
+  - controles de imagen por sublista.
+- Paginación estima notas más compactas.
+- Paginación trabaja por grupo/sublista.
+- Multi-imagen anterior oculto por compatibilidad.
 
 Resultado node --check: PASS
 {
-  "loadListImgBulk": true,
-  "bulk input listener": true,
-  "stepList no-sub blank": true,
-  "compact css": true
+  "listGroups": true,
+  "addListGroup": true,
+  "loadGroupImg": true,
+  "groupImageHtml": true,
+  "multi hidden": true
 }
