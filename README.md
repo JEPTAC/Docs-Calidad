@@ -1,15 +1,27 @@
-# Editor EI V24 · Canva Flow Stable
+# Editor EI V25 · Canva Connect Stable
 
-Esta versión reduce el riesgo de distorsión rehaciendo el editor como una sola hoja estable y un solo canvas SVG.
+Objetivo de esta versión: conectar fácil y evitar dobleces accidentales.
 
-## Decisión técnica
+## Cambios principales
 
-La flecha ya no se calcula con puntos virtuales. Cada flecha es una polilínea de puntos reales:
+- La línea de la flecha ya no se arrastra para modificarla. Solo selecciona.
+- Para mover una flecha, se mueven sus puntos azules/naranjas.
+- Esto evita que al intentar mover se generen dobleces o estiramientos no deseados.
+- Conectar funciona por clic:
+  1. Clic en Conectar.
+  2. Clic en figura origen.
+  3. Clic en figura destino.
+- La flecha queda conectada a los puntos más lógicos.
+- Si mueves una figura conectada, la flecha la sigue.
+- Puedes desconectar la flecha desde el panel lateral.
+- Puedes ortogonalizar, enderezar, agregar punto y eliminar punto.
 
-- mover la línea completa traslada todos los puntos;
-- mover un punto solo cambia ese punto;
-- ortogonalizar crea codos reales;
-- enderezar deja dos puntos reales;
-- mover figuras solo actualiza extremos conectados.
+## Funciones retiradas / simplificadas
 
-El archivo `index.html` es autocontenido, con favicon inline y logo en base64 para evitar 404.
+Se retiraron funciones secundarias que no aportaban estabilidad inmediata:
+- Copiar/pegar complejo de flechas.
+- Export HTML/PNG secundario.
+- Arrastre de línea completa.
+- Páginas múltiples experimentales.
+
+La prioridad es que conectar y editar flechas funcione bien.

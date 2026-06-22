@@ -1,14 +1,12 @@
-# QA V24
+# QA V25
 
-- node --check source/app.js: PASS esperado.
-- Sin recursos externos.
+- node --check source/app.js ejecutado.
 - Favicon inline.
-- Logo base64.
+- Sin recursos externos.
 - Flechas con puntos reales.
-- QA interno:
-  - figuras dentro del área;
-  - flechas con puntos válidos;
-  - sin puntos undefined;
-  - colores válidos.
+- La línea solo selecciona; no crea dobleces.
+- Los puntos son los únicos controles de edición.
+- Conectar por clic origen/destino.
+- Las flechas conectadas siguen a la figura.
 
 Resultado node --check: PASS
