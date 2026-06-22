@@ -1,14 +1,10 @@
-# Estudio Documental EI V22
+# Estudio Documental EI V23
 
 Corrección puntual:
 
-- Se corrigió la visualización de la imagen general cuando el paso no tiene subpasos.
-- El botón "Agregar imagen" ahora sí carga la imagen y la muestra en la hoja.
-- Se restauraron los listeners específicos:
-  - data-step-img,
-  - data-step-img-w,
-  - data-step-img-h,
-  - data-step-img-x,
-  - data-step-img-y.
-- No se tocó el sistema de sublistas.
-- No se tocó la paginación ni el PDF.
+- Se restauró la función visual estable de la imagen general del paso sin subpasos.
+- El contenedor de imagen recuperó alto real mediante --step-img-h.
+- La imagen vuelve a mostrarse dentro del recuadro.
+- Se mantuvo el botón Agregar imagen y sus controles.
+- No se modificó el sistema de sublistas.
+- No se modificó la paginación ni el PDF.

@@ -528,10 +528,14 @@ function groupImageHtml(s,g,i,gi){
   </div>`;
 }
 function stepImageOnlyHtml(s){
-  const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;
+  const hasImg=!!s.stepImage;
+  const w=Number(s.stepImgW||100), h=Number(s.stepImgH||100), x=Number(s.stepImgX??50), y=Number(s.stepImgY??50);
   const i=doc.steps.indexOf(s);
   return `<div class="step-image-only">
-    <div class="step-main-img ${hasImg?'':'empty-print'}" data-img-box="step" data-i="${i}">${hasImg?`<img data-img-el="step" data-i="${i}" src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del paso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="step" data-i="${i}"></div>`:''}</div>
+    <div class="step-main-img ${hasImg?'':'empty-print'}" data-img-box="step" data-i="${i}">
+      ${hasImg?`<img data-img-el="step" data-i="${i}" src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del paso</span>'}
+      ${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="step" data-i="${i}"></div>`:''}
+    </div>
   </div>`;
 }
 function subStepMini(ss,i,j){
@@ -651,13 +655,12 @@ function loadStepImg(e,i){
   if(!f)return;
   const r=new FileReader();
   r.onload=()=>{
-    ensureSubDefaults();
     doc.steps[i].stepImage=String(r.result||'');
-    doc.steps[i].stepImgW=Number(doc.steps[i].stepImgW||100);
-    doc.steps[i].stepImgH=Number(doc.steps[i].stepImgH||100);
-    doc.steps[i].stepImgX=Number(doc.steps[i].stepImgX??50);
-    doc.steps[i].stepImgY=Number(doc.steps[i].stepImgY??50);
-    doc.steps[i].stepImgBoxH=Number(doc.steps[i].stepImgBoxH||245);
+    doc.steps[i].stepImgW=doc.steps[i].stepImgW||100;
+    doc.steps[i].stepImgH=doc.steps[i].stepImgH||100;
+    doc.steps[i].stepImgX=doc.steps[i].stepImgX??50;
+    doc.steps[i].stepImgY=doc.steps[i].stepImgY??50;
+    doc.steps[i].stepImgBoxH=doc.steps[i].stepImgBoxH||245;
     render();
   };
   r.readAsDataURL(f);

@@ -1101,3 +1101,42 @@ body.print-mode .actions{
 
 .step-shared-img.multi{display:none!important}
 .multi-image-panel{display:none!important}
+
+
+/* V23: restaurar visualización estable de imagen general sin subpasos */
+.step-image-only{
+  width:100%!important;
+  padding:5px!important;
+  box-sizing:border-box!important;
+}
+
+.step-main-img{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:var(--step-img-h, 245px)!important;
+  min-height:var(--step-img-h, 245px)!important;
+  border:1px solid #D0D5DD!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+  color:#98A2B3!important;
+  font-size:8pt!important;
+}
+
+.step-main-img img{
+  position:absolute!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:2!important;
+  cursor:move!important;
+  user-select:none!important;
+  touch-action:none!important;
+}

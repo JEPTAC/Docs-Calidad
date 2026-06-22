@@ -1,17 +1,21 @@
-# QA V22
+# QA V23
 
 - node --check source.js ejecutado.
-- Se verificó listener exacto para [data-step-img].
-- Se reforzó loadStepImg.
-- Cambio limitado a imagen general de paso sin subpasos.
+- stepImageOnlyHtml restaurado con render estable.
+- loadStepImg restaurado a comportamiento anterior estable.
+- CSS de .step-main-img corregido:
+  - height;
+  - min-height;
+  - position relative;
+  - overflow hidden;
+  - img visible.
+- Cambio limitado a imagen general sin subpasos.
 
 Resultado node --check: PASS
 {
-  "listener_data_step_img": true,
-  "listener_w": true,
-  "listener_h": true,
-  "listener_x": true,
-  "listener_y": true,
+  "step_main_img_height": true,
+  "stepImageOnlyHtml": true,
   "loadStepImg": true,
+  "listener_data_step_img": true,
   "sublistas_intactas": true
 }
