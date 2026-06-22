@@ -1,35 +1,34 @@
-# Editor EI V21 · Canva Arrows Pro
+# Editor EI V22 · Stable Arrow Core
 
-Esta versión empieza la emulación Canva/Visio donde más estaba fallando: edición completa de flechas.
+Esta versión rehace el motor de flechas desde la base para evitar la distorsión reportada.
 
-## Lo nuevo
+## Cambio de arquitectura
 
-- Arrastrar una flecha seleccionada para mover su ruta.
-- Crear flecha libre desde el lienzo.
-- Crear flecha conectada entre figuras.
-- Seleccionar una flecha y editarla con panel lateral.
-- Mover extremos azules de una flecha.
-- Al mover un extremo de una flecha conectada, se convierte en flecha libre para poder ubicarla como Canva.
-- Los extremos se acercan a puntos de conexión de figuras.
-- Agregar quiebres.
-- Mover quiebres naranjas.
-- Mover segmentos morados.
+Antes las flechas se recalculaban con puntos virtuales y al moverlas podían desacomodarse.  
+Ahora cada flecha tiene un modelo propio:
+
+- `start`: extremo inicial, conectado o libre.
+- `end`: extremo final, conectado o libre.
+- `vertices`: puntos manuales independientes.
+- La flecha seleccionada es la única que se modifica.
+- Mover una flecha completa desconecta sus extremos y traslada solo esa flecha.
+- Mover un vértice modifica solo ese vértice.
+- Mover una figura solo actualiza las flechas realmente conectadas a ella.
+
+## Funcionalidad
+
+- Crear flechas conectadas.
+- Crear flechas libres.
+- Mover flecha completa.
+- Mover extremos.
+- Agregar vértices.
+- Mover vértices.
 - Desconectar flechas.
+- Limpiar vértices.
 - Invertir flechas.
-- Limpiar quiebres.
-- Cambiar modo: ortogonal o recta.
-- Cambiar color, grosor, estilo, etiqueta y punta.
-- Marquee selection: arrastrar sobre el lienzo para seleccionar varias figuras.
-- Figuras, carriles, páginas, exportación PDF/SVG/HTML/JSON.
-
-## Prueba de uso
-
-1. Abre `index.html`.
-2. Clic en Demo.
-3. Selecciona una flecha.
-4. Arrastra la línea completa.
-5. Arrastra los puntos azules.
-6. Agrega quiebres desde el panel o con los cuadritos.
-7. Arrastra puntos naranjas y segmentos morados.
-8. Ejecuta QA.
-9. Exporta PDF.
+- Cambiar modo recto/ortogonal.
+- Cambiar color/grosor/estilo/etiqueta.
+- Eliminar flechas.
+- Selección múltiple de figuras.
+- Figuras oficiales y extras.
+- Carriles, páginas, narrativa, PDF, SVG, HTML y JSON.

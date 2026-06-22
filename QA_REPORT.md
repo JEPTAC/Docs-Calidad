@@ -1,28 +1,23 @@
-# QA V21
+# QA V22
 
-## QA técnico ejecutado
+## QA técnico
 
-- `node --check source/app.js`: debe estar PASS.
-- Archivo `index.html` autocontenido.
-- Sin CDN.
-- Logo embebido.
-- Colores normalizados a `#rrggbb`.
-- Flechas limpian puntos inválidos.
-- Edge endpoints, bends y segments tratados por separado.
+- Motor de flechas reescrito.
+- Sin uso de puntos undefined.
+- Colores normalizados.
+- `node --check source/app.js` debe pasar.
+- `index.html` autocontenido.
 
-## QA funcional recomendado
+## QA funcional sugerido
 
-- Crear figura.
-- Crear flecha conectada.
-- Crear flecha libre.
-- Seleccionar flecha.
-- Mover flecha completa.
-- Mover extremos.
-- Mover quiebres.
-- Mover segmentos.
-- Desconectar flecha.
-- Eliminar flecha.
-- Exportar PDF.
+1. Mover una flecha completa: no debe mover otras.
+2. Mover un vértice: solo cambia esa flecha.
+3. Mover una figura: solo se actualizan flechas conectadas.
+4. Desconectar flecha y moverla libremente.
+5. Crear flecha libre.
+6. Crear flecha conectada.
+7. Cambiar modo recto/ortogonal.
+8. Exportar PDF.
 
 
 Resultado node --check: PASS
