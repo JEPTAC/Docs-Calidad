@@ -1,15 +1,17 @@
-# QA V21
+# QA V22
 
 - node --check source.js ejecutado.
-- renderCardsEditor: bloque "Sin subpasos" vuelve a mostrar imagen general del paso.
-- Verificado atributo data-step-img.
-- Verificadas funciones loadStepImg y removeStepImage.
-- Cambio limitado al caso: paso en modo tarjetas sin subpasos.
+- Se verificó listener exacto para [data-step-img].
+- Se reforzó loadStepImg.
+- Cambio limitado a imagen general de paso sin subpasos.
 
 Resultado node --check: PASS
 {
-  "sin_subpasos_boton_imagen": true,
+  "listener_data_step_img": true,
+  "listener_w": true,
+  "listener_h": true,
+  "listener_x": true,
+  "listener_y": true,
   "loadStepImg": true,
-  "removeStepImage": true,
   "sublistas_intactas": true
 }

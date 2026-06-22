@@ -1532,6 +1532,11 @@ function bindStepEditorControls(box){
   box.querySelectorAll('[data-list-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.listW].listW=Number(e.target.value)||45;renderInstructivoOnly()});
   box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
   box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img]').forEach(inp=>inp.onchange=e=>{loadStepImg(e,Number(e.target.dataset.stepImg))});
+  box.querySelectorAll('[data-step-img-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgW].stepImgW=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgH].stepImgH=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-x]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgX].stepImgX=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-y]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgY].stepImgY=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||245;renderInstructivoOnly()});
 
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
@@ -1841,9 +1846,19 @@ function clearSubsteps(i){
   render();
 }
 function loadStepImg(e,i){
-  const f=e.target.files[0]; if(!f)return;
+  const f=e.target.files && e.target.files[0];
+  if(!f)return;
   const r=new FileReader();
-  r.onload=()=>{doc.steps[i].stepImage=r.result;doc.steps[i].stepImgW=doc.steps[i].stepImgW||100;doc.steps[i].stepImgH=doc.steps[i].stepImgH||100;doc.steps[i].stepImgX=doc.steps[i].stepImgX??50;doc.steps[i].stepImgY=doc.steps[i].stepImgY??50;render()};
+  r.onload=()=>{
+    ensureSubDefaults();
+    doc.steps[i].stepImage=String(r.result||'');
+    doc.steps[i].stepImgW=Number(doc.steps[i].stepImgW||100);
+    doc.steps[i].stepImgH=Number(doc.steps[i].stepImgH||100);
+    doc.steps[i].stepImgX=Number(doc.steps[i].stepImgX??50);
+    doc.steps[i].stepImgY=Number(doc.steps[i].stepImgY??50);
+    doc.steps[i].stepImgBoxH=Number(doc.steps[i].stepImgBoxH||245);
+    render();
+  };
   r.readAsDataURL(f);
 }
 function removeStepImage(i){
