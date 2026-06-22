@@ -1,9 +1,11 @@
-# QA
+# QA V2
 
-- Se conserva el editor de procedimientos existente en /procedimiento.
-- El nuevo inicio permite seleccionar tipo documental.
-- Los módulos Word y Excel visual son autocontenidos.
-- Favicon inline.
+- node --check source.js ejecutado.
+- Módulo instructivo sin tablas ni gráficas.
+- Módulo Word / SGC con tablas y gráficas.
+- Pasos generales y subpasos específicos.
+- Carga de imágenes por paso.
+- Señaladores arrastrables sobre imágenes.
 - Sin dependencias externas.
 
-node --check source.js: PASS
+Resultado node --check: PASS

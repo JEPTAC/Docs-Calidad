@@ -1,11 +1,14 @@
-# Estudio Documental EI
+# Estudio Documental EI V2
 
-Aplicación inicial con centro documental:
-
-- Procedimiento: abre el editor de procedimientos ya construido.
-- Documento Word: oficio, circular y documento SGC visual.
-- Instructivo/Formato: editor visual de pasos con imágenes, tabla y gráfica.
-- Exportación por PDF usando impresión del navegador.
-- Guardado/carga JSON.
-
-La plantilla de oficio/circular usa el membrete aportado como fondo visual embebido.
+Cambios:
+- Instructivo ajustado al formato de Excel cargado:
+  - encabezado con logo, título, código y versión;
+  - objetivo y alcance;
+  - banda "PASO A PASO";
+  - pasos generales;
+  - subpasos 1.1, 1.2;
+  - imagen por paso;
+  - señaladores arrastrables sobre la imagen.
+- Las tablas y gráficas se movieron al módulo Word / SGC.
+- El módulo de instructivo ya no incluye tablas ni gráficas.
+- Se conserva el editor de procedimientos en /procedimiento.
