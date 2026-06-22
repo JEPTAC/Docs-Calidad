@@ -1,16 +1,10 @@
-# Estudio Documental EI V15
+# Estudio Documental EI V16
 
-Ajustes en modo Lista + imagen:
+Corrección crítica:
 
-- En modo lista ahora se puede escoger 1, 2 o 3 imágenes.
-- Las imágenes se muestran al lado derecho en el orden cargado:
-  - Imagen 1 arriba,
-  - Imagen 2 en medio,
-  - Imagen 3 abajo.
-- Cada imagen tiene controles propios:
-  - ancho,
-  - alto,
-  - posición X,
-  - posición Y.
-- Las imágenes también se pueden mover y redimensionar directamente en la plantilla.
-- Si la lista continúa en otra hoja, el bloque de imágenes se repite para conservar congruencia.
+- Se restauró la función exportPdf(), que había quedado referenciada pero no definida.
+- Se restauraron makeBlankStep() y createFirstStep(), que eran necesarias para crear pasos desde hoja limpia.
+- Se corrigió el bloqueo que impedía que los campos renderizaran en la plantilla.
+- El botón Agregar paso vuelve a funcionar correctamente.
+- Los campos de encabezado, objetivo, alcance, pasos, subpasos e imágenes vuelven a actualizar la vista.
+- Se permite eliminar el último paso y regresar a hoja limpia.

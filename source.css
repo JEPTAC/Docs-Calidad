@@ -860,3 +860,12 @@ body.print-mode .actions{
     display:none!important;
   }
 }
+
+
+/* V16: corrección de renderizado y estado de hoja limpia */
+.blank-hint{
+  min-height:.45in;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}

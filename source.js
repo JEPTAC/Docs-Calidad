@@ -51,7 +51,7 @@ function bind(){
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>setMode(b.dataset.open));
   $('goHome').onclick=()=>setMode('home'); $('openProcedure').onclick=openProcedure;
   $('zoomIn').onclick=()=>setZoom(zoom+.05); $('zoomOut').onclick=()=>setZoom(zoom-.05); $('zoomFit').onclick=()=>setZoom(.72);
-  const printBtn=$('printPdf'); if(printBtn) printBtn.onclick=exportPdf;
+  const printBtn=$('printPdf'); if(printBtn) printBtn.onclick=()=>exportPdf();
   const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
   const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
@@ -492,10 +492,9 @@ function removeNote(i,j){
   render();
 }
 function removeStep(i){
-  if(doc.steps.length<=1)return alert('Debe existir al menos un paso.');
   doc.steps.splice(i,1);
   doc.steps.forEach((s,idx)=>{s.n=String(idx+1);(s.sub||[]).forEach((ss,j)=>ss.code=s.n+'.'+(j+1))});
-  doc.activeStep=Math.max(0,Math.min(doc.activeStep,doc.steps.length-1));
+  doc.activeStep=Math.max(0,Math.min(Number(doc.activeStep||0),Math.max(0,doc.steps.length-1)));
   render();
 }
 function removeSubImage(i,j){
@@ -627,6 +626,56 @@ function loadListImg(e,i,k){
 }
 function removeListImage(i,k){
   doc.steps[i].stepImages[k].src='';
+  render();
+}
+
+function exportPdf(){
+  const prevZoom = zoom;
+  document.body.classList.add('print-mode');
+  const stage=$('stage');
+  if(stage) stage.style.transform='none';
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      document.body.classList.remove('print-mode');
+      setZoom(prevZoom);
+      render();
+    },350);
+  },120);
+}
+
+function makeBlankStep(){
+  const n=String(doc.steps.length+1);
+  return {
+    n:n,
+    title:'',
+    titleAlign:'left',
+    notePosition:'after',
+    notes:[],
+    viewMode:'cards',
+    cols:2,
+    cardH:150,
+    imgH:102,
+    listW:45,
+    listImageCount:1,
+    stepImage:'',
+    stepImages:[
+      {src:'',w:100,h:100,x:50,y:50},
+      {src:'',w:100,h:100,x:50,y:50},
+      {src:'',w:100,h:100,x:50,y:50}
+    ],
+    stepImgW:100,
+    stepImgH:100,
+    stepImgX:50,
+    stepImgY:50,
+    stepImgBoxH:315,
+    sub:[]
+  };
+}
+
+function createFirstStep(){
+  doc.steps.push(makeBlankStep());
+  doc.activeStep=doc.steps.length-1;
   render();
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
