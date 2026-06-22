@@ -74,7 +74,7 @@ function syncInputs(){
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??''});
   renderStepEditor();
 }
-function render(){setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
+function render(){ensureSubDefaults();setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
 function letterPage(){
   const isCircular=doc.wordType==='circular';
   return `<div class="page"><div class="word-letter-bg" style="background-image:url('${LETTERHEAD}')"></div><div class="text-layer" contenteditable="true" id="letterEdit"><p>${esc(doc.cityDate)}</p>${isCircular?`<p class="center"><b>CIRCULAR No. ${esc(doc.circularNo)}</b></p><p><b>PARA:</b> ${esc(doc.para)}</p><p><b>DE:</b> ${esc(doc.de)}</p><p><b>ASUNTO:</b> ${esc(doc.asunto)}</p><div class="line"></div>`:''}<p>${esc(doc.body).replace(/\n/g,'<br>')}</p><div class="sign"><div class="line" style="width:240px"></div><b>${esc(doc.remitente)}</b><span>${esc(doc.cargo)}</span></div></div></div>`;
@@ -101,6 +101,22 @@ function instrHeader(){
 function instrFooter(i,total){
   return `<div class="instr-page-line"></div><div class="instr-footer"><div>${today()}</div><div>Pág. ${i} de ${total}</div></div>`;
 }
+
+function ensureSubDefaults(){
+  doc.steps.forEach((s,si)=>{
+    s.notes=s.notes||[];
+    s.sub=(s.sub||[]).map((ss,ji)=>({
+      code:ss.code||((si+1)+'.'+(ji+1)),
+      text:ss.text||'',
+      image:ss.image||'',
+      imgW:ss.imgW||100,
+      imgH:ss.imgH||100,
+      imgX:ss.imgX??50,
+      imgY:ss.imgY??50
+    }));
+  });
+}
+
 function renderStepEditor(){
   const sel=$('activeStep'), box=$('stepEditor');
   if(!sel||!box||mode!=='excel')return;
@@ -117,12 +133,22 @@ function renderStepEditor(){
       <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
       <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
       ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
+      <div class="mini-grid">
+        <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
+        <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
+        <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
+        <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
+      </div>
     </div>`).join('')}
     ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n)}</textarea></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
   </div>`;
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b]=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-img-w]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgW.split('-').map(Number);doc.steps[a].sub[b].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-img-h]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgH.split('-').map(Number);doc.steps[a].sub[b].imgH=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-img-x]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgX.split('-').map(Number);doc.steps[a].sub[b].imgX=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-img-y]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgY.split('-').map(Number);doc.steps[a].sub[b].imgY=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
 }
 function renderInstructivoOnly(){
@@ -134,15 +160,13 @@ function renderInstructivo(){
   renderStepEditor();
 }
 function instructivoHtml(){
-  const total = doc.steps.length + 1;
-  const cover = `<div class="instr-page">${instrHeader()}<div class="instr-content">
+  const total = 1;
+  return `<div class="instr-page">${instrHeader()}<div class="instr-content">
     <div class="info-row"><div class="info-label">OBJETIVO:</div><div class="info-value">${esc(doc.objective)}</div></div>
     <div class="info-row"><div class="info-label">ALCANCE:</div><div class="info-value">${esc(doc.scope)}</div></div>
     <div class="band">PASO A PASO</div>
-    ${stepsPreviewHtml(0, true)}
+    ${doc.steps.map((s,i)=>stepsPreviewHtml(i, true)).join('')}
   </div>${instrFooter(1,total)}</div>`;
-  const rest = doc.steps.slice(1).map((s,idx)=>stepPageHtml(s,idx+1,total)).join('<div class="instr-page-separator no-print">Separador de página</div>');
-  return cover + (rest?'<div class="instr-page-separator no-print">Separador de página</div>'+rest:'');
 }
 function stepsPreviewHtml(i, compactFirst){
   const s=doc.steps[i];
@@ -158,11 +182,11 @@ function stepPageHtml(s,i,total){
 }
 function subStepMini(ss,i,j){
   const hasImg=!!ss.image;
+  const w=ss.imgW||100,h=ss.imgH||100,x=ss.imgX??50,y=ss.imgY??50;
   return `<div class="substep-mini">
     <div class="substep-mini-head"><div class="substep-mini-code">${esc(ss.code)}</div><div class="substep-mini-text">${esc(ss.text)}</div></div>
     <div class="substep-mini-body">
-      <div style="font-size:8.5pt;color:#111;line-height:1.25">Detalle del subpaso ${esc(ss.code)}</div>
-      <div class="substep-mini-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${ss.image}">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}</div>
+      <div class="substep-mini-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${ss.image}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}</div>
     </div>
   </div>`;
 }
@@ -175,7 +199,7 @@ function noteHtml(text,i,j){
 }
 function addSub(i){
   doc.steps[i].sub=doc.steps[i].sub||[];
-  doc.steps[i].sub.push({code:doc.steps[i].n+'.'+(doc.steps[i].sub.length+1),text:'Describa el paso específico.',image:''});
+  doc.steps[i].sub.push({code:doc.steps[i].n+'.'+(doc.steps[i].sub.length+1),text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50});
   render();
 }
 function addNoteToStep(i){
@@ -201,7 +225,7 @@ function removeSubImage(i,j){
 function loadSubImg(e,i,j){
   const f=e.target.files[0]; if(!f)return;
   const r=new FileReader();
-  r.onload=()=>{doc.steps[i].sub[j].image=r.result;render()};
+  r.onload=()=>{doc.steps[i].sub[j].image=r.result;doc.steps[i].sub[j].imgW=doc.steps[i].sub[j].imgW||100;doc.steps[i].sub[j].imgH=doc.steps[i].sub[j].imgH||100;doc.steps[i].sub[j].imgX=doc.steps[i].sub[j].imgX??50;doc.steps[i].sub[j].imgY=doc.steps[i].sub[j].imgY??50;render()};
   r.readAsDataURL(f);
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}

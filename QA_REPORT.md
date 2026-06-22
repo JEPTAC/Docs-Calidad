@@ -1,11 +1,10 @@
-# QA V4
+# QA V5
 
 - node --check source.js ejecutado.
-- Instructivo compacto.
-- Objetivo/alcance en filas tipo Excel.
-- Subpasos en dos columnas.
-- Edición por panel lateral.
+- Pasos continuos en la misma página.
+- Sin texto redundante en subpasos.
+- Imagen ocupa todo el recuadro.
+- Ajustes de tamaño/posición desde panel lateral.
 - Sin botones dentro de la plantilla.
-- Placeholders ocultos en impresión.
 
 Resultado node --check: PASS

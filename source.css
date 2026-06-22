@@ -135,3 +135,29 @@ button:hover,.file-btn:hover{filter:brightness(1.08)}button.primary{background:l
   .substep-mini-img.empty-print{display:none!important}
   .note-row.empty-note{display:none!important}
 }
+
+
+/* V5 instructivo: pasos continuos, sin texto redundante, imagen ajustable */
+.instr-content{position:absolute;left:.35in;right:.35in;top:1.12in;bottom:.60in;font-size:9.1pt;color:#111;overflow:hidden}
+.band{margin-top:6px;margin-bottom:4px;background:#001F73;color:#EAC800;text-align:center;font-weight:900;padding:5px;border-radius:2px;letter-spacing:.03em}
+.step-compact{margin-top:6px;border:1px solid #98A2B3;border-radius:7px;overflow:hidden;background:#fff}
+.step-compact-head{display:grid;grid-template-columns:.45in 1fr;border-bottom:1px solid #98A2B3}
+.step-compact-num{background:#001F73;color:#EAC800;font-weight:900;font-size:12pt;display:flex;align-items:center;justify-content:center}
+.step-compact-title{background:#F2F4F7;color:#001F73;font-weight:900;font-size:10pt;display:flex;align-items:center;padding:5px 7px}
+.substep-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+.substep-mini{border:1px solid #D0D5DD;border-radius:7px;overflow:hidden;background:#fff;min-height:1.50in;display:grid;grid-template-rows:auto 1fr}
+.substep-mini-head{display:grid;grid-template-columns:.45in 1fr;background:#F8FAFC;border-bottom:1px solid #D0D5DD}
+.substep-mini-code{background:#001F73;color:#EAC800;font-weight:900;text-align:center;padding:5px;font-size:9pt}
+.substep-mini-text{padding:5px;color:#111;line-height:1.20;font-size:8.4pt}
+.substep-mini-body{padding:0;min-height:1.02in}
+.substep-mini-img{position:relative;width:100%;height:100%;min-height:1.02in;border:0;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#98A2B3;font-size:9px;text-align:center}
+.substep-mini-img img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);object-fit:contain;background:#fff;max-width:none;max-height:none}
+.substep-mini-img.empty-print{border-top:1px solid #E4E7EC;background:repeating-linear-gradient(45deg,#F8FAFC,#F8FAFC 8px,#EEF2F7 8px,#EEF2F7 16px)}
+.note-row{display:grid;grid-template-columns:.32in 1fr;gap:6px;align-items:start;background:#FFF8D7;border:1px solid #EAC800;border-radius:7px;padding:6px;margin:5px 6px;color:#111}
+.note-icon{width:.27in;height:.27in;border-radius:6px;background:#001F73;display:flex;align-items:center;justify-content:center}
+.note-text{color:#111;line-height:1.24;font-size:8.5pt}
+.sub-editor .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sub-editor input[type="range"]{padding:0;background:#fff!important}
+@media print{
+  .substep-mini-img.empty-print{display:none!important}
+}
