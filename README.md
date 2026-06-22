@@ -1,14 +1,12 @@
-# Estudio Documental EI V2
+# Estudio Documental EI V3
 
-Cambios:
-- Instructivo ajustado al formato de Excel cargado:
-  - encabezado con logo, título, código y versión;
-  - objetivo y alcance;
-  - banda "PASO A PASO";
-  - pasos generales;
-  - subpasos 1.1, 1.2;
-  - imagen por paso;
-  - señaladores arrastrables sobre la imagen.
-- Las tablas y gráficas se movieron al módulo Word / SGC.
-- El módulo de instructivo ya no incluye tablas ni gráficas.
-- Se conserva el editor de procedimientos en /procedimiento.
+Cambios solicitados en instructivos:
+
+- Cada subpaso tiene su propia imagen.
+- Se eliminaron los señaladores sobre imagen.
+- Las notas se agregan como bloque independiente.
+- Las notas llevan ícono pequeño al lado izquierdo.
+- Los mensajes tipo "Anotación del paso si aplica" no aparecen en PDF.
+- Se agregó separador visual de página.
+- Cada página muestra fecha y paginación.
+- Tablas y gráficas permanecen únicamente en Word / SGC.

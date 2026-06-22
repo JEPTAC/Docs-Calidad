@@ -1,11 +1,12 @@
-# QA V2
+# QA V3
 
 - node --check source.js ejecutado.
-- Módulo instructivo sin tablas ni gráficas.
-- Módulo Word / SGC con tablas y gráficas.
-- Pasos generales y subpasos específicos.
-- Carga de imágenes por paso.
-- Señaladores arrastrables sobre imágenes.
-- Sin dependencias externas.
+- Instructivos:
+  - imagen por subpaso;
+  - sin señaladores;
+  - notas con ícono;
+  - sin placeholders en impresión/PDF;
+  - fecha y página en cada hoja;
+  - separador visual de página en edición.
 
 Resultado node --check: PASS
