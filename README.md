@@ -1,27 +1,28 @@
-# Editor EI V25 · Canva Connect Stable
+# Editor EI V26 · Páginas + Final Automática
 
-Objetivo de esta versión: conectar fácil y evitar dobleces accidentales.
+## Cambios solicitados
 
-## Cambios principales
+1. Fecha automática:
+   - La fecha se actualiza sola con la fecha actual.
+   - El campo aparece como solo lectura.
 
-- La línea de la flecha ya no se arrastra para modificarla. Solo selecciona.
-- Para mover una flecha, se mueven sus puntos azules/naranjas.
-- Esto evita que al intentar mover se generen dobleces o estiramientos no deseados.
-- Conectar funciona por clic:
-  1. Clic en Conectar.
-  2. Clic en figura origen.
-  3. Clic en figura destino.
-- La flecha queda conectada a los puntos más lógicos.
-- Si mueves una figura conectada, la flecha la sigue.
-- Puedes desconectar la flecha desde el panel lateral.
-- Puedes ortogonalizar, enderezar, agregar punto y eliminar punto.
+2. Paginación automática:
+   - Cada página muestra Pág. X de Y.
+   - El total incluye la página final obligatoria.
 
-## Funciones retiradas / simplificadas
+3. Más páginas:
+   - Botón + Flujograma.
+   - Duplicar página.
+   - Eliminar página.
+   - La página final no se elimina.
 
-Se retiraron funciones secundarias que no aportaban estabilidad inmediata:
-- Copiar/pegar complejo de flechas.
-- Export HTML/PNG secundario.
-- Arrastre de línea completa.
-- Páginas múltiples experimentales.
+4. Página final obligatoria:
+   - Sin responsables.
+   - Título: Normas y Políticas de la Identificación del Procedimiento.
+   - Cuerpo en dos columnas.
+   - Texto base obligatorio incluido.
 
-La prioridad es que conectar y editar flechas funcione bien.
+5. Conexión:
+   - Se mantiene modo conectar por clic origen/destino.
+   - La línea no se arrastra para evitar dobleces accidentales.
+   - Los puntos son el control de edición.
