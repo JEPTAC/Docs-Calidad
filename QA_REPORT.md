@@ -1,23 +1,15 @@
-# QA V20
+# QA V21
 
 - node --check source.js ejecutado.
-- Modo lista reemplazado por sublistas.
-- listGroups normalizado en ensureSubDefaults.
-- renderStepEditor incluye:
-  - agregar sublista,
-  - título sublista,
-  - imagen por sublista,
-  - subpasos por sublista,
-  - controles de imagen por sublista.
-- Paginación estima notas más compactas.
-- Paginación trabaja por grupo/sublista.
-- Multi-imagen anterior oculto por compatibilidad.
+- renderCardsEditor: bloque "Sin subpasos" vuelve a mostrar imagen general del paso.
+- Verificado atributo data-step-img.
+- Verificadas funciones loadStepImg y removeStepImage.
+- Cambio limitado al caso: paso en modo tarjetas sin subpasos.
 
 Resultado node --check: PASS
 {
-  "listGroups": true,
-  "addListGroup": true,
-  "loadGroupImg": true,
-  "groupImageHtml": true,
-  "multi hidden": true
+  "sin_subpasos_boton_imagen": true,
+  "loadStepImg": true,
+  "removeStepImage": true,
+  "sublistas_intactas": true
 }

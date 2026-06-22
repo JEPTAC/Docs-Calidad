@@ -287,6 +287,18 @@ function renderCardsEditor(i,s){
   </div>`).join('') : `<div class="sub-editor">
     <b>Sin subpasos</b>
     <div class="actions"><button onclick="addSub(${i})">+ Crear subpaso</button></div>
+  </div>
+  <div class="sub-editor">
+    <b>Imagen general del paso</b>
+    <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
+    ${s.stepImage?`<button class="danger" onclick="removeStepImage(${i})">Quitar imagen</button>`:''}
+    <div class="mini-grid">
+      <label>Alto recuadro px<input type="number" min="120" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||245}"></label>
+      <label>Ancho imagen %<input type="number" min="40" max="260" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
+      <label>Alto imagen %<input type="number" min="40" max="260" data-step-img-h="${i}" value="${s.stepImgH||100}"></label>
+      <label>Posición X<input type="range" min="0" max="100" data-step-img-x="${i}" value="${s.stepImgX??50}"></label>
+      <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
+    </div>
   </div>`}`;
 }
 function renderListGroupsEditor(i,s){
