@@ -1,8 +1,11 @@
-# QA V17
+# QA V18
 
 - node --check source.js ejecutado.
-- Encabezado de paso sin tercera celda vacía.
-- Clase has-cont aplicada únicamente cuando continued=true.
-- CSS ajusta grid de 2 columnas normal y 3 columnas solo para continuación.
+- stepListHtml reescrito.
+- listImageSlotHtml reescrito.
+- renderStepEditor reescrito para el panel de imágenes múltiples.
+- bindCanvasImages reescrito con soporte robusto para kind="list".
+- loadListImg y removeListImage reescritos.
+- ensureSubDefaults normaliza stepImages y listImageCount.
 
 Resultado node --check: PASS

@@ -109,41 +109,46 @@ function ensureDocDefaults(){
 }
 
 function ensureSubDefaults(){
+  doc.steps = doc.steps || [];
   doc.steps.forEach((s,si)=>{
-    s.notes=(s.notes||[]).map(n=>typeof n==='string'?{text:n,align:'left'}:{text:n.text||'',align:n.align||'left'});
-    s.titleAlign=s.titleAlign||'left';
-    s.notePosition=s.notePosition||'after';
-    s.viewMode=s.viewMode||'cards';
-    s.cols=s.cols||2;
-    s.cardH=s.cardH||150;
-    s.imgH=s.imgH||102;
-    s.listW=s.listW||45;
-    s.listImageCount=s.listImageCount||1;
-    s.stepImage=s.stepImage||'';
-    s.stepImages=s.stepImages||[];
-    if(s.stepImage && !s.stepImages[0]) s.stepImages[0]={src:s.stepImage,w:s.stepImgW||100,h:s.stepImgH||100,x:s.stepImgX??50,y:s.stepImgY??50};
-    for(let k=0;k<3;k++){
-      s.stepImages[k]=s.stepImages[k]||{src:'',w:100,h:100,x:50,y:50};
-      s.stepImages[k].w=s.stepImages[k].w||100;
-      s.stepImages[k].h=s.stepImages[k].h||100;
-      s.stepImages[k].x=s.stepImages[k].x??50;
-      s.stepImages[k].y=s.stepImages[k].y??50;
-      s.stepImages[k].src=s.stepImages[k].src||'';
+    s.notes = (s.notes||[]).map(n=>typeof n==='string' ? {text:n,align:'left'} : {text:n?.text||'', align:n?.align||'left'});
+    s.titleAlign = s.titleAlign || 'left';
+    s.notePosition = s.notePosition || 'after';
+    s.viewMode = s.viewMode || 'cards';
+    s.cols = Number(s.cols||2);
+    s.cardH = Number(s.cardH||150);
+    s.imgH = Number(s.imgH||102);
+    s.listW = Number(s.listW||45);
+    s.listImageCount = Math.max(1, Math.min(3, Number(s.listImageCount||1)));
+    s.stepImage = s.stepImage || '';
+    s.stepImages = Array.isArray(s.stepImages) ? s.stepImages : [];
+    if(s.stepImage && !s.stepImages[0]){
+      s.stepImages[0] = {src:s.stepImage,w:Number(s.stepImgW||100),h:Number(s.stepImgH||100),x:Number(s.stepImgX??50),y:Number(s.stepImgY??50)};
     }
-    s.stepImgW=s.stepImgW||100;
-    s.stepImgH=s.stepImgH||100;
-    s.stepImgX=s.stepImgX??50;
-    s.stepImgY=s.stepImgY??50;
-    s.stepImgBoxH=s.stepImgBoxH||315;
-    s.sub=(s.sub||[]).map((ss,ji)=>({
-      code:ss.code||((si+1)+'.'+(ji+1)),
-      text:ss.text||'',
-      align:ss.align||'left',
-      image:ss.image||'',
-      imgW:ss.imgW||100,
-      imgH:ss.imgH||100,
-      imgX:ss.imgX??50,
-      imgY:ss.imgY??50
+    for(let k=0;k<3;k++){
+      const img = s.stepImages[k] || {};
+      s.stepImages[k] = {
+        src: img.src || '',
+        w: Number(img.w||100),
+        h: Number(img.h||100),
+        x: Number(img.x??50),
+        y: Number(img.y??50)
+      };
+    }
+    s.stepImgW = Number(s.stepImgW||100);
+    s.stepImgH = Number(s.stepImgH||100);
+    s.stepImgX = Number(s.stepImgX??50);
+    s.stepImgY = Number(s.stepImgY??50);
+    s.stepImgBoxH = Number(s.stepImgBoxH||315);
+    s.sub = (s.sub||[]).map((ss,ji)=>({
+      code:ss.code || ((si+1)+'.'+(ji+1)),
+      text:ss.text || '',
+      align:ss.align || 'left',
+      image:ss.image || '',
+      imgW:Number(ss.imgW||100),
+      imgH:Number(ss.imgH||100),
+      imgX:Number(ss.imgX??50),
+      imgY:Number(ss.imgY??50)
     }));
   });
 }
@@ -177,9 +182,11 @@ function renderStepEditor(){
   const previewCount=Math.max((s.sub||[]).length,1);
   const isList = s.viewMode === 'list';
   const isCards = s.viewMode !== 'list';
+
   box.innerHTML=`<div class="instr-side-step active">
     <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
     <span class="step-mode-pill">${isList?'Lista + imagen':'Tarjetas por subpaso'}</span>
+
     <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
     <div class="text-control-row">
       <label>Alineación título<select data-step-title-align="${i}">${alignOptions(s.titleAlign||'left')}</select></label>
@@ -188,115 +195,138 @@ function renderStepEditor(){
         <option value="after" ${s.notePosition!=='before'?'selected':''}>Después de imagen/lista</option>
       </select></label>
     </div>
+
     <div class="step-layout-panel">
       <b>Distribución visual</b>
       <div class="mini-grid">
         <label>Modo del paso
           <select data-step-view="${i}">
             <option value="cards" ${s.viewMode==='cards'?'selected':''}>Tarjetas por subpaso</option>
-            <option value="list" ${s.viewMode==='list'?'selected':''}>Lista + imagen única</option>
+            <option value="list" ${s.viewMode==='list'?'selected':''}>Lista + imagen</option>
           </select>
         </label>
-        ${isCards?`<label>Columnas
-          <select data-step-cols="${i}">
-            <option value="1" ${s.cols==1?'selected':''}>1 columna</option>
-            <option value="2" ${s.cols==2?'selected':''}>2 columnas</option>
-            <option value="3" ${s.cols==3?'selected':''}>3 columnas</option>
-          </select>
-        </label>
-        <label>Alto tarjeta px<input type="number" min="110" max="260" data-card-h="${i}" value="${s.cardH||150}"></label>
-        <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>`:
-        `<label>Ancho lista %<input type="number" min="30" max="70" data-list-w="${i}" value="${s.listW||45}"></label>
-        <label>Alto zona imágenes px<input type="number" min="160" max="520" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
-        <label>Cantidad imágenes
-          <select data-list-img-count="${i}">
-            <option value="1" ${s.listImageCount==1?'selected':''}>1 imagen</option>
-            <option value="2" ${s.listImageCount==2?'selected':''}>2 imágenes</option>
-            <option value="3" ${s.listImageCount==3?'selected':''}>3 imágenes</option>
-          </select>
-        </label>`}
+        ${isCards ? `
+          <label>Columnas
+            <select data-step-cols="${i}">
+              <option value="1" ${s.cols==1?'selected':''}>1 columna</option>
+              <option value="2" ${s.cols==2?'selected':''}>2 columnas</option>
+              <option value="3" ${s.cols==3?'selected':''}>3 columnas</option>
+            </select>
+          </label>
+          <label>Alto tarjeta px<input type="number" min="110" max="260" data-card-h="${i}" value="${s.cardH||150}"></label>
+          <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>
+        ` : `
+          <label>Ancho lista %<input type="number" min="30" max="70" data-list-w="${i}" value="${s.listW||45}"></label>
+          <label>Alto zona imágenes px<input type="number" min="160" max="520" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
+          <label>Cantidad imágenes
+            <select data-list-img-count="${i}">
+              <option value="1" ${Number(s.listImageCount||1)===1?'selected':''}>1 imagen</option>
+              <option value="2" ${Number(s.listImageCount||1)===2?'selected':''}>2 imágenes</option>
+              <option value="3" ${Number(s.listImageCount||1)===3?'selected':''}>3 imágenes</option>
+            </select>
+          </label>
+        `}
       </div>
-      ${isCards?`<div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>`:
-      `<div class="list-preview" style="--list-preview-w:${s.listW||45}%"><div>Lista</div><div>Imagen única</div></div>`}
+      ${isCards
+        ? `<div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>`
+        : `<div class="list-preview" style="--list-preview-w:${s.listW||45}%"><div>Lista</div><div>Imágenes</div></div>`
+      }
     </div>
-    <div class="actions"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="clearSubsteps(${i})">Sin subpasos</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
-    ${(s.sub||[]).length? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
+
+    <div class="actions">
+      <button onclick="addSub(${i})">+ Subpaso</button>
+      <button onclick="clearSubsteps(${i})">Sin subpasos</button>
+      <button onclick="addNoteToStep(${i})">+ Nota</button>
+    </div>
+
+    ${(s.sub||[]).length ? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
       <b>${esc(ss.code)}</b>
       <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
       <label>Alineación subpaso<select data-sub-align="${i}-${j}">${alignOptions(ss.align||'left')}</select></label>
-      ${isCards?`<label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
-      ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
-      <div class="mini-grid">
-        <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
-        <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
-        <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
-        <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
-      </div>`:''}
+      ${isCards ? `
+        <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
+        ${ss.image ? `<button class="danger" onclick="removeSubImage(${i},${j})">Quitar imagen</button>` : ``}
+        <div class="mini-grid">
+          <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
+          <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
+          <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
+          <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
+        </div>
+      ` : ``}
       <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
     </div>`).join('') : ''}
-    ${isList ? `<div class="multi-image-panel">
-      <h4>Imágenes del modo lista</h4>
-      <label>Cantidad de imágenes
-        <select data-list-img-count="${i}">
-          <option value="1" ${s.listImageCount==1?'selected':''}>1 imagen</option>
-          <option value="2" ${s.listImageCount==2?'selected':''}>2 imágenes</option>
-          <option value="3" ${s.listImageCount==3?'selected':''}>3 imágenes</option>
-        </select>
-      </label>
-      ${Array.from({length:Number(s.listImageCount||1)}).map((_,k)=>`<div class="sub-editor">
-        <b>Imagen ${k+1}</b>
-        <label class="file-btn">Agregar imagen ${k+1}<input type="file" accept="image/*" data-list-img="${i}-${k}" hidden></label>
-        ${s.stepImages&&s.stepImages[k]&&s.stepImages[k].src?'<button class="danger" onclick="removeListImage('+i+','+k+')">Quitar imagen '+(k+1)+'</button>':''}
-        <div class="mini-grid">
-          <label>Ancho %<input type="number" min="40" max="260" data-list-img-w="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].w)||100}"></label>
-          <label>Alto %<input type="number" min="40" max="260" data-list-img-h="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].h)||100}"></label>
-          <label>Posición X<input type="range" min="0" max="100" data-list-img-x="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].x)??50}"></label>
-          <label>Posición Y<input type="range" min="0" max="100" data-list-img-y="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].y)??50}"></label>
-        </div>
-      </div>`).join('')}
-    </div>` : (!(s.sub||[]).length ? `<div class="sub-editor">
-      <b>Imagen general del paso</b>
-      <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
-      ${s.stepImage?'<button class="danger" onclick="removeStepImage('+i+')">Quitar imagen</button>':''}
-      <div class="mini-grid">
-        <label>Ancho %<input type="number" min="40" max="240" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
-        <label>Alto %<input type="number" min="40" max="240" data-step-img-h="${i}" value="${s.stepImgH||100}"></label>
-        <label>Posición X<input type="range" min="0" max="100" data-step-img-x="${i}" value="${s.stepImgX??50}"></label>
-        <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
-        <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
+
+    ${isList ? `
+      <div class="multi-image-panel">
+        <h4>Imágenes del modo lista</h4>
+        ${Array.from({length:Number(s.listImageCount||1)}).map((_,k)=>`<div class="sub-editor">
+          <b>Imagen ${k+1}</b>
+          <label class="file-btn">Agregar imagen ${k+1}<input type="file" accept="image/*" data-list-img="${i}-${k}" hidden></label>
+          ${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].src) ? `<button class="danger" onclick="removeListImage(${i},${k})">Quitar imagen ${k+1}</button>` : ``}
+          <div class="mini-grid">
+            <label>Ancho %<input type="number" min="40" max="260" data-list-img-w="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].w)||100}"></label>
+            <label>Alto %<input type="number" min="40" max="260" data-list-img-h="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].h)||100}"></label>
+            <label>Posición X<input type="range" min="0" max="100" data-list-img-x="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].x)??50}"></label>
+            <label>Posición Y<input type="range" min="0" max="100" data-list-img-y="${i}-${k}" value="${(s.stepImages&&s.stepImages[k]&&s.stepImages[k].y)??50}"></label>
+          </div>
+        </div>`).join('')}
       </div>
-    </div>` : '')}
-    ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n.text||'')}</textarea></label><label>Alineación nota<select data-note-align="${i}-${j}">${alignOptions(n.align||'left')}</select></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
+    ` : (!(s.sub||[]).length ? `
+      <div class="sub-editor">
+        <b>Imagen general del paso</b>
+        <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
+        ${s.stepImage?`<button class="danger" onclick="removeStepImage(${i})">Quitar imagen</button>`:''}
+        <div class="mini-grid">
+          <label>Ancho %<input type="number" min="40" max="240" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
+          <label>Alto %<input type="number" min="40" max="240" data-step-img-h="${i}" value="${s.stepImgH||100}"></label>
+          <label>Posición X<input type="range" min="0" max="100" data-step-img-x="${i}" value="${s.stepImgX??50}"></label>
+          <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
+          <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
+        </div>
+      </div>
+    ` : '')}
+
+    ${(s.notes||[]).map((n,j)=>`<div class="sub-editor">
+      <b>Nota ${j+1}</b>
+      <label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n.text||'')}</textarea></label>
+      <label>Alineación nota<select data-note-align="${i}-${j}">${alignOptions(n.align||'left')}</select></label>
+      <button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button>
+    </div>`).join('')}
   </div>`;
+
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-title-align]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepTitleAlign].titleAlign=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-position]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.notePosition].notePosition=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-view]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepView].viewMode=e.target.value;render()});
   box.querySelectorAll('[data-step-cols]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepCols].cols=Number(e.target.value)||2;render()});
   box.querySelectorAll('[data-list-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.listW].listW=Number(e.target.value)||45;renderInstructivoOnly()});
-  box.querySelectorAll('[data-list-img-count]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.listImgCount].listImageCount=Number(e.target.value)||1;render()});
   box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
   box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
+  box.querySelectorAll('[data-list-img-count]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.listImgCount].listImageCount=Number(e.target.value)||1;render()});
+  box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||315;renderInstructivoOnly()});
+
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.subAlign.split('-').map(Number);doc.steps[a].sub[b].align=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b].text=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.noteAlign.split('-').map(Number);doc.steps[a].notes[b].align=e.target.value;renderInstructivoOnly()});
+
   box.querySelectorAll('[data-img-w]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgW.split('-').map(Number);doc.steps[a].sub[b].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-h]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgH.split('-').map(Number);doc.steps[a].sub[b].imgH=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-x]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgX.split('-').map(Number);doc.steps[a].sub[b].imgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-img-y]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgY.split('-').map(Number);doc.steps[a].sub[b].imgY=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
+
   box.querySelectorAll('[data-list-img]').forEach(inp=>inp.onchange=e=>{const [a,k]=e.target.dataset.listImg.split('-').map(Number);loadListImg(e,a,k)});
   box.querySelectorAll('[data-list-img-w]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgW.split('-').map(Number);doc.steps[a].stepImages[k].w=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-list-img-h]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgH.split('-').map(Number);doc.steps[a].stepImages[k].h=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-list-img-x]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgX.split('-').map(Number);doc.steps[a].stepImages[k].x=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-list-img-y]').forEach(el=>el.oninput=e=>{const [a,k]=e.target.dataset.listImgY.split('-').map(Number);doc.steps[a].stepImages[k].y=Number(e.target.value);renderInstructivoOnly()});
+
   box.querySelectorAll('[data-step-img]').forEach(inp=>inp.onchange=e=>{loadStepImg(e,Number(e.target.dataset.stepImg))});
   box.querySelectorAll('[data-step-img-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgW].stepImgW=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgH].stepImgH=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-img-x]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgX].stepImgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-step-img-y]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgY].stepImgY=Number(e.target.value);renderInstructivoOnly()});
-  box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||315;renderInstructivoOnly()});
 }
 function renderInstructivoOnly(){
   const st=$('stage');
@@ -431,9 +461,9 @@ function stepBlockHtml(s, idx, subSlice, continued){
   </div>`;
 }
 function stepListHtml(s,items){
-  const i=doc.steps.indexOf(s);
-  const arr=items||s.sub||[];
-  const count=Math.max(1,Math.min(3,Number(s.listImageCount||1)));
+  const i = doc.steps.indexOf(s);
+  const arr = items || s.sub || [];
+  const count = Math.max(1, Math.min(3, Number(s.listImageCount||1)));
   return `<div class="step-list-layout continued-list">
     <div class="step-list-left">
       ${arr.map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join('')}
@@ -444,11 +474,11 @@ function stepListHtml(s,items){
   </div>`;
 }
 function listImageSlotHtml(s,i,k){
-  const img=(s.stepImages&&s.stepImages[k])||{src:'',w:100,h:100,x:50,y:50};
-  const hasImg=!!img.src;
+  const img = (s.stepImages && s.stepImages[k]) ? s.stepImages[k] : {src:'',w:100,h:100,x:50,y:50};
+  const hasImg = !!img.src;
   return `<div class="shared-img-slot ${hasImg?'':'empty-print'}" data-img-box="list" data-i="${i}" data-k="${k}">
-    ${hasImg?`<img data-img-el="list" data-i="${i}" data-k="${k}" src="${img.src}" style="width:${img.w||100}%;height:${img.h||100}%;left:${img.x??50}%;top:${img.y??50}%">`:`<span class="empty-img no-print">Imagen ${k+1}</span>`}
-    ${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen ${k+1}</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="list" data-i="${i}" data-k="${k}"></div>`:''}
+    ${hasImg ? `<img data-img-el="list" data-i="${i}" data-k="${k}" src="${img.src}" style="width:${img.w||100}%;height:${img.h||100}%;left:${img.x??50}%;top:${img.y??50}%">` : `<span class="empty-img no-print">Imagen ${k+1}</span>`}
+    ${hasImg ? `<div class="img-direct-tools no-print"><span>Mover imagen ${k+1}</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="list" data-i="${i}" data-k="${k}"></div>` : ``}
   </div>`;
 }
 function stepImageOnlyHtml(s){
@@ -529,13 +559,13 @@ function removeStepImage(i){
 }
 
 function getImageTarget(kind,i,j,k){
-  i=Number(i);
+  i = Number(i);
   if(kind==='step') return doc.steps[i];
   if(kind==='list') return doc.steps[i].stepImages[Number(k)];
   return doc.steps[i].sub[Number(j)];
 }
-function setImageTarget(kind,i,j,vals){
-  const t=getImageTarget(kind,i,j);
+function setImageTarget(kind,i,j,k,vals){
+  const t = getImageTarget(kind,i,j,k);
   Object.assign(t, vals);
 }
 function bindCanvasImages(){
@@ -553,8 +583,8 @@ function bindCanvasImages(){
       box.classList.add('img-box-active');
       const target=getImageTarget(kind,i,j,k);
       const startX=ev.clientX, startY=ev.clientY;
-      const startLeft=kind==='step'?Number(target.stepImgX??50):Number(target.x ?? target.imgX ?? 50);
-      const startTop=kind==='step'?Number(target.stepImgY??50):Number(target.y ?? target.imgY ?? 50);
+      const startLeft=kind==='step' ? Number(target.stepImgX??50) : Number(target.x ?? target.imgX ?? 50);
+      const startTop=kind==='step' ? Number(target.stepImgY??50) : Number(target.y ?? target.imgY ?? 50);
       const rect=box.getBoundingClientRect();
 
       const move=(mv)=>{
@@ -568,6 +598,7 @@ function bindCanvasImages(){
         else if(kind==='list') Object.assign(target,{x:nx,y:ny});
         else Object.assign(target,{imgX:nx,imgY:ny});
       };
+
       const up=()=>{
         window.removeEventListener('pointermove',move);
         window.removeEventListener('pointerup',up);
@@ -593,8 +624,8 @@ function bindCanvasImages(){
       box.classList.add('img-box-active');
       const rect=box.getBoundingClientRect();
       const startX=ev.clientX, startY=ev.clientY;
-      const startW=kind==='step'?Number(target.stepImgW||100):Number(target.w || target.imgW || 100);
-      const startH=kind==='step'?Number(target.stepImgH||100):Number(target.h || target.imgH || 100);
+      const startW=kind==='step' ? Number(target.stepImgW||100) : Number(target.w || target.imgW || 100);
+      const startH=kind==='step' ? Number(target.stepImgH||100) : Number(target.h || target.imgH || 100);
 
       const move=(mv)=>{
         const dx=(mv.clientX-startX)/rect.width*100;
@@ -607,6 +638,7 @@ function bindCanvasImages(){
         else if(kind==='list') Object.assign(target,{w:nw,h:nh});
         else Object.assign(target,{imgW:nw,imgH:nh});
       };
+
       const up=()=>{
         window.removeEventListener('pointermove',move);
         window.removeEventListener('pointerup',up);
@@ -619,16 +651,27 @@ function bindCanvasImages(){
   });
 }
 function loadListImg(e,i,k){
-  const f=e.target.files[0]; if(!f)return;
+  const f=e.target.files[0];
+  if(!f) return;
   const r=new FileReader();
-  r.onload=()=>{doc.steps[i].stepImages[k].src=r.result;doc.steps[i].stepImages[k].w=doc.steps[i].stepImages[k].w||100;doc.steps[i].stepImages[k].h=doc.steps[i].stepImages[k].h||100;doc.steps[i].stepImages[k].x=doc.steps[i].stepImages[k].x??50;doc.steps[i].stepImages[k].y=doc.steps[i].stepImages[k].y??50;render()};
+  r.onload=()=>{
+    doc.steps[i].stepImages = doc.steps[i].stepImages || [];
+    doc.steps[i].stepImages[k] = doc.steps[i].stepImages[k] || {src:'',w:100,h:100,x:50,y:50};
+    doc.steps[i].stepImages[k].src = r.result;
+    doc.steps[i].stepImages[k].w = Number(doc.steps[i].stepImages[k].w||100);
+    doc.steps[i].stepImages[k].h = Number(doc.steps[i].stepImages[k].h||100);
+    doc.steps[i].stepImages[k].x = Number(doc.steps[i].stepImages[k].x??50);
+    doc.steps[i].stepImages[k].y = Number(doc.steps[i].stepImages[k].y??50);
+    render();
+  };
   r.readAsDataURL(f);
 }
 function removeListImage(i,k){
-  doc.steps[i].stepImages[k].src='';
+  if(doc.steps[i] && doc.steps[i].stepImages && doc.steps[i].stepImages[k]){
+    doc.steps[i].stepImages[k] = {src:'',w:100,h:100,x:50,y:50};
+  }
   render();
 }
-
 function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');

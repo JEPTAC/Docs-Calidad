@@ -883,3 +883,34 @@ body.print-mode .actions{
 .step-slice-label:empty{
   display:none!important;
 }
+
+
+/* V18: corrección robusta para imágenes en modo lista */
+.step-shared-img.multi{
+  display:grid!important;
+  gap:6px!important;
+  padding:0!important;
+  background:#fff!important;
+  height:var(--step-img-h,315px)!important;
+}
+.step-shared-img.multi.count-1{ grid-template-rows:1fr!important; }
+.step-shared-img.multi.count-2{ grid-template-rows:1fr 1fr!important; }
+.step-shared-img.multi.count-3{ grid-template-rows:1fr 1fr 1fr!important; }
+
+.shared-img-slot{
+  position:relative!important;
+  min-height:0!important;
+  border:1px solid #D0D5DD!important;
+  border-radius:6px!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+.shared-img-slot img{
+  position:absolute!important;
+  object-fit:cover!important;
+  max-width:none!important;
+  max-height:none!important;
+  cursor:move!important;
+  user-select:none!important;
+  touch-action:none!important;
+}
