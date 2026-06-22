@@ -1,13 +1,10 @@
-# QA V31
+# QA V32
 
 - node --check source/app.js ejecutado.
-- Plantilla documental conservada:
-  - hoja blanca,
-  - encabezado azul sólido `#00299B`,
-  - sin degradado en plantilla.
-- Barra lateral rediseñada:
-  - fondo gris `#A4A8AB` + degradado azul/blanco,
-  - cuadros azules,
-  - textos blancos.
+- Barra lateral rediseñada.
+- Plantilla documental conservada.
+- Azul lateral más oscuro: #001F73.
+- Tarjetas grises: #A4A8AB.
+- Campos blancos dentro de tarjetas.
 
 Resultado node --check: PASS

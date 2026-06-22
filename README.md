@@ -1,15 +1,16 @@
 # Procedimientos EI
 
-## Ajuste V31 · Barra lateral gris/azul sin tocar plantilla
+## Ajuste V32 · Barra ejecutiva minimalista
 
-Corrección aplicada según indicación:
+Se ajustó únicamente la barra lateral y la zona de edición:
 
-- La plantilla documental no se modifica.
-- El encabezado de la plantilla queda sólido en el azul institucional `#00299B`.
-- La hoja se mantiene blanca.
-- El rediseño se aplicó solo a la barra lateral y zona de edición.
-- La barra lateral tiene fondo con gris institucional `#A4A8AB` y degradado azul/blanco.
-- Los cuadros/paneles laterales quedan azules.
-- El texto dentro de los cuadros laterales queda blanco.
-- Los campos internos usan azul profundo con texto blanco.
-- Se conserva toda la funcionalidad anterior.
+- Fondo principal de la barra en azul más oscuro: `#001F73`.
+- Fondo con textura sutil y elementos gráficos discretos.
+- Tarjetas/cuadros en gris institucional `#A4A8AB`.
+- Campos internos con fondo blanco.
+- Botones en azul oscuro.
+- Diseño más ejecutivo, minimalista y elegante.
+- La plantilla documental no se toca:
+  - hoja blanca,
+  - encabezado azul sólido,
+  - formato conservado.
