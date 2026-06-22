@@ -1,12 +1,11 @@
-# QA V27
+# QA V28
 
 - node --check source/app.js ejecutado.
-- Última página renderiza desde campos estructurados.
-- Títulos azules.
-- Texto no título negro.
-- Dos columnas.
-- Fecha automática.
-- Paginación automática.
-- Página final obligatoria.
+- Paneles contextuales:
+  - Flujograma: muestra flujograma, carriles, figuras y propiedades.
+  - Normas y políticas: muestra únicamente los campos de normas y políticas.
+- Nombres visibles simplificados.
+- Azul aplicado desde el logo: #00299B.
+- Favicon inline y sin recursos externos.
 
 Resultado node --check: PASS

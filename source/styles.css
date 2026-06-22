@@ -1,6 +1,6 @@
 
 :root{
-  --ei-blue:#00378A;--ei-yellow:#EAC800;--ei-gray:#A4A8AB;
+  --ei-blue:#00299B;--ei-yellow:#EAC800;--ei-gray:#A4A8AB;
   --panel:#0c1e34;--panel2:#142b49;--font:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
 }
 *{box-sizing:border-box}
@@ -103,3 +103,15 @@ textarea{resize:vertical}
 .final-body .final-text{color:#111!important;font-weight:400}
 .final-body .final-docs{margin:.03in 0 0 .14in;padding:0;color:#111}
 .final-body .final-docs li{color:#111;margin:.02in 0}
+
+
+/* Ajuste V28: identidad limpia y paneles contextuales */
+body{--ei-blue:#00299B;--ei-yellow:#EAC800;}
+.context-hidden{display:none!important;}
+.flow-only.context-hidden,.final-only.context-hidden{display:none!important;}
+.brand strong{font-size:15px}
+.brand span{font-size:12px}
+.panel h2{letter-spacing:.02em}
+.final-body p,.final-body div,.final-body span,.final-body li{color:#111!important}
+.final-body strong{color:var(--ei-blue)!important}
+.title-cell,.meta-cell{background:linear-gradient(#00299B, #00299B)!important}

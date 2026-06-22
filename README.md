@@ -1,22 +1,12 @@
-# Editor EI V27 · Última página por campos
+# Editor de Procedimientos EI
 
-## Cambios aplicados
+## Ajustes V28
 
-- La última página ahora se diligencia desde el panel lateral.
-- Los títulos aparecen al lado izquierdo de cada campo para llenar más fácil.
-- El contenido se organiza automáticamente en la última página.
-- La última página conserva dos columnas.
-- Los títulos del documento quedan en azul institucional.
-- Todo el texto que no es título queda en negro.
-- Fecha y paginación siguen automáticas.
-- Se mantienen páginas múltiples y conexión estable de flechas.
-
-## Campos de última página
-
-- Reconocimientos
-- Objetivo
-- Alcance
-- Indicadores
-- Información Sobre la Aplicación del Flujograma
-- Normatividad
-- Documentos relacionados
+- Se retiraron nombres técnicos como versiones o frases tipo “final automática”.
+- El nombre visible de la herramienta quedó como **Editor de Procedimientos**.
+- En páginas de flujograma solo aparecen herramientas de flujograma.
+- En la página de Normas y políticas solo aparece el panel para diligenciar esa página.
+- Se ocultaron carriles, figuras y propiedades del flujograma cuando se está en la página final.
+- Se aplicó el azul del logo detectado: `#00299B`.
+- El texto no título en la página final permanece negro.
+- Los títulos de la última página permanecen en azul institucional.
