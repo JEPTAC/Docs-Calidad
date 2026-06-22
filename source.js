@@ -28,6 +28,7 @@ let doc={
   instrTitle:'INSTRUCTIVO PARA LA CREACIÓN DE COTIZACIONES EN EL CRM',
   instrCode:'S-IN-9',
   instrVersion:'Versión 3',
+  activeStep:0,
   objective:'Indicar los pasos que se deben seguir en el CRM para la creación de una cotización de venta.',
   scope:'Aplica a todos los asesores comerciales de la Unidad de Negocio de Suministros Eléctricos de ELECTROINGENIERÍA S.A.S.',
   steps:[
@@ -71,6 +72,7 @@ function syncInputs(){
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.value=doc[fieldMap(id)]??''});
   if($('docBody')) $('docBody').value=doc.body;
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??''});
+  renderStepEditor();
 }
 function render(){setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
 function letterPage(){
@@ -92,70 +94,84 @@ function tableHtml(){return `<h3 style="color:#001F73">Tabla editable</h3><table
 function chartHtml(){const max=Math.max(...doc.wordChart,100);return `<h3 style="color:#001F73">Gráfica editable</h3><div class="word-chart">${doc.wordChart.map((v,i)=>`<div class="word-bar" style="height:${Math.max(12,v/max*130)}px"><span>${v}</span></div><input type="number" data-chart="${i}" value="${v}" style="width:65px;align-self:flex-start">`).join('')}</div>`}
 function bindTableChart(){document.querySelectorAll('[data-cell]').forEach(el=>el.oninput=e=>{const [r,c]=e.target.dataset.cell.split('-').map(Number);doc.wordTable[r][c]=e.target.innerText});document.querySelectorAll('[data-chart]').forEach(el=>el.oninput=e=>{doc.wordChart[+e.target.dataset.chart]=Number(e.target.value)||0;render()})}
 
+
 function instrHeader(){
   return `<div class="instr-header"><div class="logo"><img src="${LOGO}"></div><div class="instr-title">${esc(doc.instrTitle)}</div><div class="instr-meta"><div>${esc(doc.instrCode)}</div><div>${esc(doc.instrVersion)}</div></div></div>`;
 }
 function instrFooter(i,total){
   return `<div class="instr-page-line"></div><div class="instr-footer"><div>${today()}</div><div>Pág. ${i} de ${total}</div></div>`;
 }
+function renderStepEditor(){
+  const sel=$('activeStep'), box=$('stepEditor');
+  if(!sel||!box||mode!=='excel')return;
+  sel.innerHTML=doc.steps.map((s,i)=>`<option value="${i}" ${Number(doc.activeStep||0)===i?'selected':''}>${s.n}. ${esc(s.title)}</option>`).join('');
+  const i=Math.min(Number(doc.activeStep||0), doc.steps.length-1);
+  doc.activeStep=i;
+  const s=doc.steps[i];
+  box.innerHTML=`<div class="instr-side-step active">
+    <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
+    <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
+    <div class="actions"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
+    ${(s.sub||[]).map((ss,j)=>`<div class="sub-editor">
+      <b>${esc(ss.code)}</b>
+      <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
+      <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
+      ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
+    </div>`).join('')}
+    ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n)}</textarea></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
+  </div>`;
+  box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b]=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
+}
+function renderInstructivoOnly(){
+  const st=$('stage');
+  if(st) st.innerHTML=instructivoHtml();
+}
 function renderInstructivo(){
+  $('stage').innerHTML=instructivoHtml();
+  renderStepEditor();
+}
+function instructivoHtml(){
   const total = doc.steps.length + 1;
   const cover = `<div class="instr-page">${instrHeader()}<div class="instr-content">
-    <div class="instr-cover-title">${esc(doc.instrTitle)}</div>
-    <div class="instr-section-title">OBJETIVO</div>
-    <div class="instr-text-box" contenteditable="true" id="objEdit">${esc(doc.objective)}</div>
-    <div class="instr-section-title">ALCANCE</div>
-    <div class="instr-text-box" contenteditable="true" id="scopeEdit">${esc(doc.scope)}</div>
-    <div class="instr-section-title">PASO A PASO</div>
-    <p style="color:#111">Cada página siguiente desarrolla un paso general con sus subpasos específicos e imágenes de soporte.</p>
+    <div class="info-row"><div class="info-label">OBJETIVO:</div><div class="info-value">${esc(doc.objective)}</div></div>
+    <div class="info-row"><div class="info-label">ALCANCE:</div><div class="info-value">${esc(doc.scope)}</div></div>
+    <div class="band">PASO A PASO</div>
+    ${stepsPreviewHtml(0, true)}
   </div>${instrFooter(1,total)}</div>`;
-  const pages = doc.steps.map((s,i)=>stepPageHtml(s,i,total)).join('<div class="instr-page-separator no-print">Separador de página</div>');
-  $('stage').innerHTML=cover + '<div class="instr-page-separator no-print">Separador de página</div>' + pages;
-  setTimeout(bindInstr,0);
+  const rest = doc.steps.slice(1).map((s,idx)=>stepPageHtml(s,idx+1,total)).join('<div class="instr-page-separator no-print">Separador de página</div>');
+  return cover + (rest?'<div class="instr-page-separator no-print">Separador de página</div>'+rest:'');
+}
+function stepsPreviewHtml(i, compactFirst){
+  const s=doc.steps[i];
+  if(!s)return '';
+  return `<div class="step-compact"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
+    <div class="substep-grid">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>
+    ${(s.notes||[]).filter(n=>String(n||'').trim()).map((n,j)=>noteHtml(n,i,j)).join('')}
+  </div>`;
 }
 function stepPageHtml(s,i,total){
-  const pageNo = i + 2;
-  return `<div class="instr-page">${instrHeader()}<div class="instr-content">
-    <div class="step-page-title"><div class="step-page-num">${esc(s.n)}.</div><div class="step-page-name" contenteditable="true" data-step-title="${i}">${esc(s.title)}</div></div>
-    ${(s.sub||[]).map((ss,j)=>subStepHtml(ss,i,j)).join('')}
-    ${((s.notes||[]).length ? (s.notes||[]).map((n,j)=>noteHtml(n,i,j)).join('') : '')}
-    <div class="actions no-print"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
-  </div>${instrFooter(pageNo,total)}</div>`;
+  const pageNo=i+2;
+  return `<div class="instr-page">${instrHeader()}<div class="instr-content">${stepsPreviewHtml(i,false)}</div>${instrFooter(pageNo,total)}</div>`;
 }
-function subStepHtml(ss,i,j){
-  const hasImg = !!ss.image;
-  return `<div class="substep-card">
-    <div class="substep-head"><div class="substep-code">${esc(ss.code)}</div><div class="substep-text" contenteditable="true" data-sub="${i}-${j}">${esc(ss.text)}</div></div>
-    <div class="substep-body">
-      <div class="substep-detail">
-        <label class="file-btn no-print">Agregar imagen del subpaso<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
-        <button class="danger no-print" onclick="removeSubImage(${i},${j})">Quitar imagen</button>
-      </div>
-      <div class="substep-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${ss.image}">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}</div>
+function subStepMini(ss,i,j){
+  const hasImg=!!ss.image;
+  return `<div class="substep-mini">
+    <div class="substep-mini-head"><div class="substep-mini-code">${esc(ss.code)}</div><div class="substep-mini-text">${esc(ss.text)}</div></div>
+    <div class="substep-mini-body">
+      <div style="font-size:8.5pt;color:#111;line-height:1.25">Detalle del subpaso ${esc(ss.code)}</div>
+      <div class="substep-mini-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${ss.image}">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}</div>
     </div>
   </div>`;
 }
 function noteHtml(text,i,j){
-  const clean = String(text||'').trim();
+  const clean=String(text||'').trim();
   return `<div class="note-row ${clean?'':'empty-note'}">
-    <div class="note-icon">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M6 3h9l3 3v15H6V3Z" fill="#EAC800"/>
-        <path d="M15 3v4h4" stroke="#fff" stroke-width="1.8"/>
-        <path d="M8 10h8M8 14h8M8 18h5" stroke="#001F73" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <div class="note-text" contenteditable="true" data-note="${i}-${j}">${esc(text)}</div>
+    <div class="note-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6V3Z" fill="#EAC800"/><path d="M15 3v4h4" stroke="#fff" stroke-width="1.8"/><path d="M8 10h8M8 14h8M8 18h5" stroke="#001F73" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+    <div class="note-text">${esc(clean)}</div>
   </div>`;
-}
-function bindInstr(){
-  const obj=$('objEdit'), sc=$('scopeEdit'); 
-  if(obj)obj.oninput=e=>doc.objective=e.currentTarget.innerText; 
-  if(sc)sc.oninput=e=>doc.scope=e.currentTarget.innerText;
-  document.querySelectorAll('[data-step-title]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitle].title=e.target.innerText});
-  document.querySelectorAll('[data-sub]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.sub.split('-').map(Number);doc.steps[i].sub[j].text=e.target.innerText});
-  document.querySelectorAll('[data-note]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.note.split('-').map(Number);doc.steps[i].notes[j]=e.target.innerText});
-  document.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [i,j]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,i,j)});
 }
 function addSub(i){
   doc.steps[i].sub=doc.steps[i].sub||[];
@@ -165,6 +181,17 @@ function addSub(i){
 function addNoteToStep(i){
   doc.steps[i].notes=doc.steps[i].notes||[];
   doc.steps[i].notes.push('Escriba la nota del paso.');
+  render();
+}
+function removeNote(i,j){
+  doc.steps[i].notes.splice(j,1);
+  render();
+}
+function removeStep(i){
+  if(doc.steps.length<=1)return alert('Debe existir al menos un paso.');
+  doc.steps.splice(i,1);
+  doc.steps.forEach((s,idx)=>{s.n=String(idx+1);(s.sub||[]).forEach((ss,j)=>ss.code=s.n+'.'+(j+1))});
+  doc.activeStep=Math.max(0,Math.min(doc.activeStep,doc.steps.length-1));
   render();
 }
 function removeSubImage(i,j){
