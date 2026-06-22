@@ -476,3 +476,40 @@ html, body{
   color:#fff;
   opacity:.92;
 }
+
+
+/* V11: controles de alineación y posición de notas */
+.align-left{text-align:left!important;justify-content:flex-start!important}
+.align-center{text-align:center!important;justify-content:center!important}
+.align-right{text-align:right!important;justify-content:flex-end!important}
+.align-justify{text-align:justify!important;justify-content:flex-start!important}
+
+.step-compact-title{
+  text-align:left;
+}
+
+.substep-mini-text,
+.step-list-text,
+.note-text,
+.info-value{
+  overflow-wrap:anywhere;
+}
+
+.text-control-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:6px;
+}
+
+.note-position-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 7px;
+  border-radius:999px;
+  background:rgba(0,31,115,.14);
+  color:#001F73;
+  font-size:9px;
+  font-weight:900;
+  margin:2px 0 4px;
+}

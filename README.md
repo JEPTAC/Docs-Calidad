@@ -1,10 +1,15 @@
-# Estudio Documental EI V10
+# Estudio Documental EI V11
 
-Correcciones:
+Ajustes incorporados:
 
-- Se corrigió el cambio entre pasos del instructivo.
-- Al crear un nuevo paso, el sistema lo selecciona automáticamente.
-- El selector "Paso activo" permite cambiar y editar cualquier paso creado.
-- El botón "+ Nota al paso" ahora aplica al paso activo, no al último paso por defecto.
-- La barra lateral queda anclada/fija.
-- El área de documento tiene scroll independiente.
+- Control de alineación del título del paso.
+- Control de alineación por cada subpaso:
+  - izquierda,
+  - centrado,
+  - derecha,
+  - justificado.
+- Control de alineación por cada nota.
+- Control de ubicación de notas:
+  - antes de la imagen/lista,
+  - después de la imagen/lista.
+- Se conserva la barra lateral fija y el cambio entre pasos corregido.

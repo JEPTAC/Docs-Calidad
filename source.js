@@ -64,8 +64,8 @@ function bind(){
   $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
   $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
-  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});doc.activeStep=doc.steps.length-1;render()};
-  $('addNote').onclick=()=>{const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push('Escriba la nota del paso.');render()};
+  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',titleAlign:'left',notePosition:'after',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',align:'left',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});doc.activeStep=doc.steps.length-1;render()};
+  $('addNote').onclick=()=>{const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push({text:'Escriba la nota del paso.',align:'left'});render()};
 
   $('activeStep').onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
 }
@@ -106,7 +106,9 @@ function instrFooter(i,total){
 
 function ensureSubDefaults(){
   doc.steps.forEach((s,si)=>{
-    s.notes=s.notes||[];
+    s.notes=(s.notes||[]).map(n=>typeof n==='string'?{text:n,align:'left'}:{text:n.text||'',align:n.align||'left'});
+    s.titleAlign=s.titleAlign||'left';
+    s.notePosition=s.notePosition||'after';
     s.viewMode=s.viewMode||'cards';
     s.cols=s.cols||2;
     s.cardH=s.cardH||150;
@@ -121,6 +123,7 @@ function ensureSubDefaults(){
     s.sub=(s.sub||[]).map((ss,ji)=>({
       code:ss.code||((si+1)+'.'+(ji+1)),
       text:ss.text||'',
+      align:ss.align||'left',
       image:ss.image||'',
       imgW:ss.imgW||100,
       imgH:ss.imgH||100,
@@ -130,6 +133,12 @@ function ensureSubDefaults(){
   });
 }
 
+function alignOptions(value){
+  return `<option value="left" ${value==='left'?'selected':''}>Izquierda</option>
+  <option value="center" ${value==='center'?'selected':''}>Centrado</option>
+  <option value="right" ${value==='right'?'selected':''}>Derecha</option>
+  <option value="justify" ${value==='justify'?'selected':''}>Justificado</option>`;
+}
 function renderStepEditor(){
   const sel=$('activeStep'), box=$('stepEditor');
   if(!sel||!box||mode!=='excel')return;
@@ -146,6 +155,13 @@ function renderStepEditor(){
     <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
     <span class="step-mode-pill">${isList?'Lista + imagen':'Tarjetas por subpaso'}</span>
     <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
+    <div class="text-control-row">
+      <label>Alineación título<select data-step-title-align="${i}">${alignOptions(s.titleAlign||'left')}</select></label>
+      <label>Ubicación notas<select data-note-position="${i}">
+        <option value="before" ${s.notePosition==='before'?'selected':''}>Antes de imagen/lista</option>
+        <option value="after" ${s.notePosition!=='before'?'selected':''}>Después de imagen/lista</option>
+      </select></label>
+    </div>
     <div class="step-layout-panel">
       <b>Distribución visual</b>
       <div class="mini-grid">
@@ -174,6 +190,7 @@ function renderStepEditor(){
     ${(s.sub||[]).length? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
       <b>${esc(ss.code)}</b>
       <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
+      <label>Alineación subpaso<select data-sub-align="${i}-${j}">${alignOptions(ss.align||'left')}</select></label>
       ${isCards?`<label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
       ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
       <div class="mini-grid">
@@ -196,16 +213,20 @@ function renderStepEditor(){
         <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
       </div>
     </div>`:''}
-    ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n)}</textarea></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
+    ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n.text||'')}</textarea></label><label>Alineación nota<select data-note-align="${i}-${j}">${alignOptions(n.align||'left')}</select></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
   </div>`;
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-title-align]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepTitleAlign].titleAlign=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-position]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.notePosition].notePosition=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-step-view]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepView].viewMode=e.target.value;render()});
   box.querySelectorAll('[data-step-cols]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepCols].cols=Number(e.target.value)||2;render()});
   box.querySelectorAll('[data-list-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.listW].listW=Number(e.target.value)||45;renderInstructivoOnly()});
   box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
   box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
-  box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b]=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-sub-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.subAlign.split('-').map(Number);doc.steps[a].sub[b].align=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b].text=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-note-align]').forEach(el=>el.onchange=e=>{const [a,b]=e.target.dataset.noteAlign.split('-').map(Number);doc.steps[a].notes[b].align=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-w]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgW.split('-').map(Number);doc.steps[a].sub[b].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-h]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgH.split('-').map(Number);doc.steps[a].sub[b].imgH=Number(e.target.value)||100;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-x]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgX.split('-').map(Number);doc.steps[a].sub[b].imgX=Number(e.target.value);renderInstructivoOnly()});
@@ -244,9 +265,12 @@ function stepsPreviewHtml(i, compactFirst){
   if(!s)return '';
   const cols=s.cols||2;
   const mode=s.viewMode||'cards';
-  return `<div class="step-compact" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px;--list-w:${s.listW||45}%"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
-    ${(s.sub||[]).length ? (mode==='list'? stepListHtml(s) : `<div class="substep-grid cols-${cols}">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>`) : stepImageOnlyHtml(s)}
-    ${(s.notes||[]).filter(n=>String(n||'').trim()).map((n,j)=>noteHtml(n,i,j)).join('')}
+  const notes=(s.notes||[]).filter(n=>String(n.text||'').trim()).map((n,j)=>noteHtml(n,i,j)).join('');
+  const body=(s.sub||[]).length ? (mode==='list'? stepListHtml(s) : `<div class="substep-grid cols-${cols}">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>`) : stepImageOnlyHtml(s);
+  return `<div class="step-compact" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px;--list-w:${s.listW||45}%"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title align-${s.titleAlign||'left'}">${esc(s.title)}</div></div>
+    ${s.notePosition==='before'?notes:''}
+    ${body}
+    ${s.notePosition!=='before'?notes:''}
   </div>`;
 }
 function stepPageHtml(s,i,total){
@@ -258,7 +282,7 @@ function stepListHtml(s){
   const i=doc.steps.indexOf(s);
   return `<div class="step-list-layout">
     <div class="step-list-left">
-      ${(s.sub||[]).map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text">${esc(ss.text)}</div></div>`).join('')}
+      ${(s.sub||[]).map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>`).join('')}
     </div>
     <div class="step-shared-img ${hasImg?'':'empty-print'}" data-img-box="step" data-i="${i}">${hasImg?`<img data-img-el="step" data-i="${i}" src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen única del paso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="step" data-i="${i}"></div>`:''}</div>
   </div>`;
@@ -275,27 +299,29 @@ function subStepMini(ss,i,j){
   const hasImg=!!ss.image;
   const w=ss.imgW||100,h=ss.imgH||100,x=ss.imgX??50,y=ss.imgY??50;
   return `<div class="substep-mini">
-    <div class="substep-mini-head"><div class="substep-mini-code">${esc(ss.code)}</div><div class="substep-mini-text">${esc(ss.text)}</div></div>
+    <div class="substep-mini-head"><div class="substep-mini-code">${esc(ss.code)}</div><div class="substep-mini-text align-${ss.align||'left'}">${esc(ss.text)}</div></div>
     <div class="substep-mini-body">
       <div class="substep-mini-img ${hasImg?'':'empty-print'}" data-img-box="sub" data-i="${i}" data-j="${j}">${hasImg?`<img data-img-el="sub" data-i="${i}" data-j="${j}" src="${ss.image}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="sub" data-i="${i}" data-j="${j}"></div>`:''}</div>
     </div>
   </div>`;
 }
-function noteHtml(text,i,j){
+function noteHtml(note,i,j){
+  const text=typeof note==='string'?note:(note.text||'');
+  const align=typeof note==='string'?'left':(note.align||'left');
   const clean=String(text||'').trim();
   return `<div class="note-row ${clean?'':'empty-note'}">
     <div class="note-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6V3Z" fill="#EAC800"/><path d="M15 3v4h4" stroke="#fff" stroke-width="1.8"/><path d="M8 10h8M8 14h8M8 18h5" stroke="#001F73" stroke-width="1.6" stroke-linecap="round"/></svg></div>
-    <div class="note-text">${esc(clean)}</div>
+    <div class="note-text align-${align}">${esc(clean)}</div>
   </div>`;
 }
 function addSub(i){
   doc.steps[i].sub=doc.steps[i].sub||[];
-  doc.steps[i].sub.push({code:doc.steps[i].n+'.'+(doc.steps[i].sub.length+1),text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50});
+  doc.steps[i].sub.push({code:doc.steps[i].n+'.'+(doc.steps[i].sub.length+1),text:'Describa el paso específico.',align:'left',image:'',imgW:100,imgH:100,imgX:50,imgY:50});
   render();
 }
 function addNoteToStep(i){
   doc.steps[i].notes=doc.steps[i].notes||[];
-  doc.steps[i].notes.push('Escriba la nota del paso.');
+  doc.steps[i].notes.push({text:'Escriba la nota del paso.',align:'left'});
   render();
 }
 function removeNote(i,j){

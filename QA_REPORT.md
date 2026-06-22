@@ -1,10 +1,10 @@
-# QA V10
+# QA V11
 
 - node --check source.js ejecutado.
-- Handler de selector activeStep corregido.
-- addStep ahora asigna doc.activeStep al paso nuevo.
-- addNote usa doc.activeStep.
-- Sidebar con height 100vh, sticky y scroll propio.
-- Main/work con scroll independiente.
+- Alineación de título del paso.
+- Alineación de subpasos.
+- Alineación de notas.
+- Ubicación de notas antes/después del contenido visual.
+- Compatibilidad con notas antiguas tipo string normalizadas a objeto.
 
 Resultado node --check: PASS
