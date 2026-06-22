@@ -64,8 +64,10 @@ function bind(){
   $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
   $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
-  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});render()};
-  $('addNote').onclick=()=>{const i=Math.max(0,doc.steps.length-1);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push('Escriba la nota del paso.');render()};
+  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});doc.activeStep=doc.steps.length-1;render()};
+  $('addNote').onclick=()=>{const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push('Escriba la nota del paso.');render()};
+
+  $('activeStep').onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
 }
 function fieldMap(id){return {wordType:'wordType',docTitle:'title',docCode:'code',docVersion:'version',cityDate:'cityDate',circularNo:'circularNo',para:'para',de:'de',asunto:'asunto',remitente:'remitente',cargo:'cargo'}[id]}
 function syncInputs(){
@@ -133,6 +135,7 @@ function renderStepEditor(){
   if(!sel||!box||mode!=='excel')return;
   ensureSubDefaults();
   sel.innerHTML=doc.steps.map((s,i)=>`<option value="${i}" ${Number(doc.activeStep||0)===i?'selected':''}>${s.n}. ${esc(s.title)}</option>`).join('');
+  sel.onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
   const i=Math.min(Number(doc.activeStep||0), doc.steps.length-1);
   doc.activeStep=i;
   const s=doc.steps[i];

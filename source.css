@@ -426,3 +426,53 @@ button:hover,.file-btn:hover{filter:brightness(1.08)}button.primary{background:l
     display:none!important;
   }
 }
+
+
+/* V10: barra lateral siempre anclada y editor con scroll independiente */
+html, body{
+  height:100%!important;
+  overflow:hidden!important;
+}
+
+.app{
+  height:100vh!important;
+  min-height:100vh!important;
+  overflow:hidden!important;
+}
+
+.side{
+  position:sticky!important;
+  top:0!important;
+  height:100vh!important;
+  max-height:100vh!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+
+.main{
+  height:100vh!important;
+  overflow:hidden!important;
+}
+
+.work{
+  height:calc(100vh - 58px)!important;
+  overflow:auto!important;
+}
+
+.topbar{
+  flex:0 0 auto!important;
+}
+
+/* Selector de paso más visible */
+#activeStep{
+  border:2px solid rgba(234,200,0,.75)!important;
+  font-weight:900!important;
+}
+
+.step-switch-note{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#fff;
+  opacity:.92;
+}

@@ -1,10 +1,10 @@
-# QA V9
+# QA V10
 
 - node --check source.js ejecutado.
-- Imagen editable directamente en plantilla.
-- Arrastre para mover imagen.
-- Manija inferior derecha para ampliar/reducir.
-- Sin controles visibles en impresión.
-- Sin márgenes internos de imagen.
+- Handler de selector activeStep corregido.
+- addStep ahora asigna doc.activeStep al paso nuevo.
+- addNote usa doc.activeStep.
+- Sidebar con height 100vh, sticky y scroll propio.
+- Main/work con scroll independiente.
 
 Resultado node --check: PASS

@@ -1,17 +1,10 @@
-# Estudio Documental EI V9
+# Estudio Documental EI V10
 
-Ajustes de imagen en instructivos:
+Correcciones:
 
-- La imagen ya no conserva márgenes visuales internos.
-- Las imágenes usan todo el recuadro disponible.
-- Se puede mover la imagen directamente dentro de la plantilla.
-- Se puede agrandar o reducir la imagen desde la esquina inferior derecha.
-- Siguen disponibles los controles del panel lateral:
-  - ancho,
-  - alto,
-  - posición X,
-  - posición Y.
-- Aplica para:
-  - imagen por subpaso,
-  - imagen general del paso,
-  - imagen única en modo lista.
+- Se corrigió el cambio entre pasos del instructivo.
+- Al crear un nuevo paso, el sistema lo selecciona automáticamente.
+- El selector "Paso activo" permite cambiar y editar cualquier paso creado.
+- El botón "+ Nota al paso" ahora aplica al paso activo, no al último paso por defecto.
+- La barra lateral queda anclada/fija.
+- El área de documento tiene scroll independiente.
