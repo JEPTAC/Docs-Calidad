@@ -1,34 +1,15 @@
-# Editor EI V23 · Canva Core Funcional
+# Editor EI V24 · Canva Flow Stable
 
-Esta versión simplifica el motor de flechas para hacerlo más manejable y evitar distorsiones.
+Esta versión reduce el riesgo de distorsión rehaciendo el editor como una sola hoja estable y un solo canvas SVG.
 
-## Cambio clave
+## Decisión técnica
 
-La flecha ahora es una polilínea de puntos reales.  
-No hay puntos virtuales, no hay recalculo oculto, no hay segmentos automáticos invisibles.
+La flecha ya no se calcula con puntos virtuales. Cada flecha es una polilínea de puntos reales:
 
-Esto significa:
+- mover la línea completa traslada todos los puntos;
+- mover un punto solo cambia ese punto;
+- ortogonalizar crea codos reales;
+- enderezar deja dos puntos reales;
+- mover figuras solo actualiza extremos conectados.
 
-- Arrastras la línea completa y se mueve solo esa flecha.
-- Arrastras un punto y se mueve solo ese punto.
-- Agregas puntos reales con los botones/controles.
-- Ortogonalizar convierte la flecha a codos reales.
-- Enderezar deja la flecha con dos puntos reales.
-- Una figura movida solo actualiza los extremos de las flechas realmente conectadas.
-
-## Funciones
-
-- Crear flecha conectada.
-- Crear flecha libre arrastrando.
-- Mover flecha completa.
-- Mover puntos de flecha.
-- Agregar punto.
-- Eliminar punto.
-- Ortogonalizar.
-- Enderezar.
-- Desconectar.
-- Invertir.
-- Cambiar color, grosor, estilo, etiqueta y punta.
-- Crear/mover/redimensionar figuras.
-- Carriles, páginas, narrativa, PDF, SVG, HTML y JSON.
-- QA integrado.
+El archivo `index.html` es autocontenido, con favicon inline y logo en base64 para evitar 404.

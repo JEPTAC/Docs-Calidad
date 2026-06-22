@@ -1,29 +1,14 @@
-# QA V23
+# QA V24
 
-## QA técnico
-
-- `node --check source/app.js` ejecutado.
+- node --check source/app.js: PASS esperado.
 - Sin recursos externos.
-- Favicon inline para evitar 404.
-- Logo embebido.
-- Colores normalizados.
+- Favicon inline.
+- Logo base64.
 - Flechas con puntos reales.
-- Sin puntos virtuales.
-- Sin puntos undefined.
-
-## Pruebas manuales recomendadas
-
-1. Abrir index.html.
-2. Seleccionar flecha y arrastrar la línea completa.
-3. Verificar que ninguna otra flecha se mueva.
-4. Arrastrar un punto azul/naranja.
-5. Agregar punto.
-6. Eliminar punto.
-7. Ortogonalizar.
-8. Enderezar.
-9. Mover una figura conectada.
-10. Desconectar una flecha.
-11. Exportar PDF.
-
+- QA interno:
+  - figuras dentro del área;
+  - flechas con puntos válidos;
+  - sin puntos undefined;
+  - colores válidos.
 
 Resultado node --check: PASS
