@@ -32,11 +32,11 @@ let doc={
   objective:'Indicar los pasos que se deben seguir en el CRM para la creación de una cotización de venta.',
   scope:'Aplica a todos los asesores comerciales de la Unidad de Negocio de Suministros Eléctricos de ELECTROINGENIERÍA S.A.S.',
   steps:[
-    {n:'1',title:'Ingreso al CRM',notes:[],sub:[
+    {n:'1',title:'Ingreso al CRM',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,sub:[
       {code:'1.1',text:'En el navegador, ingrese al enlace de Siesa CRM con el usuario y contraseña asignado.',image:''},
       {code:'1.2',text:'Seleccione el botón de Menú ubicado en la parte superior izquierda y elija la opción “Cotizaciones” > “Crear”.',image:''}
     ]},
-    {n:'2',title:'Crear cotización',notes:['Antes de crear una cotización, asegúrese de que el cliente o cliente potencial esté creado en el sistema.'],sub:[
+    {n:'2',title:'Crear cotización',viewMode:'list',cols:2,cardH:150,imgH:102,listW:45,notes:['Antes de crear una cotización, asegúrese de que el cliente o cliente potencial esté creado en el sistema.'],sub:[
       {code:'2.1',text:'Complete los datos básicos requeridos para iniciar la cotización.',image:''}
     ]}
   ]
@@ -64,7 +64,7 @@ function bind(){
   $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
   $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
-  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],cols:2,cardH:150,imgH:102,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});render()};
+  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],viewMode:'cards',cols:2,cardH:150,imgH:102,listW:45,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});render()};
   $('addNote').onclick=()=>{const i=Math.max(0,doc.steps.length-1);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push('Escriba la nota del paso.');render()};
 }
 function fieldMap(id){return {wordType:'wordType',docTitle:'title',docCode:'code',docVersion:'version',cityDate:'cityDate',circularNo:'circularNo',para:'para',de:'de',asunto:'asunto',remitente:'remitente',cargo:'cargo'}[id]}
@@ -105,9 +105,11 @@ function instrFooter(i,total){
 function ensureSubDefaults(){
   doc.steps.forEach((s,si)=>{
     s.notes=s.notes||[];
+    s.viewMode=s.viewMode||'cards';
     s.cols=s.cols||2;
     s.cardH=s.cardH||150;
     s.imgH=s.imgH||102;
+    s.listW=s.listW||45;
     s.stepImage=s.stepImage||'';
     s.stepImgW=s.stepImgW||100;
     s.stepImgH=s.stepImgH||100;
@@ -135,13 +137,22 @@ function renderStepEditor(){
   doc.activeStep=i;
   const s=doc.steps[i];
   const previewCount=Math.max((s.sub||[]).length,1);
+  const isList = s.viewMode === 'list';
+  const isCards = s.viewMode !== 'list';
   box.innerHTML=`<div class="instr-side-step active">
     <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
+    <span class="step-mode-pill">${isList?'Lista + imagen':'Tarjetas por subpaso'}</span>
     <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
     <div class="step-layout-panel">
       <b>Distribución visual</b>
       <div class="mini-grid">
-        <label>Columnas
+        <label>Modo del paso
+          <select data-step-view="${i}">
+            <option value="cards" ${s.viewMode==='cards'?'selected':''}>Tarjetas por subpaso</option>
+            <option value="list" ${s.viewMode==='list'?'selected':''}>Lista + imagen única</option>
+          </select>
+        </label>
+        ${isCards?`<label>Columnas
           <select data-step-cols="${i}">
             <option value="1" ${s.cols==1?'selected':''}>1 columna</option>
             <option value="2" ${s.cols==2?'selected':''}>2 columnas</option>
@@ -149,26 +160,30 @@ function renderStepEditor(){
           </select>
         </label>
         <label>Alto tarjeta px<input type="number" min="110" max="260" data-card-h="${i}" value="${s.cardH||150}"></label>
-        <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>
+        <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>`:
+        `<label>Ancho lista %<input type="number" min="30" max="70" data-list-w="${i}" value="${s.listW||45}"></label>
+        <label>Alto imagen px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>`}
       </div>
-      <div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>
+      ${isCards?`<div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>`:
+      `<div class="list-preview" style="--list-preview-w:${s.listW||45}%"><div>Lista</div><div>Imagen única</div></div>`}
     </div>
     <div class="actions"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="clearSubsteps(${i})">Sin subpasos</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
     ${(s.sub||[]).length? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
       <b>${esc(ss.code)}</b>
       <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
-      <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
+      ${isCards?`<label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
       ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
-      <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
       <div class="mini-grid">
         <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
         <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
         <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
         <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
-      </div>
-    </div>`).join('') : `<div class="sub-editor">
-      <b>Imagen general del paso</b>
-      <label class="file-btn">Agregar imagen del paso<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
+      </div>`:''}
+      <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
+    </div>`).join('') : ''}
+    ${isList || !(s.sub||[]).length ? `<div class="sub-editor">
+      <b>${isList?'Imagen única para la lista':'Imagen general del paso'}</b>
+      <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
       ${s.stepImage?'<button class="danger" onclick="removeStepImage('+i+')">Quitar imagen</button>':''}
       <div class="mini-grid">
         <label>Ancho %<input type="number" min="40" max="240" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
@@ -177,11 +192,13 @@ function renderStepEditor(){
         <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
         <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
       </div>
-    </div>`}
+    </div>`:''}
     ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n)}</textarea></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
   </div>`;
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-view]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepView].viewMode=e.target.value;render()});
   box.querySelectorAll('[data-step-cols]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepCols].cols=Number(e.target.value)||2;render()});
+  box.querySelectorAll('[data-list-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.listW].listW=Number(e.target.value)||45;renderInstructivoOnly()});
   box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
   box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
@@ -219,14 +236,24 @@ function stepsPreviewHtml(i, compactFirst){
   const s=doc.steps[i];
   if(!s)return '';
   const cols=s.cols||2;
-  return `<div class="step-compact" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
-    ${(s.sub||[]).length?`<div class="substep-grid cols-${cols}">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>`:stepImageOnlyHtml(s)}
+  const mode=s.viewMode||'cards';
+  return `<div class="step-compact" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px;--list-w:${s.listW||45}%"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
+    ${(s.sub||[]).length ? (mode==='list'? stepListHtml(s) : `<div class="substep-grid cols-${cols}">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>`) : stepImageOnlyHtml(s)}
     ${(s.notes||[]).filter(n=>String(n||'').trim()).map((n,j)=>noteHtml(n,i,j)).join('')}
   </div>`;
 }
 function stepPageHtml(s,i,total){
   const pageNo=i+2;
   return `<div class="instr-page">${instrHeader()}<div class="instr-content">${stepsPreviewHtml(i,false)}</div>${instrFooter(pageNo,total)}</div>`;
+}
+function stepListHtml(s){
+  const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;
+  return `<div class="step-list-layout">
+    <div class="step-list-left">
+      ${(s.sub||[]).map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text">${esc(ss.text)}</div></div>`).join('')}
+    </div>
+    <div class="step-shared-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen única del paso</span>'}</div>
+  </div>`;
 }
 function stepImageOnlyHtml(s){
   const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;

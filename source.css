@@ -185,3 +185,156 @@ button:hover,.file-btn:hover{filter:brightness(1.08)}button.primary{background:l
 @media print{
   .step-main-img.empty-print{display:none!important}
 }
+
+
+/* V7 instructivo: modo lista + imagen única para varios subpasos */
+.step-mode-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.18);
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  margin-top:4px;
+}
+.step-list-layout{
+  display:grid;
+  grid-template-columns: var(--list-w, 45%) 1fr;
+  gap:8px;
+  padding:7px;
+}
+.step-list-left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.step-list-item{
+  display:grid;
+  grid-template-columns:.48in 1fr;
+  border:1px solid #D0D5DD;
+  border-radius:7px;
+  overflow:hidden;
+  background:#fff;
+  min-height:.38in;
+}
+.step-list-code{
+  background:#001F73;
+  color:#EAC800;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:8.8pt;
+}
+.step-list-text{
+  color:#111;
+  line-height:1.20;
+  font-size:8.4pt;
+  padding:5px;
+}
+.step-shared-img{
+  position:relative;
+  min-height:var(--step-img-h, 2.45in);
+  border:1px solid #D0D5DD;
+  border-radius:8px;
+  background:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#98A2B3;
+  font-size:9px;
+  text-align:center;
+}
+.step-shared-img.empty-print{
+  background:repeating-linear-gradient(45deg,#F8FAFC,#F8FAFC 8px,#EEF2F7 8px,#EEF2F7 16px);
+}
+.step-shared-img img{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  object-fit:contain;
+  background:#fff;
+  max-width:none;
+  max-height:none;
+}
+.list-preview{
+  display:grid;
+  grid-template-columns:var(--list-preview-w, 45%) 1fr;
+  gap:4px;
+  margin-top:6px;
+}
+.list-preview div{
+  height:26px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.40);
+  background:rgba(255,255,255,.20);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  font-weight:900;
+}
+@media print{
+  .step-shared-img.empty-print{display:none!important}
+}
+
+
+/* V8 instructivo: márgenes 2,5 cm y objetivo/alcance centrados */
+:root{
+  --doc-margin:2.5cm;
+}
+
+/* Solo instructivos: margen institucional de 2,5 cm en todos los lados */
+.instr-header{
+  left:var(--doc-margin)!important;
+  right:var(--doc-margin)!important;
+  top:var(--doc-margin)!important;
+  height:1.75cm!important;
+}
+
+.instr-content{
+  left:var(--doc-margin)!important;
+  right:var(--doc-margin)!important;
+  top:calc(var(--doc-margin) + 2.05cm)!important;
+  bottom:var(--doc-margin)!important;
+}
+
+/* Fecha y paginación alineadas al mismo margen */
+.instr-page-line{
+  left:var(--doc-margin)!important;
+  right:var(--doc-margin)!important;
+  bottom:2.22cm!important;
+}
+
+.instr-footer{
+  left:var(--doc-margin)!important;
+  right:var(--doc-margin)!important;
+  bottom:1.82cm!important;
+}
+
+/* Objetivo y alcance centrados */
+.info-row{
+  grid-template-columns:3.1cm 1fr!important;
+  min-height:.72cm!important;
+}
+
+.info-label{
+  justify-content:center!important;
+  text-align:center!important;
+  padding:5px!important;
+}
+
+.info-value{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  padding:6px 8px!important;
+  min-height:.72cm!important;
+}
