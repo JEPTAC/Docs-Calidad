@@ -1,10 +1,17 @@
-# Estudio Documental EI V8
+# Estudio Documental EI V9
 
-Ajustes aplicados:
+Ajustes de imagen en instructivos:
 
-- Instructivos con margen de 2,5 cm en todos los lados.
-- Encabezado, contenido, línea de página, fecha y paginación alineados al mismo margen.
-- Objetivo y alcance centrados:
-  - título centrado en la celda azul;
-  - texto centrado en la celda de contenido.
-- Se conserva el modo tarjetas por subpaso y el modo lista + imagen única.
+- La imagen ya no conserva márgenes visuales internos.
+- Las imágenes usan todo el recuadro disponible.
+- Se puede mover la imagen directamente dentro de la plantilla.
+- Se puede agrandar o reducir la imagen desde la esquina inferior derecha.
+- Siguen disponibles los controles del panel lateral:
+  - ancho,
+  - alto,
+  - posición X,
+  - posición Y.
+- Aplica para:
+  - imagen por subpaso,
+  - imagen general del paso,
+  - imagen única en modo lista.

@@ -345,6 +345,94 @@ button:hover,.file-btn:hover{filter:brightness(1.08)}button.primary{background:l
   padding:6px 8px!important;
   min-height:.72cm!important;
 }
+
+
+/* V9: control directo de imágenes en el editor */
+.substep-mini-img,
+.step-main-img,
+.step-shared-img{
+  padding:0!important;
+  border:1px solid #D0D5DD!important;
+  overflow:hidden!important;
+  position:relative!important;
+  background:#fff!important;
+}
+
+.substep-mini-img img,
+.step-main-img img,
+.step-shared-img img{
+  object-fit:cover!important;
+  max-width:none!important;
+  max-height:none!important;
+  cursor:move;
+  user-select:none;
+  touch-action:none;
+}
+
+.img-direct-tools{
+  position:absolute;
+  left:4px;
+  top:4px;
+  display:flex;
+  gap:4px;
+  z-index:6;
+  opacity:.86;
+  pointer-events:none;
+}
+
+.img-direct-tools span{
+  background:rgba(0,31,115,.88);
+  color:#fff;
+  border-radius:6px;
+  padding:3px 5px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.img-resize-handle{
+  position:absolute;
+  right:4px;
+  bottom:4px;
+  width:18px;
+  height:18px;
+  border-radius:5px;
+  background:#EAC800;
+  border:2px solid #001F73;
+  z-index:7;
+  cursor:nwse-resize;
+  box-shadow:0 2px 6px rgba(0,0,0,.30);
+}
+
+.img-resize-handle::after{
+  content:"";
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  width:8px;
+  height:8px;
+  border-right:2px solid #001F73;
+  border-bottom:2px solid #001F73;
+}
+
+.img-box-active{
+  outline:2px solid #EAC800!important;
+  outline-offset:2px;
+}
+
+.image-fit-warning{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#fff;
+  opacity:.92;
+}
+
+@media print{
+  .img-direct-tools,
+  .img-resize-handle{
+    display:none!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -639,11 +727,15 @@ function renderStepEditor(){
 }
 function renderInstructivoOnly(){
   const st=$('stage');
-  if(st) st.innerHTML=instructivoHtml();
+  if(st){
+    st.innerHTML=instructivoHtml();
+    setTimeout(bindCanvasImages,0);
+  }
 }
 function renderInstructivo(){
   $('stage').innerHTML=instructivoHtml();
   renderStepEditor();
+  setTimeout(bindCanvasImages,0);
 }
 function instructivoHtml(){
   const total = 1;
@@ -670,18 +762,20 @@ function stepPageHtml(s,i,total){
 }
 function stepListHtml(s){
   const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;
+  const i=doc.steps.indexOf(s);
   return `<div class="step-list-layout">
     <div class="step-list-left">
       ${(s.sub||[]).map(ss=>`<div class="step-list-item"><div class="step-list-code">${esc(ss.code)}</div><div class="step-list-text">${esc(ss.text)}</div></div>`).join('')}
     </div>
-    <div class="step-shared-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen única del paso</span>'}</div>
+    <div class="step-shared-img ${hasImg?'':'empty-print'}" data-img-box="step" data-i="${i}">${hasImg?`<img data-img-el="step" data-i="${i}" src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen única del paso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="step" data-i="${i}"></div>`:''}</div>
   </div>`;
 }
 function stepImageOnlyHtml(s){
   const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;
+  const i=doc.steps.indexOf(s);
   return `<div class="step-image-only">
     <div class="step-image-title">Imagen general del paso</div>
-    <div class="step-main-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del paso</span>'}</div>
+    <div class="step-main-img ${hasImg?'':'empty-print'}" data-img-box="step" data-i="${i}">${hasImg?`<img data-img-el="step" data-i="${i}" src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del paso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="step" data-i="${i}"></div>`:''}</div>
   </div>`;
 }
 function subStepMini(ss,i,j){
@@ -690,7 +784,7 @@ function subStepMini(ss,i,j){
   return `<div class="substep-mini">
     <div class="substep-mini-head"><div class="substep-mini-code">${esc(ss.code)}</div><div class="substep-mini-text">${esc(ss.text)}</div></div>
     <div class="substep-mini-body">
-      <div class="substep-mini-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${ss.image}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}</div>
+      <div class="substep-mini-img ${hasImg?'':'empty-print'}" data-img-box="sub" data-i="${i}" data-j="${j}">${hasImg?`<img data-img-el="sub" data-i="${i}" data-j="${j}" src="${ss.image}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del subpaso</span>'}${hasImg?`<div class="img-direct-tools no-print"><span>Mover imagen</span><span>Agrandar ↘</span></div><div class="img-resize-handle no-print" data-img-resize="sub" data-i="${i}" data-j="${j}"></div>`:''}</div>
     </div>
   </div>`;
 }
@@ -751,6 +845,92 @@ function loadStepImg(e,i){
 function removeStepImage(i){
   doc.steps[i].stepImage='';
   render();
+}
+
+function getImageTarget(kind,i,j){
+  i=Number(i);
+  if(kind==='step') return doc.steps[i];
+  return doc.steps[i].sub[Number(j)];
+}
+function setImageTarget(kind,i,j,vals){
+  const t=getImageTarget(kind,i,j);
+  Object.assign(t, vals);
+}
+function bindCanvasImages(){
+  document.querySelectorAll('[data-img-box]').forEach(box=>{
+    const kind=box.dataset.imgBox;
+    const i=box.dataset.i;
+    const j=box.dataset.j;
+    const img=box.querySelector('img');
+    if(!img) return;
+
+    img.onpointerdown=(ev)=>{
+      if(ev.target.closest('.img-resize-handle')) return;
+      ev.preventDefault();
+      box.classList.add('img-box-active');
+      const target=getImageTarget(kind,i,j);
+      const startX=ev.clientX, startY=ev.clientY;
+      const startLeft=Number(target.imgX ?? target.stepImgX ?? 50);
+      const startTop=Number(target.imgY ?? target.stepImgY ?? 50);
+      const rect=box.getBoundingClientRect();
+
+      const move=(mv)=>{
+        const dx=(mv.clientX-startX)/rect.width*100;
+        const dy=(mv.clientY-startY)/rect.height*100;
+        const nx=Math.max(-80,Math.min(180,startLeft+dx));
+        const ny=Math.max(-80,Math.min(180,startTop+dy));
+        img.style.left=nx+'%';
+        img.style.top=ny+'%';
+        if(kind==='step') setImageTarget(kind,i,j,{stepImgX:nx,stepImgY:ny});
+        else setImageTarget(kind,i,j,{imgX:nx,imgY:ny});
+      };
+      const up=()=>{
+        window.removeEventListener('pointermove',move);
+        window.removeEventListener('pointerup',up);
+        box.classList.remove('img-box-active');
+        renderStepEditor();
+      };
+      window.addEventListener('pointermove',move);
+      window.addEventListener('pointerup',up);
+    };
+  });
+
+  document.querySelectorAll('[data-img-resize]').forEach(handle=>{
+    handle.onpointerdown=(ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const kind=handle.dataset.imgResize;
+      const i=handle.dataset.i;
+      const j=handle.dataset.j;
+      const box=handle.closest('[data-img-box]');
+      const img=box.querySelector('img');
+      const target=getImageTarget(kind,i,j);
+      box.classList.add('img-box-active');
+      const rect=box.getBoundingClientRect();
+      const startX=ev.clientX, startY=ev.clientY;
+      const startW=kind==='step'?Number(target.stepImgW||100):Number(target.imgW||100);
+      const startH=kind==='step'?Number(target.stepImgH||100):Number(target.imgH||100);
+
+      const move=(mv)=>{
+        const dx=(mv.clientX-startX)/rect.width*100;
+        const dy=(mv.clientY-startY)/rect.height*100;
+        const nw=Math.max(30,Math.min(320,startW+dx));
+        const nh=Math.max(30,Math.min(320,startH+dy));
+        img.style.width=nw+'%';
+        img.style.height=nh+'%';
+        if(kind==='step') setImageTarget(kind,i,j,{stepImgW:nw,stepImgH:nh});
+        else setImageTarget(kind,i,j,{imgW:nw,imgH:nh});
+      };
+      const up=()=>{
+        window.removeEventListener('pointermove',move);
+        window.removeEventListener('pointerup',up);
+        box.classList.remove('img-box-active');
+        renderStepEditor();
+      };
+      window.addEventListener('pointermove',move);
+      window.addEventListener('pointerup',up);
+    };
+  });
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}

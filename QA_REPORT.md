@@ -1,9 +1,10 @@
-# QA V8
+# QA V9
 
 - node --check source.js ejecutado.
-- Márgenes de instructivo establecidos en 2,5 cm.
-- Objetivo centrado.
-- Alcance centrado.
-- Sin cambios funcionales en el motor de edición.
+- Imagen editable directamente en plantilla.
+- Arrastre para mover imagen.
+- Manija inferior derecha para ampliar/reducir.
+- Sin controles visibles en impresión.
+- Sin márgenes internos de imagen.
 
 Resultado node --check: PASS
