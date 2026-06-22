@@ -424,7 +424,7 @@ function stepBlockHtml(s, idx, subSlice, continued){
     body=`<div class="substep-grid cols-${s.cols||2}">${subSlice.map((ss,j)=>subStepMini(ss,idx,(s.sub||[]).indexOf(ss))).join('')}</div>`;
   }
   return `<div class="step-compact compact-slice" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px;--list-w:${s.listW||45}%">
-    <div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title align-${s.titleAlign||'left'}">${esc(s.title)}</div>${continued?'<div class="step-slice-label">CONT.</div>':'<div class="step-slice-label"></div>'}</div>
+    <div class="step-compact-head ${continued?'has-cont':''}"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title align-${s.titleAlign||'left'}">${esc(s.title)}</div>${continued?'<div class="step-slice-label">CONT.</div>':''}</div>
     ${notesBefore}
     ${body}
     ${notesAfter}

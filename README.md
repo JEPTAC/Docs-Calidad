@@ -1,10 +1,7 @@
-# Estudio Documental EI V16
+# Estudio Documental EI V17
 
-Corrección crítica:
+Corrección visual:
 
-- Se restauró la función exportPdf(), que había quedado referenciada pero no definida.
-- Se restauraron makeBlankStep() y createFirstStep(), que eran necesarias para crear pasos desde hoja limpia.
-- Se corrigió el bloqueo que impedía que los campos renderizaran en la plantilla.
-- El botón Agregar paso vuelve a funcionar correctamente.
-- Los campos de encabezado, objetivo, alcance, pasos, subpasos e imágenes vuelven a actualizar la vista.
-- Se permite eliminar el último paso y regresar a hoja limpia.
+- Se eliminó la celda extra vacía que aparecía en el encabezado de los pasos.
+- El rótulo "CONT." solo aparece cuando realmente el paso continúa en otra hoja.
+- Cuando el paso no es continuación, el título usa todo el espacio disponible.

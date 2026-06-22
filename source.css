@@ -869,3 +869,17 @@ body.print-mode .actions{
   align-items:center;
   justify-content:center;
 }
+
+
+/* V17: eliminar celda extra vacía en el encabezado de pasos */
+.step-compact.compact-slice .step-compact-head{
+  grid-template-columns:.45in 1fr!important;
+}
+
+.step-compact.compact-slice .step-compact-head.has-cont{
+  grid-template-columns:.45in 1fr .82in!important;
+}
+
+.step-slice-label:empty{
+  display:none!important;
+}

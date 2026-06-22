@@ -1,14 +1,8 @@
-# QA V16
+# QA V17
 
 - node --check source.js ejecutado.
-- Funciones críticas presentes:
-  - exportPdf
-  - makeBlankStep
-  - createFirstStep
-- bind() ya no queda interrumpido por ReferenceError.
-- addStep usa createFirstStep().
-- addNote crea paso si no existe.
-- removeStep permite volver a estado de hoja limpia.
+- Encabezado de paso sin tercera celda vacía.
+- Clase has-cont aplicada únicamente cuando continued=true.
+- CSS ajusta grid de 2 columnas normal y 3 columnas solo para continuación.
 
 Resultado node --check: PASS
-Funciones requeridas faltantes: []
