@@ -1,12 +1,16 @@
-# Estudio Documental EI V13
+# Estudio Documental EI V15
 
-Ajustes finales de exportación PDF:
+Ajustes en modo Lista + imagen:
 
-- Se mejoró la exportación a PDF.
-- Se eliminan barra lateral, barra superior, separadores, botones y controles de imagen durante la exportación.
-- Se elimina el problema de barras de scroll impresas.
-- Cada hoja queda en tamaño carta completo.
-- Se evita el corte interno de una misma hoja.
-- Márgenes del instructivo ajustados a 2 cm para mejorar espacio útil y exportación.
-- Se retiraron definitivamente los botones Guardar JSON y Abrir JSON del menú.
-- La exportación usa un modo temporal de impresión para limpiar la vista antes de imprimir.
+- En modo lista ahora se puede escoger 1, 2 o 3 imágenes.
+- Las imágenes se muestran al lado derecho en el orden cargado:
+  - Imagen 1 arriba,
+  - Imagen 2 en medio,
+  - Imagen 3 abajo.
+- Cada imagen tiene controles propios:
+  - ancho,
+  - alto,
+  - posición X,
+  - posición Y.
+- Las imágenes también se pueden mover y redimensionar directamente en la plantilla.
+- Si la lista continúa en otra hoja, el bloque de imágenes se repite para conservar congruencia.

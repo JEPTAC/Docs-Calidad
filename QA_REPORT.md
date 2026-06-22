@@ -1,16 +1,10 @@
-# QA V13
+# QA V15
 
 - node --check source.js ejecutado.
-- Botones Guardar JSON y Abrir JSON removidos del HTML.
-- Bind protegido por existencia de botones.
-- exportPdf() agrega body.print-mode antes de imprimir.
-- @media print robusto:
-  - sin side/topbar;
-  - sin scrollbars;
-  - sin separadores;
-  - sin controles;
-  - páginas letter 8.5x11;
-  - page-break controlado.
-- Márgenes de instructivo: 2 cm.
+- listImageCount agregado.
+- stepImages[0..2] agregado con compatibilidad hacia stepImage anterior.
+- Modo lista renderiza 1, 2 o 3 imágenes en orden.
+- Controles laterales por cada imagen.
+- Drag/resize directo soporta kind="list".
 
 Resultado node --check: PASS
