@@ -268,3 +268,158 @@ button.danger{
 .final-body span{
   color:#111 !important;
 }
+
+
+/* V31 · Corrección visual: plantilla intacta, barra lateral rediseñada */
+:root{
+  --ei-blue:#00299B;
+  --ei-yellow:#EAC800;
+  --ei-gray:#A4A8AB;
+  --panel:#00299B;
+  --panel2:#00299B;
+}
+
+/* Fondo general de la APP: gris institucional + degradado azul/blanco */
+html,body{
+  background:
+    radial-gradient(circle at top left, rgba(0,41,155,.18), transparent 34%),
+    linear-gradient(135deg, #A4A8AB 0%, #EEF2F8 36%, #FFFFFF 62%, #DDE6FF 100%) !important;
+}
+
+/* La plantilla documental NO se cambia: hoja blanca y encabezado azul sólido */
+.page{
+  background:#FFFFFF !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+}
+
+.title-cell,
+.meta-cell{
+  background:#00299B !important;
+  background-image:none !important;
+}
+
+.logo-cell{
+  background:#FFFFFF !important;
+}
+
+.flow-box{
+  background:#FFFFFF !important;
+}
+
+.flow-box.grid-on{
+  background-color:#FFFFFF !important;
+  background-image:
+    linear-gradient(to right, rgba(0,41,155,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164,168,171,.16) 1px, transparent 1px) !important;
+  background-size:20px 20px;
+}
+
+.workarea{
+  background:
+    linear-gradient(135deg, rgba(164,168,171,.32) 0%, rgba(255,255,255,.65) 45%, rgba(0,41,155,.08) 100%) !important;
+}
+
+/* Solo barra lateral / zona de edición */
+.side{
+  background:
+    linear-gradient(180deg, #A4A8AB 0%, #C5C8CB 28%, #F6F8FC 58%, rgba(0,41,155,.20) 100%) !important;
+  box-shadow: 8px 0 26px rgba(0,0,0,.14) !important;
+}
+
+.brand{
+  background:#00299B !important;
+  border:1px solid rgba(255,255,255,.35) !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.16) !important;
+}
+
+.brand strong,
+.brand span{
+  color:#FFFFFF !important;
+}
+
+.panel{
+  background:#00299B !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16) !important;
+}
+
+.panel h2,
+.panel label,
+.panel .hint,
+.panel strong,
+.panel span,
+.panel small{
+  color:#FFFFFF !important;
+}
+
+.final-editor-grid .final-label{
+  color:#FFFFFF !important;
+}
+
+/* Campos dentro de paneles: azul más profundo, texto blanco */
+.side input,
+.side textarea,
+.side select{
+  background:#001B66 !important;
+  color:#FFFFFF !important;
+  border-color:rgba(255,255,255,.42) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.18) !important;
+}
+
+.side input[readonly]{
+  background:#123AAE !important;
+  color:#FFFFFF !important;
+}
+
+.side input::placeholder,
+.side textarea::placeholder{
+  color:rgba(255,255,255,.72) !important;
+}
+
+.page-item{
+  background:#00299B !important;
+  color:#FFFFFF !important;
+  border-color:rgba(255,255,255,.32) !important;
+}
+
+.page-item small,
+.page-item span{
+  color:#FFFFFF !important;
+}
+
+.page-item.active{
+  background:#123AAE !important;
+  border-color:#EAC800 !important;
+  box-shadow:0 0 0 2px rgba(234,200,0,.25) !important;
+}
+
+/* Botones sobre panel azul: fondo blanco, texto azul para lectura */
+.side button,
+.side .file-btn{
+  background:#FFFFFF !important;
+  color:#00299B !important;
+  box-shadow:0 4px 10px rgba(0,0,0,.12) !important;
+}
+
+.side button.danger{
+  background:#FFE1DC !important;
+  color:#8A170D !important;
+}
+
+/* Toolbar superior sobria, sin tocar plantilla */
+.toolbar{
+  background:linear-gradient(180deg, #FFFFFF 0%, #F4F6FA 100%) !important;
+}
+
+/* Página final: títulos azules, contenido negro */
+.final-body strong{
+  color:#00299B !important;
+}
+
+.final-body .final-text,
+.final-body li,
+.final-body p,
+.final-body div,
+.final-body span{
+  color:#111111 !important;
+}

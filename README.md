@@ -1,13 +1,15 @@
 # Procedimientos EI
 
-## Ajuste V30 · Diseño premium
+## Ajuste V31 · Barra lateral gris/azul sin tocar plantilla
 
-Se aplicó una mejora visual institucional:
+Corrección aplicada según indicación:
 
-- Mezcla del azul del logo `#00299B` con el gris `#A4A8AB`.
-- Fondo general con degradado suave azul/blanco y apoyo en gris institucional.
-- Menú lateral con degradado azul → azul claro → gris.
-- Tarjetas laterales con acabado tipo vidrio suave, más elegante.
-- Campos en fondo claro para mejorar legibilidad.
-- Encabezado del documento con degradado azul/blanco.
-- Se conserva toda la funcionalidad ya construida.
+- La plantilla documental no se modifica.
+- El encabezado de la plantilla queda sólido en el azul institucional `#00299B`.
+- La hoja se mantiene blanca.
+- El rediseño se aplicó solo a la barra lateral y zona de edición.
+- La barra lateral tiene fondo con gris institucional `#A4A8AB` y degradado azul/blanco.
+- Los cuadros/paneles laterales quedan azules.
+- El texto dentro de los cuadros laterales queda blanco.
+- Los campos internos usan azul profundo con texto blanco.
+- Se conserva toda la funcionalidad anterior.
