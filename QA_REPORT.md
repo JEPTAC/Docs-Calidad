@@ -1,10 +1,9 @@
-# QA V32
+# QA
 
-- node --check source/app.js ejecutado.
-- Barra lateral rediseñada.
-- Plantilla documental conservada.
-- Azul lateral más oscuro: #001F73.
-- Tarjetas grises: #A4A8AB.
-- Campos blancos dentro de tarjetas.
+- Se conserva el editor de procedimientos existente en /procedimiento.
+- El nuevo inicio permite seleccionar tipo documental.
+- Los módulos Word y Excel visual son autocontenidos.
+- Favicon inline.
+- Sin dependencias externas.
 
-Resultado node --check: PASS
+node --check source.js: PASS

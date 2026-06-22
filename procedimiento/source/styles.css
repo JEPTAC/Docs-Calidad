@@ -1,0 +1,626 @@
+
+:root{
+  --ei-blue:#00299B;--ei-yellow:#EAC800;--ei-gray:#A4A8AB;
+  --panel:#00299B;--panel2:#00299B;--font:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:var(--font);background:#eef2f6;color:#132238}
+button,input,textarea,select{font-family:inherit}
+button,.file-btn{border:0;background:#e7edf6;color:#0f253d;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+button:hover,.file-btn:hover{filter:brightness(.96)}
+button.active{background:#b9d4ff;box-shadow:0 0 0 2px rgba(0,55,138,.18) inset}
+button.primary{background:var(--ei-yellow);color:#001e4d}
+button.danger{background:#ffd8d3;color:#7a1209}
+.app{display:grid;grid-template-columns:400px 1fr;min-height:100vh}
+.side{background:var(--panel);color:#fff;padding:14px;overflow:auto;max-height:100vh}
+.brand{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:10px;margin-bottom:12px}
+.brand img{width:112px;background:#fff;border-radius:8px;padding:5px}
+.brand strong{display:block}.brand span{display:block;font-size:12px;color:#c5d2e4}
+.panel{background:var(--panel2);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:13px;margin:12px 0}
+.panel h2{margin:0 0 10px;font-size:14px;color:var(--ei-yellow);text-transform:uppercase;letter-spacing:.03em}
+label{display:block;font-size:12px;color:#dce8f5;font-weight:800;margin:8px 0 4px}
+input,textarea,select{width:100%;border:1px solid #4A68C8;background:#001B66;color:#fff;border-radius:10px;padding:8px;outline:none}
+input[readonly]{opacity:.82}
+input[type=color]{height:36px;padding:2px}
+textarea{resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.palette{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.hint{font-size:13px;color:#c9d6e5;line-height:1.45}
+.page-list{display:flex;flex-direction:column;gap:6px}
+.page-item{display:flex;justify-content:space-between;align-items:center;background:#001B66;border:1px solid #4A68C8;border-radius:10px;padding:8px;cursor:pointer}
+.page-item.active{border-color:var(--ei-yellow);box-shadow:0 0 0 2px rgba(234,200,0,.22)}
+.page-item.final{opacity:.92}
+.main{display:grid;grid-template-rows:auto 1fr;min-width:0}
+.toolbar{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid #d7dde7;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.group{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-right:8px;border-right:1px solid #dde4ee}
+.group:last-child{border-right:0}
+.workarea{overflow:auto;padding:28px;display:flex;justify-content:center;align-items:flex-start}
+.pages{display:flex;flex-direction:column;gap:26px;align-items:center;transform-origin:top center}
+.page{width:11in;height:8.5in;background:#fff;position:relative;box-shadow:0 12px 34px rgba(0,0,0,.24);overflow:hidden}
+.page:not(.active-page){display:none}
+.show-all .page{display:block}
+.page-frame{position:absolute;inset:.33in .39in .34in .39in;border:1.3px solid #111;pointer-events:none}
+.header{position:absolute;left:.39in;right:.39in;top:.33in;height:.92in;display:grid;grid-template-columns:2.55in 1fr 1.18in;border-bottom:1.3px solid #111;z-index:1}
+.logo-cell{display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#fff}
+.logo-cell::after{content:"";position:absolute;right:-.44in;top:-.12in;width:.88in;height:1.16in;background:#fff;border-radius:50%;z-index:3}
+.logo-cell img{max-width:2.18in;max-height:.64in;object-fit:contain;z-index:4}
+.title-cell,.meta-cell{background:linear-gradient(#00299B,#00299B 72%,#00299B)}
+.title-cell{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ei-yellow);font-weight:900;font-size:.13in;line-height:1.15;text-transform:uppercase;padding:0 .16in}
+.meta-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.14in;line-height:1.15}
+.flow-head{position:absolute;left:.39in;right:.39in;top:1.25in;height:.18in;display:grid;grid-template-columns:1.32in 1fr;border-bottom:1.3px solid #111;color:var(--ei-blue);font-size:.085in;font-weight:900;text-transform:uppercase;z-index:1}
+.flow-head>div{display:flex;align-items:center;justify-content:center}.flow-head div:first-child{border-right:1.3px solid #111}
+.resp-col{position:absolute;left:.39in;top:1.43in;bottom:.34in;width:1.32in;border-right:1.3px solid #111;z-index:1}
+.flow-box{position:absolute;left:1.71in;right:.39in;top:1.43in;bottom:.34in;background:#fff;overflow:hidden}
+.flow-box.grid-on{background-image:linear-gradient(to right,rgba(0,55,138,.08) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,55,138,.08) 1px,transparent 1px);background-size:20px 20px}
+.footer{position:absolute;left:.39in;right:.39in;bottom:.08in;height:.24in;display:flex;justify-content:space-between;align-items:center;color:var(--ei-gray);font-size:.13in;font-weight:900}
+.lane-line{position:absolute;left:0;right:0;border-bottom:1.3px solid #111;pointer-events:none}
+.lane-label{position:absolute;left:0;right:0;border-bottom:1.3px solid #111;display:grid;grid-template-columns:.75in .57in}
+.lane-label:last-child{border-bottom:0}
+.lane-label>div{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.lane-label>div:first-child{border-right:1.3px solid #111}
+.lane-text{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:900;font-size:.09in;text-align:center;line-height:1.05}
+.flow-canvas{position:absolute;inset:0;width:100%;height:100%;user-select:none}
+.shape{cursor:move}.shape-outline{filter:drop-shadow(1px 2px 1px rgba(0,0,0,.22))}
+.select-ring{display:none;fill:none;stroke:#ff8a00;stroke-width:2;stroke-dasharray:5 4}
+.selected .select-ring{display:block}
+.resize-handle{display:none;fill:#fff;stroke:#ff8a00;stroke-width:1.5;cursor:nwse-resize}
+.selected .resize-handle{display:block}
+.anchor-dot{display:none;fill:#fff;stroke:#0084ff;stroke-width:1.7}
+.selected .anchor-dot{display:block}
+.node-text{font-family:Century Gothic,Arial,sans-serif;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+.terminal-text{fill:#fff;font-weight:900;font-size:12px}.small-text{font-size:10px}.activity-text{font-size:10px}
+.verb{fill:var(--ei-blue);font-weight:900}.rest{fill:#111;font-weight:500}
+.edge-path{fill:none;stroke:#222;stroke-width:1.8;pointer-events:none}
+.edge-hit{fill:none;stroke:rgba(0,0,0,0);stroke-width:26;pointer-events:stroke;cursor:pointer}
+.edge-selected{stroke:#ff8a00!important;stroke-width:2.8!important}
+.edge-label{font-size:12px;font-weight:900;fill:var(--ei-blue);cursor:text}
+.edge-point{fill:#fff;stroke:#ff8a00;stroke-width:2.2;cursor:move}
+.edge-end{fill:#fff;stroke:#00a1ff;stroke-width:2.4;cursor:crosshair}
+.edge-mid{fill:#fff;stroke:#0084ff;stroke-width:1.7;cursor:copy}
+.final-title{position:absolute;left:.39in;right:.39in;top:1.25in;height:.28in;border-bottom:1.3px solid #111;color:var(--ei-blue);font-size:.105in;font-weight:900;display:flex;align-items:center;justify-content:center}
+.final-body{position:absolute;left:.39in;right:.39in;top:1.53in;bottom:.34in;padding:.16in .22in;display:grid;grid-template-columns:1fr 1fr;gap:.32in;font-size:.112in;line-height:1.22;overflow:hidden}
+.final-body [contenteditable]{outline:1px dashed transparent;padding:.04in}
+.final-body [contenteditable]:focus{outline-color:#88b8ff;background:#f8fbff}
+.final-body p{margin:.05in 0 .12in}
+.final-body strong{color:var(--ei-blue)}
+.qa-box{position:fixed;right:22px;top:75px;width:455px;max-height:70vh;overflow:auto;background:#fff;border:1px solid #d7dde7;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:100;padding:14px}
+.qa-box h3{margin:0 0 10px;color:var(--ei-blue)}.qa-pass{color:#087a34;font-weight:800}.qa-fail{color:#b00020;font-weight:800}
+@page{size:letter landscape;margin:0}
+@media print{
+  body{background:#fff}.no-print,.side,.toolbar,.qa-box{display:none!important}
+  .app,.main,.workarea,.pages{display:block;padding:0;overflow:visible;transform:none!important}
+  .page,.page:not(.active-page){display:block;box-shadow:none;margin:0;width:11in;height:8.5in;break-after:page;page-break-after:always}
+  .page:last-child{break-after:auto;page-break-after:auto}
+}
+
+
+.final-editor-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:7px 8px;align-items:start}
+.final-editor-grid .final-label{font-size:12px;color:#EAC800;font-weight:900;padding-top:8px;line-height:1.15}
+.final-editor-grid textarea{min-height:54px}
+.final-body p,.final-body div,.final-body span,.final-body li{color:#111}
+.final-body strong{color:var(--ei-blue)!important;font-weight:900}
+.final-body .final-text{color:#111!important;font-weight:400}
+.final-body .final-docs{margin:.03in 0 0 .14in;padding:0;color:#111}
+.final-body .final-docs li{color:#111;margin:.02in 0}
+
+
+/* Ajuste V28: identidad limpia y paneles contextuales */
+body{--ei-blue:#00299B;--ei-yellow:#EAC800;}
+.context-hidden{display:none!important;}
+.flow-only.context-hidden,.final-only.context-hidden{display:none!important;}
+.brand strong{font-size:15px}
+.brand span{font-size:12px}
+.panel h2{letter-spacing:.02em}
+.final-body p,.final-body div,.final-body span,.final-body li{color:#111!important}
+.final-body strong{color:var(--ei-blue)!important}
+.title-cell,.meta-cell{background:linear-gradient(#00299B, #00299B)!important}
+
+
+/* V29: Azul institucional del logo en menú lateral y secciones de edición */
+:root{--ei-blue:#00299B;--panel:#00299B;--panel2:#00299B;--ei-yellow:#EAC800;}
+.side{background:#00299B!important;}
+.panel{background:#00299B!important;border-color:rgba(255,255,255,.24)!important;}
+.brand{background:rgba(255,255,255,.10)!important;border-color:rgba(255,255,255,.24)!important;}
+.title-cell,.meta-cell{background:#00299B!important;}
+.panel h2,.brand span{color:#EAC800!important;}
+input,textarea,select{background:#001B66!important;border-color:#4A68C8!important;}
+.page-item{background:#001B66!important;border-color:#4A68C8!important;}
+
+
+/* V30 · tema premium institucional */
+:root{
+  --ei-blue:#00299B;
+  --ei-yellow:#EAC800;
+  --ei-gray:#A4A8AB;
+  --panel:#00299B;
+  --panel2:#00299B;
+}
+
+html,body{
+  background:
+    radial-gradient(circle at top right, rgba(0,41,155,.10), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(164,168,171,.18), transparent 30%),
+    linear-gradient(135deg, #F7F9FC 0%, #ffffff 52%, #eef2f7 100%) !important;
+}
+
+.side{
+  background:
+    linear-gradient(180deg, #00299B 0%, #1D46B8 48%, #A4A8AB 100%) !important;
+  box-shadow: 8px 0 26px rgba(0,0,0,.12);
+}
+
+.brand{
+  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.08)) !important;
+  border: 1px solid rgba(255,255,255,.32) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+  backdrop-filter: blur(3px);
+}
+
+.brand strong{
+  color:#fff !important;
+  letter-spacing:.01em;
+}
+
+.brand span{
+  color: #F4E59B !important;
+}
+
+.panel{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.10) 100%) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  backdrop-filter: blur(4px);
+}
+
+.panel h2{
+  color:#fff !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+
+label{
+  color:#F3F6FB !important;
+}
+
+input,textarea,select{
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,247,251,.96)) !important;
+  color:#132238 !important;
+  border-color: rgba(0,41,155,.24) !important;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.85), 0 1px 0 rgba(0,0,0,.04);
+}
+
+input::placeholder, textarea::placeholder{
+  color:#6f7782;
+}
+
+button,.file-btn{
+  background: linear-gradient(180deg, #ffffff 0%, #EEF2F8 100%);
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+button.active{
+  background: linear-gradient(180deg, #DCE7FF 0%, #BFD1FF 100%);
+}
+
+button.primary{
+  background: linear-gradient(180deg, #F7DB47 0%, #EAC800 100%);
+  color:#001E4D;
+}
+
+button.danger{
+  background: linear-gradient(180deg, #FFE4E1 0%, #FFD2CB 100%);
+}
+
+.page-item{
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(240,244,250,.96)) !important;
+  color:#0f253d !important;
+  border-color: rgba(0,41,155,.18) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.page-item small{
+  color:#6E7784 !important;
+}
+
+.page-item.active{
+  background: linear-gradient(180deg, #ffffff 0%, #E6EEFF 100%) !important;
+  border-color: #EAC800 !important;
+}
+
+.toolbar{
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%) !important;
+}
+
+.group{
+  border-right:1px solid #d7dfe9;
+}
+
+.workarea{
+  background:
+    linear-gradient(180deg, rgba(164,168,171,.10), rgba(255,255,255,0) 24%),
+    linear-gradient(135deg, #f2f5f9 0%, #ffffff 100%);
+}
+
+.page{
+  border:1px solid rgba(0,41,155,.08);
+}
+
+.title-cell,.meta-cell{
+  background: linear-gradient(135deg, #00299B 0%, #3159C7 62%, #ffffff 180%) !important;
+}
+
+.flow-box.grid-on{
+  background-image:
+    linear-gradient(to right, rgba(0,41,155,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164,168,171,.18) 1px, transparent 1px) !important;
+  background-size:20px 20px;
+}
+
+.final-body strong{
+  color:#00299B !important;
+}
+
+.final-body .final-text,
+.final-body li,
+.final-body p,
+.final-body div,
+.final-body span{
+  color:#111 !important;
+}
+
+
+/* V31 · Corrección visual: plantilla intacta, barra lateral rediseñada */
+:root{
+  --ei-blue:#00299B;
+  --ei-yellow:#EAC800;
+  --ei-gray:#A4A8AB;
+  --panel:#00299B;
+  --panel2:#00299B;
+}
+
+/* Fondo general de la APP: gris institucional + degradado azul/blanco */
+html,body{
+  background:
+    radial-gradient(circle at top left, rgba(0,41,155,.18), transparent 34%),
+    linear-gradient(135deg, #A4A8AB 0%, #EEF2F8 36%, #FFFFFF 62%, #DDE6FF 100%) !important;
+}
+
+/* La plantilla documental NO se cambia: hoja blanca y encabezado azul sólido */
+.page{
+  background:#FFFFFF !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+}
+
+.title-cell,
+.meta-cell{
+  background:#00299B !important;
+  background-image:none !important;
+}
+
+.logo-cell{
+  background:#FFFFFF !important;
+}
+
+.flow-box{
+  background:#FFFFFF !important;
+}
+
+.flow-box.grid-on{
+  background-color:#FFFFFF !important;
+  background-image:
+    linear-gradient(to right, rgba(0,41,155,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164,168,171,.16) 1px, transparent 1px) !important;
+  background-size:20px 20px;
+}
+
+.workarea{
+  background:
+    linear-gradient(135deg, rgba(164,168,171,.32) 0%, rgba(255,255,255,.65) 45%, rgba(0,41,155,.08) 100%) !important;
+}
+
+/* Solo barra lateral / zona de edición */
+.side{
+  background:
+    linear-gradient(180deg, #A4A8AB 0%, #C5C8CB 28%, #F6F8FC 58%, rgba(0,41,155,.20) 100%) !important;
+  box-shadow: 8px 0 26px rgba(0,0,0,.14) !important;
+}
+
+.brand{
+  background:#00299B !important;
+  border:1px solid rgba(255,255,255,.35) !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.16) !important;
+}
+
+.brand strong,
+.brand span{
+  color:#FFFFFF !important;
+}
+
+.panel{
+  background:#00299B !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16) !important;
+}
+
+.panel h2,
+.panel label,
+.panel .hint,
+.panel strong,
+.panel span,
+.panel small{
+  color:#FFFFFF !important;
+}
+
+.final-editor-grid .final-label{
+  color:#FFFFFF !important;
+}
+
+/* Campos dentro de paneles: azul más profundo, texto blanco */
+.side input,
+.side textarea,
+.side select{
+  background:#001B66 !important;
+  color:#FFFFFF !important;
+  border-color:rgba(255,255,255,.42) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.18) !important;
+}
+
+.side input[readonly]{
+  background:#123AAE !important;
+  color:#FFFFFF !important;
+}
+
+.side input::placeholder,
+.side textarea::placeholder{
+  color:rgba(255,255,255,.72) !important;
+}
+
+.page-item{
+  background:#00299B !important;
+  color:#FFFFFF !important;
+  border-color:rgba(255,255,255,.32) !important;
+}
+
+.page-item small,
+.page-item span{
+  color:#FFFFFF !important;
+}
+
+.page-item.active{
+  background:#123AAE !important;
+  border-color:#EAC800 !important;
+  box-shadow:0 0 0 2px rgba(234,200,0,.25) !important;
+}
+
+/* Botones sobre panel azul: fondo blanco, texto azul para lectura */
+.side button,
+.side .file-btn{
+  background:#FFFFFF !important;
+  color:#00299B !important;
+  box-shadow:0 4px 10px rgba(0,0,0,.12) !important;
+}
+
+.side button.danger{
+  background:#FFE1DC !important;
+  color:#8A170D !important;
+}
+
+/* Toolbar superior sobria, sin tocar plantilla */
+.toolbar{
+  background:linear-gradient(180deg, #FFFFFF 0%, #F4F6FA 100%) !important;
+}
+
+/* Página final: títulos azules, contenido negro */
+.final-body strong{
+  color:#00299B !important;
+}
+
+.final-body .final-text,
+.final-body li,
+.final-body p,
+.final-body div,
+.final-body span{
+  color:#111111 !important;
+}
+
+
+/* V32 · Barra lateral ejecutiva: fondo azul oscuro, tarjetas grises, campos blancos.
+   La plantilla documental se conserva intacta. */
+:root{
+  --ei-blue:#001F73;
+  --ei-yellow:#EAC800;
+  --ei-gray:#A4A8AB;
+  --panel:#A4A8AB;
+  --panel2:#A4A8AB;
+}
+
+/* Plantilla intacta: azul sólido, sin degradados en el formato */
+.page{
+  background:#FFFFFF !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+}
+.title-cell,
+.meta-cell{
+  background:#001F73 !important;
+  background-image:none !important;
+}
+.logo-cell,
+.flow-box{
+  background:#FFFFFF !important;
+}
+.final-body strong{
+  color:#001F73 !important;
+}
+.final-body .final-text,
+.final-body li,
+.final-body p,
+.final-body div,
+.final-body span{
+  color:#111111 !important;
+}
+
+/* Fondo de trabajo sobrio */
+.workarea{
+  background:
+    radial-gradient(circle at 12% 6%, rgba(0,31,115,.10), transparent 28%),
+    linear-gradient(135deg, #ECEFF3 0%, #FFFFFF 52%, #E7ECF6 100%) !important;
+}
+
+/* Solo barra lateral: diseño ejecutivo con textura sutil */
+.side{
+  position:relative;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255,255,255,.14), transparent 18%),
+    radial-gradient(circle at 86% 32%, rgba(164,168,171,.18), transparent 22%),
+    linear-gradient(145deg, #001754 0%, #001F73 45%, #00298C 100%) !important;
+  box-shadow: 10px 0 30px rgba(0,0,0,.18) !important;
+  isolation:isolate;
+}
+
+.side::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,.055) 0 1px, transparent 1px 18px),
+    linear-gradient(30deg, rgba(255,255,255,.035) 0 1px, transparent 1px 22px);
+  opacity:.55;
+  pointer-events:none;
+}
+
+.side::after{
+  content:"";
+  position:absolute;
+  right:-70px;
+  top:95px;
+  width:170px;
+  height:170px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:50%;
+  pointer-events:none;
+}
+
+/* Encabezado de la barra */
+.brand{
+  background:linear-gradient(145deg, rgba(164,168,171,.95), rgba(127,133,138,.94)) !important;
+  border:1px solid rgba(255,255,255,.42) !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.20) !important;
+}
+
+.brand strong{
+  color:#FFFFFF !important;
+  letter-spacing:.015em;
+}
+
+.brand span{
+  color:#F6F8FC !important;
+}
+
+/* Tarjetas grises con profundidad sobria */
+.panel{
+  background:
+    linear-gradient(145deg, rgba(164,168,171,.97) 0%, rgba(127,133,138,.96) 100%) !important;
+  border:1px solid rgba(255,255,255,.40) !important;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.36) !important;
+  backdrop-filter: blur(2px);
+}
+
+.panel h2{
+  color:#FFFFFF !important;
+  font-weight:900;
+  text-shadow:0 1px 1px rgba(0,0,0,.22);
+}
+
+.panel label,
+.panel .hint,
+.panel strong,
+.panel span,
+.panel small{
+  color:#FFFFFF !important;
+}
+
+.final-editor-grid .final-label{
+  color:#FFFFFF !important;
+  text-shadow:0 1px 1px rgba(0,0,0,.18);
+}
+
+/* Campos blancos dentro de las tarjetas */
+.side input,
+.side textarea,
+.side select{
+  background:#FFFFFF !important;
+  color:#001754 !important;
+  border:1px solid rgba(0,31,115,.28) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,.06),
+    0 1px 0 rgba(255,255,255,.55) !important;
+}
+
+.side input[readonly]{
+  background:#F4F6FA !important;
+  color:#001754 !important;
+}
+
+.side input::placeholder,
+.side textarea::placeholder{
+  color:#6F7782 !important;
+}
+
+/* Lista de páginas como cuadros grises, sin perder jerarquía */
+.page-item{
+  background:linear-gradient(145deg, #B7BBBE 0%, #A4A8AB 100%) !important;
+  color:#FFFFFF !important;
+  border:1px solid rgba(255,255,255,.42) !important;
+  box-shadow:0 7px 14px rgba(0,0,0,.12) !important;
+}
+
+.page-item span,
+.page-item small{
+  color:#FFFFFF !important;
+}
+
+.page-item.active{
+  background:linear-gradient(145deg, #001F73 0%, #00298C 100%) !important;
+  border-color:#EAC800 !important;
+  box-shadow:0 0 0 2px rgba(234,200,0,.28), 0 10px 20px rgba(0,0,0,.18) !important;
+}
+
+/* Botones ejecutivos */
+.side button,
+.side .file-btn{
+  background:linear-gradient(180deg, #001F73 0%, #001754 100%) !important;
+  color:#FFFFFF !important;
+  border:1px solid rgba(255,255,255,.26) !important;
+  box-shadow:0 6px 14px rgba(0,0,0,.18) !important;
+}
+
+.side button:hover,
+.side .file-btn:hover{
+  filter:brightness(1.06);
+}
+
+.side button.danger{
+  background:linear-gradient(180deg, #FFFFFF 0%, #FFE4E1 100%) !important;
+  color:#8A170D !important;
+  border-color:rgba(138,23,13,.20) !important;
+}
+
+.side button.active{
+  background:linear-gradient(180deg, #EAC800 0%, #D7B900 100%) !important;
+  color:#001754 !important;
+}
+
+/* Toolbar superior limpia, sin tocar formato */
+.toolbar{
+  background:linear-gradient(180deg, #FFFFFF 0%, #F4F6FA 100%) !important;
+  border-bottom:1px solid #D7DDE7 !important;
+}
+
+button.primary{
+  background:linear-gradient(180deg, #EAC800 0%, #D7B900 100%) !important;
+  color:#001754 !important;
+}
