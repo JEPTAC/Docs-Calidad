@@ -1,12 +1,9 @@
 # Editor de Procedimientos EI
 
-## Ajustes V28
+## Ajuste de color V29
 
-- Se retiraron nombres técnicos como versiones o frases tipo “final automática”.
-- El nombre visible de la herramienta quedó como **Editor de Procedimientos**.
-- En páginas de flujograma solo aparecen herramientas de flujograma.
-- En la página de Normas y políticas solo aparece el panel para diligenciar esa página.
-- Se ocultaron carriles, figuras y propiedades del flujograma cuando se está en la página final.
-- Se aplicó el azul del logo detectado: `#00299B`.
-- El texto no título en la página final permanece negro.
-- Los títulos de la última página permanecen en azul institucional.
+- El menú lateral quedó corregido con el azul del logo: `#00299B`.
+- Las secciones donde se agregan figuras, carriles, flujogramas y normas usan el mismo azul institucional.
+- El encabezado del documento también conserva el mismo azul.
+- Los campos internos usan una variante más oscura para conservar lectura, sin salirse de la familia visual del logo.
+- El amarillo institucional se mantiene como acento: `#EAC800`.
