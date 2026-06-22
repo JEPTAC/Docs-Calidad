@@ -1,34 +1,34 @@
-# Editor EI V22 · Stable Arrow Core
+# Editor EI V23 · Canva Core Funcional
 
-Esta versión rehace el motor de flechas desde la base para evitar la distorsión reportada.
+Esta versión simplifica el motor de flechas para hacerlo más manejable y evitar distorsiones.
 
-## Cambio de arquitectura
+## Cambio clave
 
-Antes las flechas se recalculaban con puntos virtuales y al moverlas podían desacomodarse.  
-Ahora cada flecha tiene un modelo propio:
+La flecha ahora es una polilínea de puntos reales.  
+No hay puntos virtuales, no hay recalculo oculto, no hay segmentos automáticos invisibles.
 
-- `start`: extremo inicial, conectado o libre.
-- `end`: extremo final, conectado o libre.
-- `vertices`: puntos manuales independientes.
-- La flecha seleccionada es la única que se modifica.
-- Mover una flecha completa desconecta sus extremos y traslada solo esa flecha.
-- Mover un vértice modifica solo ese vértice.
-- Mover una figura solo actualiza las flechas realmente conectadas a ella.
+Esto significa:
 
-## Funcionalidad
+- Arrastras la línea completa y se mueve solo esa flecha.
+- Arrastras un punto y se mueve solo ese punto.
+- Agregas puntos reales con los botones/controles.
+- Ortogonalizar convierte la flecha a codos reales.
+- Enderezar deja la flecha con dos puntos reales.
+- Una figura movida solo actualiza los extremos de las flechas realmente conectadas.
 
-- Crear flechas conectadas.
-- Crear flechas libres.
+## Funciones
+
+- Crear flecha conectada.
+- Crear flecha libre arrastrando.
 - Mover flecha completa.
-- Mover extremos.
-- Agregar vértices.
-- Mover vértices.
-- Desconectar flechas.
-- Limpiar vértices.
-- Invertir flechas.
-- Cambiar modo recto/ortogonal.
-- Cambiar color/grosor/estilo/etiqueta.
-- Eliminar flechas.
-- Selección múltiple de figuras.
-- Figuras oficiales y extras.
+- Mover puntos de flecha.
+- Agregar punto.
+- Eliminar punto.
+- Ortogonalizar.
+- Enderezar.
+- Desconectar.
+- Invertir.
+- Cambiar color, grosor, estilo, etiqueta y punta.
+- Crear/mover/redimensionar figuras.
 - Carriles, páginas, narrativa, PDF, SVG, HTML y JSON.
+- QA integrado.

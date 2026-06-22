@@ -1,24 +1,29 @@
-# QA V22
+# QA V23
 
 ## QA técnico
 
-- Motor de flechas reescrito.
-- Sin uso de puntos undefined.
+- `node --check source/app.js` ejecutado.
+- Sin recursos externos.
+- Favicon inline para evitar 404.
+- Logo embebido.
 - Colores normalizados.
-- `node --check source/app.js` debe pasar.
-- `index.html` autocontenido.
+- Flechas con puntos reales.
+- Sin puntos virtuales.
+- Sin puntos undefined.
 
-## QA funcional sugerido
+## Pruebas manuales recomendadas
 
-1. Mover una flecha completa: no debe mover otras.
-2. Mover un vértice: solo cambia esa flecha.
-3. Mover una figura: solo se actualizan flechas conectadas.
-4. Desconectar flecha y moverla libremente.
-5. Crear flecha libre.
-6. Crear flecha conectada.
-7. Cambiar modo recto/ortogonal.
-8. Exportar PDF.
+1. Abrir index.html.
+2. Seleccionar flecha y arrastrar la línea completa.
+3. Verificar que ninguna otra flecha se mueva.
+4. Arrastrar un punto azul/naranja.
+5. Agregar punto.
+6. Eliminar punto.
+7. Ortogonalizar.
+8. Enderezar.
+9. Mover una figura conectada.
+10. Desconectar una flecha.
+11. Exportar PDF.
 
 
 Resultado node --check: PASS
-
