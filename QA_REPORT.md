@@ -1,8 +1,9 @@
-# QA V29
+# QA V30
 
-- Color del menú lateral corregido a `#00299B`.
-- Paneles laterales corregidos a `#00299B`.
-- Encabezado del documento corregido a `#00299B`.
 - node --check source/app.js ejecutado.
+- Menú lateral con mezcla azul institucional + gris `#A4A8AB`.
+- Fondo general con degradado azul/blanco.
+- Paneles con mejor contraste.
+- Campos con legibilidad alta.
 
 Resultado node --check: PASS

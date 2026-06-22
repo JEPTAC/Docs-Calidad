@@ -126,3 +126,145 @@ body{--ei-blue:#00299B;--ei-yellow:#EAC800;}
 .panel h2,.brand span{color:#EAC800!important;}
 input,textarea,select{background:#001B66!important;border-color:#4A68C8!important;}
 .page-item{background:#001B66!important;border-color:#4A68C8!important;}
+
+
+/* V30 · tema premium institucional */
+:root{
+  --ei-blue:#00299B;
+  --ei-yellow:#EAC800;
+  --ei-gray:#A4A8AB;
+  --panel:#00299B;
+  --panel2:#00299B;
+}
+
+html,body{
+  background:
+    radial-gradient(circle at top right, rgba(0,41,155,.10), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(164,168,171,.18), transparent 30%),
+    linear-gradient(135deg, #F7F9FC 0%, #ffffff 52%, #eef2f7 100%) !important;
+}
+
+.side{
+  background:
+    linear-gradient(180deg, #00299B 0%, #1D46B8 48%, #A4A8AB 100%) !important;
+  box-shadow: 8px 0 26px rgba(0,0,0,.12);
+}
+
+.brand{
+  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.08)) !important;
+  border: 1px solid rgba(255,255,255,.32) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+  backdrop-filter: blur(3px);
+}
+
+.brand strong{
+  color:#fff !important;
+  letter-spacing:.01em;
+}
+
+.brand span{
+  color: #F4E59B !important;
+}
+
+.panel{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.10) 100%) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  backdrop-filter: blur(4px);
+}
+
+.panel h2{
+  color:#fff !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+
+label{
+  color:#F3F6FB !important;
+}
+
+input,textarea,select{
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,247,251,.96)) !important;
+  color:#132238 !important;
+  border-color: rgba(0,41,155,.24) !important;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.85), 0 1px 0 rgba(0,0,0,.04);
+}
+
+input::placeholder, textarea::placeholder{
+  color:#6f7782;
+}
+
+button,.file-btn{
+  background: linear-gradient(180deg, #ffffff 0%, #EEF2F8 100%);
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+button.active{
+  background: linear-gradient(180deg, #DCE7FF 0%, #BFD1FF 100%);
+}
+
+button.primary{
+  background: linear-gradient(180deg, #F7DB47 0%, #EAC800 100%);
+  color:#001E4D;
+}
+
+button.danger{
+  background: linear-gradient(180deg, #FFE4E1 0%, #FFD2CB 100%);
+}
+
+.page-item{
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(240,244,250,.96)) !important;
+  color:#0f253d !important;
+  border-color: rgba(0,41,155,.18) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.page-item small{
+  color:#6E7784 !important;
+}
+
+.page-item.active{
+  background: linear-gradient(180deg, #ffffff 0%, #E6EEFF 100%) !important;
+  border-color: #EAC800 !important;
+}
+
+.toolbar{
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%) !important;
+}
+
+.group{
+  border-right:1px solid #d7dfe9;
+}
+
+.workarea{
+  background:
+    linear-gradient(180deg, rgba(164,168,171,.10), rgba(255,255,255,0) 24%),
+    linear-gradient(135deg, #f2f5f9 0%, #ffffff 100%);
+}
+
+.page{
+  border:1px solid rgba(0,41,155,.08);
+}
+
+.title-cell,.meta-cell{
+  background: linear-gradient(135deg, #00299B 0%, #3159C7 62%, #ffffff 180%) !important;
+}
+
+.flow-box.grid-on{
+  background-image:
+    linear-gradient(to right, rgba(0,41,155,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164,168,171,.18) 1px, transparent 1px) !important;
+  background-size:20px 20px;
+}
+
+.final-body strong{
+  color:#00299B !important;
+}
+
+.final-body .final-text,
+.final-body li,
+.final-body p,
+.final-body div,
+.final-body span{
+  color:#111 !important;
+}

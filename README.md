@@ -1,9 +1,13 @@
-# Editor de Procedimientos EI
+# Procedimientos EI
 
-## Ajuste de color V29
+## Ajuste V30 · Diseño premium
 
-- El menú lateral quedó corregido con el azul del logo: `#00299B`.
-- Las secciones donde se agregan figuras, carriles, flujogramas y normas usan el mismo azul institucional.
-- El encabezado del documento también conserva el mismo azul.
-- Los campos internos usan una variante más oscura para conservar lectura, sin salirse de la familia visual del logo.
-- El amarillo institucional se mantiene como acento: `#EAC800`.
+Se aplicó una mejora visual institucional:
+
+- Mezcla del azul del logo `#00299B` con el gris `#A4A8AB`.
+- Fondo general con degradado suave azul/blanco y apoyo en gris institucional.
+- Menú lateral con degradado azul → azul claro → gris.
+- Tarjetas laterales con acabado tipo vidrio suave, más elegante.
+- Campos en fondo claro para mejorar legibilidad.
+- Encabezado del documento con degradado azul/blanco.
+- Se conserva toda la funcionalidad ya construida.
