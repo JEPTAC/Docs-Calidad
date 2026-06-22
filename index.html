@@ -168,6 +168,30 @@ button:hover,.file-btn:hover{filter:brightness(1.08)}button.primary{background:l
 @media print{
   .substep-mini-img.empty-print{display:none!important}
 }
+
+
+/* V6 instructivo: subpasos eliminables, imagen por paso y distribución responsive */
+.sub-editor .danger{margin-top:6px}
+.step-layout-panel{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);border-radius:10px;padding:8px;margin:8px 0}
+.step-layout-panel .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.substep-grid.cols-1{grid-template-columns:1fr}
+.substep-grid.cols-2{grid-template-columns:1fr 1fr}
+.substep-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.substep-mini{min-height:var(--card-h, 1.50in)}
+.substep-mini-img{min-height:var(--img-h, 1.02in)}
+.step-image-only{border:1px solid #D0D5DD;border-radius:8px;background:#fff;margin:6px;padding:6px}
+.step-image-title{font-weight:900;color:#001F73;font-size:9pt;margin-bottom:5px}
+.step-main-img{position:relative;width:100%;min-height:var(--step-img-h, 3.15in);border:1px solid #E4E7EC;border-radius:7px;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#98A2B3;font-size:9px;text-align:center}
+.step-main-img.empty-print{background:repeating-linear-gradient(45deg,#F8FAFC,#F8FAFC 8px,#EEF2F7 8px,#EEF2F7 16px)}
+.step-main-img img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);object-fit:contain;background:#fff;max-width:none;max-height:none}
+.layout-preview{display:grid;gap:4px;margin-top:6px}
+.layout-preview.cols-1{grid-template-columns:1fr}
+.layout-preview.cols-2{grid-template-columns:1fr 1fr}
+.layout-preview.cols-3{grid-template-columns:repeat(3,1fr)}
+.layout-cell{height:22px;border:1px solid rgba(255,255,255,.45);border-radius:5px;background:rgba(255,255,255,.22);font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center}
+@media print{
+  .step-main-img.empty-print{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -309,7 +333,7 @@ function bind(){
   $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
   $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
-  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:''}]});render()};
+  $('addStep').onclick=()=>{doc.steps.push({n:String(doc.steps.length+1),title:'Nuevo paso general',notes:[],cols:2,cardH:150,imgH:102,stepImage:'',stepImgW:100,stepImgH:100,stepImgX:50,stepImgY:50,stepImgBoxH:315,sub:[{code:(doc.steps.length+1)+'.1',text:'Describa el paso específico.',image:'',imgW:100,imgH:100,imgX:50,imgY:50}]});render()};
   $('addNote').onclick=()=>{const i=Math.max(0,doc.steps.length-1);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push('Escriba la nota del paso.');render()};
 }
 function fieldMap(id){return {wordType:'wordType',docTitle:'title',docCode:'code',docVersion:'version',cityDate:'cityDate',circularNo:'circularNo',para:'para',de:'de',asunto:'asunto',remitente:'remitente',cargo:'cargo'}[id]}
@@ -350,6 +374,15 @@ function instrFooter(i,total){
 function ensureSubDefaults(){
   doc.steps.forEach((s,si)=>{
     s.notes=s.notes||[];
+    s.cols=s.cols||2;
+    s.cardH=s.cardH||150;
+    s.imgH=s.imgH||102;
+    s.stepImage=s.stepImage||'';
+    s.stepImgW=s.stepImgW||100;
+    s.stepImgH=s.stepImgH||100;
+    s.stepImgX=s.stepImgX??50;
+    s.stepImgY=s.stepImgY??50;
+    s.stepImgBoxH=s.stepImgBoxH||315;
     s.sub=(s.sub||[]).map((ss,ji)=>({
       code:ss.code||((si+1)+'.'+(ji+1)),
       text:ss.text||'',
@@ -365,29 +398,61 @@ function ensureSubDefaults(){
 function renderStepEditor(){
   const sel=$('activeStep'), box=$('stepEditor');
   if(!sel||!box||mode!=='excel')return;
+  ensureSubDefaults();
   sel.innerHTML=doc.steps.map((s,i)=>`<option value="${i}" ${Number(doc.activeStep||0)===i?'selected':''}>${s.n}. ${esc(s.title)}</option>`).join('');
   const i=Math.min(Number(doc.activeStep||0), doc.steps.length-1);
   doc.activeStep=i;
   const s=doc.steps[i];
+  const previewCount=Math.max((s.sub||[]).length,1);
   box.innerHTML=`<div class="instr-side-step active">
     <div class="instr-side-step-title"><b>Paso ${esc(s.n)}</b><button class="danger" onclick="removeStep(${i})">Eliminar</button></div>
     <label>Título del paso<input data-step-title-panel="${i}" value="${esc(s.title)}"></label>
-    <div class="actions"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
-    ${(s.sub||[]).map((ss,j)=>`<div class="sub-editor">
+    <div class="step-layout-panel">
+      <b>Distribución visual</b>
+      <div class="mini-grid">
+        <label>Columnas
+          <select data-step-cols="${i}">
+            <option value="1" ${s.cols==1?'selected':''}>1 columna</option>
+            <option value="2" ${s.cols==2?'selected':''}>2 columnas</option>
+            <option value="3" ${s.cols==3?'selected':''}>3 columnas</option>
+          </select>
+        </label>
+        <label>Alto tarjeta px<input type="number" min="110" max="260" data-card-h="${i}" value="${s.cardH||150}"></label>
+        <label>Alto imagen px<input type="number" min="70" max="220" data-grid-img-h="${i}" value="${s.imgH||102}"></label>
+      </div>
+      <div class="layout-preview cols-${s.cols||2}">${Array.from({length:previewCount}).map((_,k)=>`<div class="layout-cell">${k+1}</div>`).join('')}</div>
+    </div>
+    <div class="actions"><button onclick="addSub(${i})">+ Subpaso</button><button onclick="clearSubsteps(${i})">Sin subpasos</button><button onclick="addNoteToStep(${i})">+ Nota</button></div>
+    ${(s.sub||[]).length? (s.sub||[]).map((ss,j)=>`<div class="sub-editor">
       <b>${esc(ss.code)}</b>
       <label>Texto del subpaso<textarea rows="3" data-sub-text-panel="${i}-${j}">${esc(ss.text)}</textarea></label>
       <label class="file-btn">Agregar imagen<input type="file" accept="image/*" data-sub-img="${i}-${j}" hidden></label>
       ${ss.image?'<button class="danger" onclick="removeSubImage('+i+','+j+')">Quitar imagen</button>':''}
+      <button class="danger" onclick="removeSub(${i},${j})">Eliminar subpaso</button>
       <div class="mini-grid">
         <label>Ancho %<input type="number" min="40" max="220" data-img-w="${i}-${j}" value="${ss.imgW||100}"></label>
         <label>Alto %<input type="number" min="40" max="220" data-img-h="${i}-${j}" value="${ss.imgH||100}"></label>
         <label>Posición X<input type="range" min="0" max="100" data-img-x="${i}-${j}" value="${ss.imgX??50}"></label>
         <label>Posición Y<input type="range" min="0" max="100" data-img-y="${i}-${j}" value="${ss.imgY??50}"></label>
       </div>
-    </div>`).join('')}
+    </div>`).join('') : `<div class="sub-editor">
+      <b>Imagen general del paso</b>
+      <label class="file-btn">Agregar imagen del paso<input type="file" accept="image/*" data-step-img="${i}" hidden></label>
+      ${s.stepImage?'<button class="danger" onclick="removeStepImage('+i+')">Quitar imagen</button>':''}
+      <div class="mini-grid">
+        <label>Ancho %<input type="number" min="40" max="240" data-step-img-w="${i}" value="${s.stepImgW||100}"></label>
+        <label>Alto %<input type="number" min="40" max="240" data-step-img-h="${i}" value="${s.stepImgH||100}"></label>
+        <label>Posición X<input type="range" min="0" max="100" data-step-img-x="${i}" value="${s.stepImgX??50}"></label>
+        <label>Posición Y<input type="range" min="0" max="100" data-step-img-y="${i}" value="${s.stepImgY??50}"></label>
+        <label>Alto recuadro px<input type="number" min="160" max="420" data-step-img-box-h="${i}" value="${s.stepImgBoxH||315}"></label>
+      </div>
+    </div>`}
     ${(s.notes||[]).map((n,j)=>`<div class="sub-editor"><b>Nota ${j+1}</b><label>Texto de la nota<textarea rows="2" data-note-panel="${i}-${j}">${esc(n)}</textarea></label><button class="danger" onclick="removeNote(${i},${j})">Eliminar nota</button></div>`).join('')}
   </div>`;
   box.querySelectorAll('[data-step-title-panel]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepTitlePanel].title=e.target.value;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-cols]').forEach(el=>el.onchange=e=>{doc.steps[+e.target.dataset.stepCols].cols=Number(e.target.value)||2;render()});
+  box.querySelectorAll('[data-card-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.cardH].cardH=Number(e.target.value)||150;renderInstructivoOnly()});
+  box.querySelectorAll('[data-grid-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.gridImgH].imgH=Number(e.target.value)||102;renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-text-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.subTextPanel.split('-').map(Number);doc.steps[a].sub[b].text=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-note-panel]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.notePanel.split('-').map(Number);doc.steps[a].notes[b]=e.target.value;renderInstructivoOnly()});
   box.querySelectorAll('[data-img-w]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgW.split('-').map(Number);doc.steps[a].sub[b].imgW=Number(e.target.value)||100;renderInstructivoOnly()});
@@ -395,6 +460,12 @@ function renderStepEditor(){
   box.querySelectorAll('[data-img-x]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgX.split('-').map(Number);doc.steps[a].sub[b].imgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-img-y]').forEach(el=>el.oninput=e=>{const [a,b]=e.target.dataset.imgY.split('-').map(Number);doc.steps[a].sub[b].imgY=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-sub-img]').forEach(inp=>inp.onchange=e=>{const [a,b]=e.target.dataset.subImg.split('-').map(Number);loadSubImg(e,a,b)});
+  box.querySelectorAll('[data-step-img]').forEach(inp=>inp.onchange=e=>{loadStepImg(e,Number(e.target.dataset.stepImg))});
+  box.querySelectorAll('[data-step-img-w]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgW].stepImgW=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgH].stepImgH=Number(e.target.value)||100;renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-x]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgX].stepImgX=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-y]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgY].stepImgY=Number(e.target.value);renderInstructivoOnly()});
+  box.querySelectorAll('[data-step-img-box-h]').forEach(el=>el.oninput=e=>{doc.steps[+e.target.dataset.stepImgBoxH].stepImgBoxH=Number(e.target.value)||315;renderInstructivoOnly()});
 }
 function renderInstructivoOnly(){
   const st=$('stage');
@@ -416,14 +487,22 @@ function instructivoHtml(){
 function stepsPreviewHtml(i, compactFirst){
   const s=doc.steps[i];
   if(!s)return '';
-  return `<div class="step-compact"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
-    <div class="substep-grid">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>
+  const cols=s.cols||2;
+  return `<div class="step-compact" style="--card-h:${s.cardH||150}px;--img-h:${s.imgH||102}px;--step-img-h:${s.stepImgBoxH||315}px"><div class="step-compact-head"><div class="step-compact-num">${esc(s.n)}.</div><div class="step-compact-title">${esc(s.title)}</div></div>
+    ${(s.sub||[]).length?`<div class="substep-grid cols-${cols}">${(s.sub||[]).map((ss,j)=>subStepMini(ss,i,j)).join('')}</div>`:stepImageOnlyHtml(s)}
     ${(s.notes||[]).filter(n=>String(n||'').trim()).map((n,j)=>noteHtml(n,i,j)).join('')}
   </div>`;
 }
 function stepPageHtml(s,i,total){
   const pageNo=i+2;
   return `<div class="instr-page">${instrHeader()}<div class="instr-content">${stepsPreviewHtml(i,false)}</div>${instrFooter(pageNo,total)}</div>`;
+}
+function stepImageOnlyHtml(s){
+  const hasImg=!!s.stepImage,w=s.stepImgW||100,h=s.stepImgH||100,x=s.stepImgX??50,y=s.stepImgY??50;
+  return `<div class="step-image-only">
+    <div class="step-image-title">Imagen general del paso</div>
+    <div class="step-main-img ${hasImg?'':'empty-print'}">${hasImg?`<img src="${s.stepImage}" style="width:${w}%;height:${h}%;left:${x}%;top:${y}%">`:'<span class="empty-img no-print">Imagen del paso</span>'}</div>
+  </div>`;
 }
 function subStepMini(ss,i,j){
   const hasImg=!!ss.image;
@@ -472,6 +551,26 @@ function loadSubImg(e,i,j){
   const r=new FileReader();
   r.onload=()=>{doc.steps[i].sub[j].image=r.result;doc.steps[i].sub[j].imgW=doc.steps[i].sub[j].imgW||100;doc.steps[i].sub[j].imgH=doc.steps[i].sub[j].imgH||100;doc.steps[i].sub[j].imgX=doc.steps[i].sub[j].imgX??50;doc.steps[i].sub[j].imgY=doc.steps[i].sub[j].imgY??50;render()};
   r.readAsDataURL(f);
+}
+
+function removeSub(i,j){
+  doc.steps[i].sub.splice(j,1);
+  doc.steps[i].sub.forEach((ss,k)=>ss.code=doc.steps[i].n+'.'+(k+1));
+  render();
+}
+function clearSubsteps(i){
+  doc.steps[i].sub=[];
+  render();
+}
+function loadStepImg(e,i){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{doc.steps[i].stepImage=r.result;doc.steps[i].stepImgW=doc.steps[i].stepImgW||100;doc.steps[i].stepImgH=doc.steps[i].stepImgH||100;doc.steps[i].stepImgX=doc.steps[i].stepImgX??50;doc.steps[i].stepImgY=doc.steps[i].stepImgY??50;render()};
+  r.readAsDataURL(f);
+}
+function removeStepImage(i){
+  doc.steps[i].stepImage='';
+  render();
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}

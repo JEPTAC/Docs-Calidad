@@ -1,10 +1,9 @@
-# QA V5
+# QA V6
 
 - node --check source.js ejecutado.
-- Pasos continuos en la misma página.
-- Sin texto redundante en subpasos.
-- Imagen ocupa todo el recuadro.
-- Ajustes de tamaño/posición desde panel lateral.
-- Sin botones dentro de la plantilla.
+- Subpasos eliminables.
+- Paso sin subpasos muestra imagen general.
+- Distribución responsive por columnas.
+- Control de tamaño de recuadro e imagen desde panel lateral.
 
 Resultado node --check: PASS
