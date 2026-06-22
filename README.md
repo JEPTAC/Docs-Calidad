@@ -1,28 +1,22 @@
-# Editor EI V26 · Páginas + Final Automática
+# Editor EI V27 · Última página por campos
 
-## Cambios solicitados
+## Cambios aplicados
 
-1. Fecha automática:
-   - La fecha se actualiza sola con la fecha actual.
-   - El campo aparece como solo lectura.
+- La última página ahora se diligencia desde el panel lateral.
+- Los títulos aparecen al lado izquierdo de cada campo para llenar más fácil.
+- El contenido se organiza automáticamente en la última página.
+- La última página conserva dos columnas.
+- Los títulos del documento quedan en azul institucional.
+- Todo el texto que no es título queda en negro.
+- Fecha y paginación siguen automáticas.
+- Se mantienen páginas múltiples y conexión estable de flechas.
 
-2. Paginación automática:
-   - Cada página muestra Pág. X de Y.
-   - El total incluye la página final obligatoria.
+## Campos de última página
 
-3. Más páginas:
-   - Botón + Flujograma.
-   - Duplicar página.
-   - Eliminar página.
-   - La página final no se elimina.
-
-4. Página final obligatoria:
-   - Sin responsables.
-   - Título: Normas y Políticas de la Identificación del Procedimiento.
-   - Cuerpo en dos columnas.
-   - Texto base obligatorio incluido.
-
-5. Conexión:
-   - Se mantiene modo conectar por clic origen/destino.
-   - La línea no se arrastra para evitar dobleces accidentales.
-   - Los puntos son el control de edición.
+- Reconocimientos
+- Objetivo
+- Alcance
+- Indicadores
+- Información Sobre la Aplicación del Flujograma
+- Normatividad
+- Documentos relacionados

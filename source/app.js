@@ -26,10 +26,30 @@ function newFlowPage(){
 }
 function defaultFinalHtml(){
  return {
-  left:`<p><strong>Reconocimientos:</strong></p><p><strong>Objetivo:</strong></p><p><strong>Alcance:</strong></p><p><strong>Indicadores:</strong> Ver tabla de indicadores.</p>`,
-  right:`<p><strong>Información Sobre la Aplicación del Flujograma:</strong><br>Las actividades del flujograma muestran de una manera ordenada y sistemática los pasos a seguir en el momento de </p><p><strong>Normatividad:</strong> Ver normograma.</p><p><strong>Documentos relacionados:</strong></p><p>X-X-X</p>`
+  reconocimientos:'',
+  objetivo:'',
+  alcance:'',
+  indicadores:'Ver tabla de indicadores.',
+  informacion:'Las actividades del flujograma muestran de una manera ordenada y sistemática los pasos a seguir en el momento de ',
+  normatividad:'Ver normograma.',
+  documentos:'X-X-X'
  }
 }
+
+function finalText(v){return String(v??'')}
+function finalHtmlLeft(){
+ return `<p><strong>Reconocimientos:</strong><br><span class="final-text">${esc(finalText(state.finalPage.reconocimientos))}</span></p>
+ <p><strong>Objetivo:</strong><br><span class="final-text">${esc(finalText(state.finalPage.objetivo))}</span></p>
+ <p><strong>Alcance:</strong><br><span class="final-text">${esc(finalText(state.finalPage.alcance))}</span></p>
+ <p><strong>Indicadores:</strong><br><span class="final-text">${esc(finalText(state.finalPage.indicadores))}</span></p>`;
+}
+function finalHtmlRight(){
+ const docs = finalText(state.finalPage.documentos).split(/\n+/).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('') || '<li>X-X-X</li>';
+ return `<p><strong>Información Sobre la Aplicación del Flujograma:</strong><br><span class="final-text">${esc(finalText(state.finalPage.informacion))}</span></p>
+ <p><strong>Normatividad:</strong><br><span class="final-text">${esc(finalText(state.finalPage.normatividad))}</span></p>
+ <p><strong>Documentos relacionados:</strong></p><ul class="final-docs">${docs}</ul>`;
+}
+
 function demo(){
  const n1=shape('start','INICIO',66,86,0),n2=shape('activity','RECEPCIONAR solicitud',170,62,0),n3=shape('activity','ENVIAR solicitud',338,62,0),n4=shape('decision','¿HAY CABLE disponible?',500,44,0),n5=shape('activity','INFORMAR novedad',656,62,0),n6=shape('activity','VERIFICAR disponibilidad en sistema',210,250,1),n7=shape('activity','REALIZAR compromiso en ERP',400,250,1),n8=shape('activity','REALIZAR corte',590,426,2),n9=shape('offpage','A',760,433,2);
  let p={id:uid(),lanes:[{process:'VENTAS',role:'Asesor comercial'},{process:'LOGÍSTICA',role:'Coordinador logístico'},{process:'LOGÍSTICA',role:'Auxiliares de corte'}],shapes:[n1,n2,n3,n4,n5,n6,n7,n8,n9],edges:[]};
@@ -54,14 +74,20 @@ function bind(){
  document.addEventListener('keydown',e=>{if(e.key==='Delete')deleteSelection();if(e.key==='Escape'){state.selected=[];state.selectedEdge=null;state.selectedPoint=null;setTool('select')}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();duplicateSelection()}});
 }
 function setTool(t){tool=t;connectFrom=null;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));renderCanvases()}
-function render(){state.doc.date=today();renderDoc();renderPageList();renderLanes();renderInspector();setZoom(state.zoom);$('snapToggle').classList.toggle('active',state.snap);renderPages()}
+function render(){state.doc.date=today();renderDoc();renderPageList();renderLanes();renderFinalEditor();renderInspector();setZoom(state.zoom);$('snapToggle').classList.toggle('active',state.snap);renderPages()}
 function renderDoc(){$('docTitle').value=state.doc.title;$('docCode').value=state.doc.code;$('docVersion').value=state.doc.version;$('autoDate').value=state.doc.date;$('autoPages').value=totalPages()+' páginas'}
 function setZoom(z){state.zoom=z;$('pages').style.transform=`scale(${z})`;$('zoomLabel').textContent=Math.round(z*100)+'%'}
 function renderPageList(){const box=$('pageList');box.innerHTML='';state.flowPages.forEach((p,i)=>{const d=document.createElement('div');d.className='page-item '+(i===state.activePage?'active':'');d.innerHTML=`<span>Flujograma ${i+1}</span><small>Pág. ${i+1}</small>`;d.onclick=()=>{state.activePage=i;state.selected=[];state.selectedEdge=null;state.selectedPoint=null;render()};box.appendChild(d)});const f=document.createElement('div');f.className='page-item final '+(state.activePage===finalIndex()?'active':'');f.innerHTML=`<span>Normas y políticas</span><small>Pág. ${totalPages()}</small>`;f.onclick=()=>{state.activePage=finalIndex();state.selected=[];state.selectedEdge=null;state.selectedPoint=null;render()};box.appendChild(f)}
 function renderPages(){const mount=$('pages');mount.innerHTML='';state.flowPages.forEach((p,i)=>mount.appendChild(flowPageEl(p,i)));mount.appendChild(finalPageEl());renderCanvases()}
 function pageBase(idx){const page=document.createElement('div');page.className='page '+(state.activePage===idx?'active-page':'');page.dataset.pageIndex=idx;page.innerHTML=`<div class="page-frame"></div><div class="header"><div class="logo-cell"><img src="${LOGO_DATA}"></div><div class="title-cell">${esc(state.doc.title)}</div><div class="meta-cell"><div>${esc(state.doc.code)}</div><div>${esc(state.doc.version)}</div></div></div><div class="footer"><div>${esc(state.doc.date)}</div><div>Pág. ${idx+1} de ${totalPages()}</div></div>`;return page}
 function flowPageEl(pageData,idx){const page=pageBase(idx);page.innerHTML+=`<div class="flow-head"><div>RESPONSABLE</div><div>FLUJOGRAMA</div></div><div class="resp-col" data-resp="${idx}"></div><div class="flow-box ${state.grid?'grid-on':''}" data-flowbox="${idx}"><svg class="flow-canvas" data-canvas="${idx}" viewBox="0 0 850 580" preserveAspectRatio="none"></svg></div>`;return page}
-function finalPageEl(){const idx=finalIndex(),page=pageBase(idx);page.classList.add('final-page');page.innerHTML+=`<div class="final-title">Normas y Políticas de la Identificación del Procedimiento</div><div class="final-body"><div id="finalLeft" contenteditable="true">${state.finalPage.left}</div><div id="finalRight" contenteditable="true">${state.finalPage.right}</div></div>`;setTimeout(()=>{const l=$('finalLeft'),r=$('finalRight');if(l)l.oninput=()=>state.finalPage.left=l.innerHTML;if(r)r.oninput=()=>state.finalPage.right=r.innerHTML},0);return page}
+function finalPageEl(){
+ const idx=finalIndex(),page=pageBase(idx);
+ page.classList.add('final-page');
+ page.innerHTML+=`<div class="final-title">Normas y Políticas de la Identificación del Procedimiento</div>
+ <div class="final-body"><div>${finalHtmlLeft()}</div><div>${finalHtmlRight()}</div></div>`;
+ return page
+}
 function renderLanes(){if(state.activePage>=state.flowPages.length){$('lanesPanel').style.display='none';return}$('lanesPanel').style.display='block';renderLaneEditor()}
 function renderCanvases(){state.flowPages.forEach((p,idx)=>{renderLaneForPage(p,idx);const svg=document.querySelector(`[data-canvas="${idx}"]`);if(svg){svg.innerHTML=defs();p.edges.forEach(e=>drawEdge(svg,p,e,idx));p.shapes.forEach(s=>svg.appendChild(drawShape(svg,p,s,idx)));svg.onpointerdown=ev=>svgDown(ev,svg,p,idx)}})}
 function renderLaneForPage(page,idx){const resp=document.querySelector(`[data-resp="${idx}"]`),box=document.querySelector(`[data-flowbox="${idx}"]`);if(!resp||!box)return;resp.innerHTML='';box.querySelectorAll('.lane-line').forEach(x=>x.remove());box.classList.toggle('grid-on',state.grid);const n=Math.max(1,page.lanes.length);page.lanes.forEach((l,i)=>{const top=i/n*100,h=1/n*100,lab=document.createElement('div');lab.className='lane-label';lab.style.top=top+'%';lab.style.height=h+'%';lab.innerHTML=`<div><span class="lane-text">${esc(l.process)}</span></div><div><span class="lane-text">${esc(l.role)}</span></div>`;resp.appendChild(lab);if(i<n-1){const ln=document.createElement('div');ln.className='lane-line';ln.style.top=((i+1)/n*100)+'%';box.appendChild(ln)}})}
@@ -86,6 +112,24 @@ function wrap(text,max){let words=String(text).split(/\s+/).filter(Boolean),line
 function laneFromY(page,y){return clamp(Math.floor(y/(H/page.lanes.length)),0,page.lanes.length-1)}
 function addShape(type){if(state.activePage>=state.flowPages.length)return;pushHistory();const page=activeFlow(),s=shape(type,defaultText(type),120+page.shapes.length*12,80,0);page.shapes.push(s);state.selected=[s.id];state.selectedEdge=null;state.selectedPoint=null;render()}
 function defaultText(t){return{start:'INICIO',end:'FIN',activity:'REALIZAR actividad',decision:'¿Condición?',document:'REGISTRAR documento',delay:'ESPERAR condición',offpage:'A',samepage:'1',text:'Texto',note:'Nota importante',subprocess:'Subproceso',database:'Base de datos',manual:'Operación manual',input:'Entrada / salida'}[t]||'Texto'}
+function renderFinalEditor(){
+ const box=$('finalEditor');
+ if(!box)return;
+ const f={...defaultFinalHtml(),...state.finalPage};
+ box.innerHTML=`<div class="final-editor-grid">
+   <div class="final-label">Reconocimientos:</div><textarea data-final="reconocimientos" rows="2">${esc(f.reconocimientos)}</textarea>
+   <div class="final-label">Objetivo:</div><textarea data-final="objetivo" rows="2">${esc(f.objetivo)}</textarea>
+   <div class="final-label">Alcance:</div><textarea data-final="alcance" rows="2">${esc(f.alcance)}</textarea>
+   <div class="final-label">Indicadores:</div><textarea data-final="indicadores" rows="2">${esc(f.indicadores)}</textarea>
+   <div class="final-label">Información Sobre la Aplicación del Flujograma:</div><textarea data-final="informacion" rows="4">${esc(f.informacion)}</textarea>
+   <div class="final-label">Normatividad:</div><textarea data-final="normatividad" rows="2">${esc(f.normatividad)}</textarea>
+   <div class="final-label">Documentos relacionados:</div><textarea data-final="documentos" rows="3">${esc(f.documentos)}</textarea>
+ </div>
+ <p class="hint">Estos campos alimentan automáticamente la última página en dos columnas. Los títulos quedan azules y el contenido queda negro.</p>`;
+ box.querySelectorAll('[data-final]').forEach(el=>{
+   el.onchange=ev=>{pushHistory();state.finalPage[ev.target.dataset.final]=ev.target.value;render()};
+ });
+}
 function renderInspector(){const box=$('inspector');if(state.activePage>=state.flowPages.length){box.innerHTML='Página final editable en dos columnas. No tiene responsables ni flujograma.';return}const page=activeFlow();if(state.selectedEdge){const e=page.edges.find(x=>x.id===state.selectedEdge);if(!e){box.innerHTML='Flecha no encontrada.';return}box.innerHTML=`<label>Etiqueta<input id="edgeLabel" value="${esc(e.label||'')}"></label><div class="grid2"><label>Estilo<select id="edgeStyle"><option value="solid">Continua</option><option value="dashed">Guiones</option><option value="dotted">Puntos</option></select></label><label>Grosor<input id="edgeWidth" type="number" min="1" max="8" step=".2" value="${e.width||1.8}"></label></div><div class="grid2"><label>Color<input id="edgeColor" type="color" value="${normColor(e.color)}"></label><label>Punta<select id="edgeArrow"><option value="end">Final</option><option value="none">Sin punta</option></select></label></div><div class="actions"><button id="addPoint">+ Punto</button><button id="removePoint">Eliminar punto</button><button id="orthogonalize">Ortogonalizar</button><button id="straighten">Enderezar</button><button id="disconnect">Desconectar</button><button id="reverseEdge">Invertir</button></div><p class="hint">La línea solo selecciona. Para ajustar, mueve puntos. Esto evita dobleces accidentales.</p>`;$('edgeStyle').value=e.style||'solid';$('edgeArrow').value=e.arrow||'end';$('edgeLabel').onchange=ev=>{pushHistory();e.label=ev.target.value;render()};$('edgeStyle').onchange=ev=>{pushHistory();e.style=ev.target.value;render()};$('edgeWidth').onchange=ev=>{pushHistory();e.width=+ev.target.value||1.8;render()};$('edgeColor').onchange=ev=>{pushHistory();e.color=normColor(ev.target.value);render()};$('edgeArrow').onchange=ev=>{pushHistory();e.arrow=ev.target.value;render()};$('addPoint').onclick=()=>{pushHistory();const i=Math.max(0,Math.floor(e.points.length/2)-1),a=e.points[i],b=e.points[i+1]||e.points[i];e.points.splice(i+1,0,{x:snap((a.x+b.x)/2),y:snap((a.y+b.y)/2)});state.selectedPoint=i+1;render()};$('removePoint').onclick=()=>{if(state.selectedPoint>0&&state.selectedPoint<e.points.length-1){pushHistory();e.points.splice(state.selectedPoint,1);state.selectedPoint=null;render()}};$('orthogonalize').onclick=()=>{pushHistory();const a=e.points[0],b=e.points.at(-1),mx=(a.x+b.x)/2;e.points=[a,{x:mx,y:a.y},{x:mx,y:b.y},b];render()};$('straighten').onclick=()=>{pushHistory();e.points=[e.points[0],e.points.at(-1)];render()};$('disconnect').onclick=()=>{pushHistory();e.connStart=null;e.connEnd=null;render()};$('reverseEdge').onclick=()=>{pushHistory();e.points.reverse();const tmp=e.connStart;e.connStart=e.connEnd;e.connEnd=tmp;render()};return}if(state.selected.length){const s=page.shapes.find(x=>x.id===state.selected[0]);box.innerHTML=`<label>Tipo<select id="nodeType">${['start','activity','decision','document','delay','offpage','samepage','end','text','note','subprocess','database','manual','input'].map(t=>`<option value="${t}" ${s.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label>Texto<textarea id="nodeText" rows="3">${esc(s.text)}</textarea></label><label>Carril<select id="nodeLane">${page.lanes.map((l,i)=>`<option value="${i}" ${s.lane===i?'selected':''}>${l.process} | ${l.role}</option>`).join('')}</select></label><div class="grid2"><label>Ancho<input id="nodeW" type="number" value="${Math.round(s.w)}"></label><label>Alto<input id="nodeH" type="number" value="${Math.round(s.h)}"></label></div><div class="grid2"><label>X<input id="nodeX" type="number" value="${Math.round(s.x)}"></label><label>Y<input id="nodeY" type="number" value="${Math.round(s.y)}"></label></div>`;$('nodeType').onchange=ev=>{pushHistory();s.type=ev.target.value;setSize(s);render()};$('nodeText').onchange=ev=>{pushHistory();s.text=ev.target.value;render()};$('nodeLane').onchange=ev=>{pushHistory();s.lane=+ev.target.value;s.y=(s.lane+.5)*(H/page.lanes.length)-s.h/2;render()};[['nodeW','w'],['nodeH','h'],['nodeX','x'],['nodeY','y']].forEach(([id,k])=>$(id).onchange=ev=>{pushHistory();s[k]=+ev.target.value||s[k];render()});return}box.innerHTML='Selecciona una figura o flecha.'}
 function addLane(){if(state.activePage>=state.flowPages.length)return;pushHistory();activeFlow().lanes.push({process:'PROCESO',role:'Responsable / Cargo'});render()}
 function addFlowPage(){pushHistory();state.flowPages.push(newFlowPage());state.activePage=state.flowPages.length-1;render()}
@@ -100,7 +144,11 @@ function sendBack(){if(state.activePage>=state.flowPages.length||!state.selected
 function autoLayout(){if(state.activePage>=state.flowPages.length)return;pushHistory();const page=activeFlow(),by={};page.shapes.forEach(s=>(by[s.lane]??=[]).push(s));Object.entries(by).forEach(([lane,arr])=>arr.forEach((s,i)=>{s.x=70+i*145;s.y=(+lane+.5)*(H/page.lanes.length)-s.h/2}));render()}
 function undo(){if(!history.length)return;future.push(clone(state));restore(history.pop())}
 function redo(){if(!future.length)return;history.push(clone(state));restore(future.pop())}
-function normalize(){state.flowPages=(state.flowPages||[]).filter(Boolean);state.flowPages.forEach(page=>{page.shapes=(page.shapes||[]).filter(s=>s&&Number.isFinite(+s.x)&&Number.isFinite(+s.y));page.edges=(page.edges||[]).filter(e=>e&&cleanPoints(e.points).length>=2);page.edges.forEach(e=>{e.points=cleanPoints(e.points);e.color=normColor(e.color);if(!e.width)e.width=1.8;if(!e.style)e.style='solid';if(!e.arrow)e.arrow='end'})});if(!state.finalPage)state.finalPage=defaultFinalHtml()}
+function normalize(){state.flowPages=(state.flowPages||[]).filter(Boolean);state.flowPages.forEach(page=>{page.shapes=(page.shapes||[]).filter(s=>s&&Number.isFinite(+s.x)&&Number.isFinite(+s.y));page.edges=(page.edges||[]).filter(e=>e&&cleanPoints(e.points).length>=2);page.edges.forEach(e=>{e.points=cleanPoints(e.points);e.color=normColor(e.color);if(!e.width)e.width=1.8;if(!e.style)e.style='solid';if(!e.arrow)e.arrow='end'})});if(!state.finalPage)state.finalPage=defaultFinalHtml();
+ if(state.finalPage.left||state.finalPage.right){
+   state.finalPage=defaultFinalHtml()
+ }
+ state.finalPage={...defaultFinalHtml(),...state.finalPage}}
 function saveJson(){download(JSON.stringify(state,null,2),(state.doc.code||'procedimiento')+'.json','application/json')}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);normalize();render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
 function exportSvg(){if(state.activePage>=state.flowPages.length)return;const svg=document.querySelector(`[data-canvas="${state.activePage}"]`);download(svg.outerHTML,(state.doc.code||'flujo')+'_p'+(state.activePage+1)+'.svg','image/svg+xml')}

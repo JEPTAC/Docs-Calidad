@@ -93,3 +93,13 @@ textarea{resize:vertical}
   .page,.page:not(.active-page){display:block;box-shadow:none;margin:0;width:11in;height:8.5in;break-after:page;page-break-after:always}
   .page:last-child{break-after:auto;page-break-after:auto}
 }
+
+
+.final-editor-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:7px 8px;align-items:start}
+.final-editor-grid .final-label{font-size:12px;color:#EAC800;font-weight:900;padding-top:8px;line-height:1.15}
+.final-editor-grid textarea{min-height:54px}
+.final-body p,.final-body div,.final-body span,.final-body li{color:#111}
+.final-body strong{color:var(--ei-blue)!important;font-weight:900}
+.final-body .final-text{color:#111!important;font-weight:400}
+.final-body .final-docs{margin:.03in 0 0 .14in;padding:0;color:#111}
+.final-body .final-docs li{color:#111;margin:.02in 0}
