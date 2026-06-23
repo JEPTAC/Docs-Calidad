@@ -872,16 +872,49 @@ function initIntroExperience(){
   if(!overlay)return;
   const video=$('introVideo'), introSound=$('introSound'), welcomeSound=$('welcomeSound');
   const start=$('introStart'), skip=$('introSkip'), replay=$('replayIntro');
-  const closeIntro=()=>{overlay.classList.add('hide');overlay.classList.remove('experience-active');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
-  const runIntro=()=>{
-    overlay.classList.remove('hide');overlay.classList.add('playing','experience-active');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
-    if(video){video.muted=true;playElement(video);}
-    playElement(introSound);
-    setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1300);
-    setTimeout(closeIntro,5200);
+
+  const prepareVideo=()=>{
+    if(!video)return;
+    try{
+      video.pause();
+      video.currentTime=0;
+      video.muted=true;
+      video.removeAttribute('autoplay');
+      video.setAttribute('preload','metadata');
+    }catch(e){}
   };
+
+  const closeIntro=()=>{
+    overlay.classList.add('hide');
+    overlay.classList.remove('experience-active','playing','show-welcome');
+    document.body.classList.remove('intro-lock');
+    setTimeout(()=>{
+      stopElement(introSound);
+      stopElement(welcomeSound);
+      if(video){try{video.pause();}catch(e){}}
+    },350);
+  };
+
+  const runIntro=()=>{
+    overlay.classList.remove('hide','show-welcome');
+    overlay.classList.add('playing','experience-active');
+    document.body.classList.add('intro-lock');
+    if(video){
+      try{
+        video.currentTime=0;
+        video.muted=true;
+        video.playbackRate=1;
+      }catch(e){}
+      playElement(video);
+    }
+    playElement(introSound);
+    setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1050);
+    setTimeout(closeIntro,5000);
+  };
+
   document.body.classList.add('intro-lock');
-  if(video){video.muted=true;playElement(video);}
+  prepareVideo();
+
   if(start)start.onclick=runIntro;
   if(skip)skip.onclick=closeIntro;
   if(replay)replay.onclick=runIntro;

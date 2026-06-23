@@ -1,12 +1,14 @@
-# Estudio Documental EI V27
+# Estudio Documental EI V28
 
-Ajuste solicitado sobre la intro:
+Intro optimizada:
 
-- Al oprimir "Iniciar experiencia", el fondo se vuelve más vivo.
-- Se agregaron movimientos al mismo fondo de la intro.
-- Se agregaron brillos institucionales, partículas y energía visual.
-- El video de fondo aumenta saturación, contraste, escala y movimiento.
-- La tarjeta de bienvenida tiene pulso visual y borde animado.
-- No se modificó el editor de procedimientos.
-- No se modificó el editor de instructivos.
-- No se modificó la creación de pasos, sublistas, imágenes ni PDF.
+- El video de fondo ya no arranca automáticamente al abrir.
+- El video inicia únicamente al presionar "Iniciar experiencia".
+- Se quitó la carga pesada de partículas, blur, filtros y animaciones grandes.
+- El video queda sin opacidad artificial y sin filtros pesados.
+- Se conservaron animaciones leves:
+  - movimiento suave de tarjeta;
+  - movimiento suave del GIF;
+  - pulso leve del botón.
+- No se modificó el editor documental.
+- No se modificaron procedimientos, instructivos, sublistas, imágenes, PDF ni guardado.

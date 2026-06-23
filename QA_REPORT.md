@@ -1,10 +1,14 @@
-# QA V27
+# QA V28
 
 - node --check source.js ejecutado.
-- Solo se tocó intro:
-  - CSS de intro-overlay;
-  - capa intro-energy;
-  - clase experience-active en runIntro/closeIntro.
+- initIntroExperience reemplazado únicamente para controlar reproducción del video.
+- Video preparado en pausa al abrir.
+- Video inicia en runIntro.
+- CSS de intro optimizado:
+  - sin partículas;
+  - sin blur;
+  - sin filtros pesados;
+  - animaciones leves.
 - Funciones críticas verificadas:
   - createFirstStep;
   - addSub;
@@ -16,9 +20,10 @@
 
 Resultado node --check: PASS
 {
-  "intro_energy_html": true,
-  "experience_active_css": true,
-  "experience_active_js": true,
+  "video_no_autoplay_js": true,
+  "video_starts_on_button": true,
+  "no_particles_css": true,
+  "light_intro_css": true,
   "create_steps_intact": true,
   "sublistas_intact": true,
   "image_intact": true,

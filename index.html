@@ -1348,6 +1348,81 @@ body.intro-lock{overflow:hidden}
     animation:none!important;
   }
 }
+
+
+/* V28: intro optimizada para fluidez */
+.intro-video{
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+  transition:opacity .45s ease, transform .65s ease!important;
+  will-change:auto!important;
+}
+
+.intro-overlay::before,
+.intro-overlay::after,
+.intro-energy{
+  display:none!important;
+  animation:none!important;
+}
+
+.intro-overlay .intro-shade{
+  background:linear-gradient(135deg, rgba(0,14,54,.42), rgba(0,31,115,.22), rgba(0,0,0,.38))!important;
+  backdrop-filter:none!important;
+}
+
+.intro-overlay .intro-card{
+  will-change:transform, opacity!important;
+}
+
+.intro-overlay.experience-active .intro-video{
+  opacity:1!important;
+  filter:none!important;
+  transform:scale(1.015)!important;
+  animation:none!important;
+}
+
+.intro-overlay.experience-active .intro-shade{
+  background:
+    radial-gradient(circle at 50% 48%, rgba(234,200,0,.10), transparent 32%),
+    linear-gradient(135deg, rgba(0,14,54,.34), rgba(0,31,115,.15), rgba(0,0,0,.28))!important;
+}
+
+.intro-overlay.experience-active .intro-card{
+  animation:eiSoftCardLift 1.8s ease-in-out infinite alternate!important;
+  border-color:rgba(234,200,0,.46)!important;
+  box-shadow:0 20px 60px rgba(0,31,115,.30), 0 0 28px rgba(234,200,0,.13)!important;
+}
+
+.intro-overlay.experience-active .intro-card::before{
+  display:none!important;
+  animation:none!important;
+}
+
+.intro-overlay.experience-active .intro-cat-wrap{
+  animation:eiSoftCatFloat 1.9s ease-in-out infinite alternate!important;
+  box-shadow:0 14px 32px rgba(0,31,115,.22)!important;
+}
+
+.intro-overlay.experience-active .primary{
+  animation:eiSoftButton 1.35s ease-in-out infinite alternate!important;
+  box-shadow:0 12px 24px rgba(0,31,115,.18)!important;
+}
+
+@keyframes eiSoftCardLift{
+  from{transform:translateY(0)}
+  to{transform:translateY(-4px)}
+}
+
+@keyframes eiSoftCatFloat{
+  from{transform:translateY(0) scale(1)}
+  to{transform:translateY(-4px) scale(1.01)}
+}
+
+@keyframes eiSoftButton{
+  from{transform:translateY(0)}
+  to{transform:translateY(-1px)}
+}
 </style>
 </head>
 <body>
@@ -2374,16 +2449,49 @@ function initIntroExperience(){
   if(!overlay)return;
   const video=$('introVideo'), introSound=$('introSound'), welcomeSound=$('welcomeSound');
   const start=$('introStart'), skip=$('introSkip'), replay=$('replayIntro');
-  const closeIntro=()=>{overlay.classList.add('hide');overlay.classList.remove('experience-active');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
-  const runIntro=()=>{
-    overlay.classList.remove('hide');overlay.classList.add('playing','experience-active');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
-    if(video){video.muted=true;playElement(video);}
-    playElement(introSound);
-    setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1300);
-    setTimeout(closeIntro,5200);
+
+  const prepareVideo=()=>{
+    if(!video)return;
+    try{
+      video.pause();
+      video.currentTime=0;
+      video.muted=true;
+      video.removeAttribute('autoplay');
+      video.setAttribute('preload','metadata');
+    }catch(e){}
   };
+
+  const closeIntro=()=>{
+    overlay.classList.add('hide');
+    overlay.classList.remove('experience-active','playing','show-welcome');
+    document.body.classList.remove('intro-lock');
+    setTimeout(()=>{
+      stopElement(introSound);
+      stopElement(welcomeSound);
+      if(video){try{video.pause();}catch(e){}}
+    },350);
+  };
+
+  const runIntro=()=>{
+    overlay.classList.remove('hide','show-welcome');
+    overlay.classList.add('playing','experience-active');
+    document.body.classList.add('intro-lock');
+    if(video){
+      try{
+        video.currentTime=0;
+        video.muted=true;
+        video.playbackRate=1;
+      }catch(e){}
+      playElement(video);
+    }
+    playElement(introSound);
+    setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1050);
+    setTimeout(closeIntro,5000);
+  };
+
   document.body.classList.add('intro-lock');
-  if(video){video.muted=true;playElement(video);}
+  prepareVideo();
+
   if(start)start.onclick=runIntro;
   if(skip)skip.onclick=closeIntro;
   if(replay)replay.onclick=runIntro;
