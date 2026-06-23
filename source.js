@@ -5,7 +5,7 @@ let zoom=.72;
 const today=()=>{const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()};
 let doc={
   wordType:'oficio',
-  title:'POLÍTICA DE CONFIRMACIÓN DE PAGOS Y VALIDACIÓN DE SOPORTES',
+  title:'',
   code:'X-XX-X',
   version:'Versión X',
   cityDate:'Tuluá, '+today(),
@@ -157,14 +157,11 @@ function sgcPages(){
 }
 function sgcHeader(n){
   return `<div class="sgc-header-ref">
-    <div class="sgc-header-base"></div>
-    <div class="sgc-header-leftcap">
-      <img class="sgc-header-logo" src="${LOGO}" alt="Electroingeniería">
-    </div>
-    <div class="sgc-title-wrap"><div class="sgc-title">${esc(doc.title)}</div></div>
+    <div class="sgc-logo-box"><img class="sgc-header-logo" src="${LOGO}" alt="Electroingeniería"></div>
+    <div class="sgc-title">${esc(doc.title || 'XXX')}</div>
     <div class="sgc-meta">
-      <div class="sgc-code">${esc(doc.code)}</div>
-      <div class="sgc-version">${esc(doc.version)}</div>
+      <div class="sgc-code">${esc(doc.code || 'X-XX-X')}</div>
+      <div class="sgc-version">${esc(doc.version || 'VERSIÓN X')}</div>
     </div>
   </div>`;
 }

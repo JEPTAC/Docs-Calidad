@@ -1,13 +1,13 @@
-# Estudio Documental EI V33
+# Estudio Documental EI V34
 
-Corrección puntual del encabezado Word/SGC:
+Corrección puntual de encabezado:
 
-- Se eliminó el encabezado híbrido anterior.
-- Se reconstruyó el encabezado en una sola línea.
-- Se unificó el color azul del fondo del encabezado.
-- Se dejó el bloque del logo a la izquierda con cápsula blanca.
-- Se dejó el título centrado en amarillo.
-- Se dejó el bloque derecho de código y versión en el mismo azul.
-- Se conservaron márgenes de 2,5 cm para el contenido.
-- No se modificó el pie ya ajustado con la imagen enviada por el usuario.
+- Encabezado corregido con sangría de 1 cm a cada lado.
+- Barra azul uniforme, sin recuadro oscuro diferente detrás del título.
+- Encabezado casi de ancho completo de la página.
+- Logo alineado y compacto.
+- Título central en amarillo y bloque derecho en el mismo azul.
+- El título por defecto se limpió; ahora inicia vacío y se muestra XXX en la plantilla si no se escribe.
+- Se conservan código y versión editables.
+- Márgenes del contenido SGC conservados en 2,5 cm.
 - No se modificaron instructivos ni procedimientos.
