@@ -1,10 +1,15 @@
-# Estudio Documental EI V40
+# Estudio Documental EI V41
 
-Corrección puntual:
+Corrección aplicada:
 
-- Se corrigió la visualización del tablero de procedimientos en celular/iOS.
-- El tablero ahora queda visible desde la carga.
-- Se ajustó el cálculo del canvas para que la plantilla no quede desplazada fuera de pantalla.
-- La hoja de procedimiento mantiene su tamaño real 11in × 8.5in, pero se escala visualmente sin perder el área visible.
-- El botón Ajustar vuelve el tablero al inicio visible.
-- No se modificó Word, instructivos ni la plantilla de calidad.
+- Procedimientos móvil ahora muestra el tablero en flujo real.
+- Se eliminó el comportamiento de pantalla fija que podía ocultar la plantilla en iOS.
+- La plantilla de procedimiento queda visible arriba del área de trabajo.
+- El botón "Tablero" vuelve la vista al inicio de la plantilla.
+- Se conserva el modo tipo Canva:
+  - barra superior;
+  - dock inferior;
+  - panel de figuras;
+  - panel de páginas;
+  - drawer de herramientas.
+- No se tocó Word, instructivos ni plantilla de calidad.

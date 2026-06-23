@@ -1233,6 +1233,186 @@ button.primary{
   100%{opacity:0;transform:translateY(-8px)}
 }
 
+
+/* V41: tablero REAL visible en móvil. Se deja de usar pantalla fija para no perder la plantilla en iOS. */
+@media (max-width:1080px){
+  html,
+  body{
+    position:static!important;
+    inset:auto!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    touch-action:auto!important;
+    background:#eef2f7!important;
+  }
+
+  .app{
+    display:block!important;
+    height:auto!important;
+    min-height:100svh!important;
+    overflow:visible!important;
+    padding:0 0 calc(84px + env(safe-area-inset-bottom))!important;
+    background:#eef2f7!important;
+  }
+
+  .main{
+    display:block!important;
+    height:auto!important;
+    min-height:auto!important;
+    overflow:visible!important;
+    padding:0!important;
+  }
+
+  .proc-canva-top{
+    position:sticky!important;
+    top:0!important;
+    height:auto!important;
+    min-height:58px!important;
+    padding:calc(8px + env(safe-area-inset-top)) 10px 8px!important;
+    z-index:1600!important;
+  }
+
+  .toolbar{
+    position:sticky!important;
+    top:calc(58px + env(safe-area-inset-top))!important;
+    height:auto!important;
+    min-height:44px!important;
+    max-height:none!important;
+    z-index:1500!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+
+  .workarea{
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:calc(100svh - 190px)!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:auto!important;
+    padding:14px 10px calc(112px + env(safe-area-inset-bottom))!important;
+    box-sizing:border-box!important;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(234,200,0,.11), transparent 26%),
+      linear-gradient(135deg,#eef2f7,#dfe8f5)!important;
+  }
+
+  .pages{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+    gap:18px!important;
+    width:1056px!important;
+    min-width:1056px!important;
+    max-width:1056px!important;
+    transform-origin:top left!important;
+    margin:0!important;
+    padding:0!important;
+    position:relative!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+
+  .page{
+    display:block!important;
+    width:11in!important;
+    height:8.5in!important;
+    min-width:11in!important;
+    min-height:8.5in!important;
+    margin:0 0 18px 0!important;
+    visibility:visible!important;
+    opacity:1!important;
+    background:#fff!important;
+    box-shadow:0 10px 26px rgba(0,0,0,.24)!important;
+    flex:0 0 auto!important;
+  }
+
+  .page:not(.active-page){
+    display:none!important;
+  }
+
+  .show-all .page{
+    display:block!important;
+  }
+
+  .page-frame,
+  .header,
+  .footer,
+  .flow-head,
+  .resp-col,
+  .flow-box,
+  .flow-canvas,
+  .final-title,
+  .final-body{
+    visibility:visible!important;
+    opacity:1!important;
+  }
+
+  .proc-canva-dock{
+    position:fixed!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:calc(7px + env(safe-area-inset-bottom))!important;
+    z-index:1900!important;
+  }
+
+  .proc-mobile-sheet{
+    position:fixed!important;
+    z-index:1850!important;
+  }
+
+  .side{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    z-index:2000!important;
+  }
+
+  .proc-backdrop{
+    z-index:1950!important;
+  }
+
+  .proc-board-hint{
+    display:block!important;
+    top:calc(112px + env(safe-area-inset-top))!important;
+  }
+}
+
+/* En celular pequeño se prioriza ver la hoja completa arriba */
+@media (max-width:520px){
+  .workarea{
+    padding-left:8px!important;
+    padding-right:8px!important;
+    padding-bottom:calc(112px + env(safe-area-inset-bottom))!important;
+  }
+
+  .proc-canva-title span{
+    display:none!important;
+  }
+
+  #procCanvaTools{
+    min-height:34px!important;
+    padding:7px 8px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1251,7 +1431,7 @@ button.primary{
   <button id="procMobileShapes" type="button"><span>＋</span><b>Figuras</b></button>
   <button id="procMobileConnect" type="button"><span>↔</span><b>Conectar</b></button>
   <button id="procMobilePages" type="button"><span>▣</span><b>Páginas</b></button>
-  <button id="procMobileFit" type="button"><span>□</span><b>Ajustar</b></button>
+  <button id="procMobileFit" type="button"><span>□</span><b>Tablero</b></button>
 </nav>
 <section id="procMobileSheet" class="proc-mobile-sheet no-print">
   <div class="proc-mobile-sheet-head">
@@ -1371,8 +1551,8 @@ function updateConnected(page,e){if(e.connStart){const s=page.shapes.find(x=>x.i
 function procIsMobile(){return window.innerWidth<=1080}
 function procPreferredZoom(){
   const pageW=1056;
-  const available=Math.max(300, window.innerWidth-18);
-  return Math.max(.30, Math.min(.78, available/pageW));
+  const available=Math.max(300, window.innerWidth - 20);
+  return Math.max(.28, Math.min(.74, available / pageW));
 }
 function procOpenSide(){
   document.body.classList.add('proc-side-open');
@@ -1386,9 +1566,26 @@ function procCloseSide(){
 function procBoardVisible(){
   document.body.classList.add('board-ready');
   const wa=document.querySelector('.workarea');
-  if(wa && procIsMobile()){
-    wa.scrollLeft=0;
-    wa.scrollTop=0;
+  const pages=$('pages');
+  if(procIsMobile()){
+    if(pages){
+      pages.style.visibility='visible';
+      pages.style.opacity='1';
+      pages.style.display='flex';
+    }
+    if(wa){
+      wa.scrollLeft=0;
+      wa.scrollTop=0;
+    }
+  }
+}
+
+function procEnsureBoard(){
+  const pages=$('pages');
+  if(procIsMobile() && pages && !pages.children.length){
+    renderPages();
+    setZoom(procPreferredZoom());
+    procBoardVisible();
   }
 }
 function bind(){
@@ -1429,6 +1626,9 @@ function updateContextPanels(){
 
 function render(){
   state.doc.date=today();
+  if(!Number.isFinite(+state.activePage)) state.activePage=0;
+  if(state.activePage<0) state.activePage=0;
+  if(state.activePage>finalIndex()) state.activePage=0;
   renderDoc();
   renderPageList();
   renderLanes();
@@ -1453,15 +1653,15 @@ function setZoom(z){
       pages.style.width='1056px';
       pages.style.minWidth='1056px';
       pages.style.maxWidth='1056px';
-      pages.style.marginLeft='0';
-      pages.style.marginRight='0';
+      pages.style.margin='0';
+      pages.style.visibility='visible';
+      pages.style.opacity='1';
     }else{
       pages.style.zoom='';
       pages.style.width='';
       pages.style.minWidth='';
       pages.style.maxWidth='';
-      pages.style.marginLeft='';
-      pages.style.marginRight='';
+      pages.style.margin='';
       pages.style.transformOrigin='top center';
       pages.style.transform=`scale(${z})`;
     }
@@ -1547,7 +1747,7 @@ function exportSvg(){if(state.activePage>=state.flowPages.length)return;const sv
 function download(content,name,type){const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function runQA(){let out=[];out.push({ok:state.flowPages.length>=1,msg:'Existe al menos una página de flujograma'});out.push({ok:true,msg:'Página final obligatoria incluida'});state.flowPages.forEach((p,i)=>{out.push({ok:p.shapes.every(s=>s.x>=0&&s.y>=0&&s.x+s.w<=W&&s.y+s.h<=H),msg:`Pág. ${i+1}: figuras dentro del área`});out.push({ok:p.edges.every(e=>cleanPoints(e.points).length>=2),msg:`Pág. ${i+1}: flechas con puntos reales`})});return out}
 function showQA(){const box=$('qaBox'),res=runQA();box.hidden=false;box.innerHTML='<h3>Examen QA V26</h3>'+res.map(r=>`<p class="${r.ok?'qa-pass':'qa-fail'}">${r.ok?'✓':'•'} ${esc(r.msg)}</p>`).join('')+'<button id="closeQA">Cerrar</button>';$('closeQA').onclick=()=>box.hidden=true}
-function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();setTimeout(procBoardVisible,80);console.log('V40 procedimiento tablero visible',runQA())}
+function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();setTimeout(procBoardVisible,80);setTimeout(procEnsureBoard,120);console.log('V41 procedimiento tablero real visible',runQA())}
 init();
 </script>
 </body></html>

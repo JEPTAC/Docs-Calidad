@@ -65,8 +65,8 @@ function updateConnected(page,e){if(e.connStart){const s=page.shapes.find(x=>x.i
 function procIsMobile(){return window.innerWidth<=1080}
 function procPreferredZoom(){
   const pageW=1056;
-  const available=Math.max(300, window.innerWidth-18);
-  return Math.max(.30, Math.min(.78, available/pageW));
+  const available=Math.max(300, window.innerWidth - 20);
+  return Math.max(.28, Math.min(.74, available / pageW));
 }
 function procOpenSide(){
   document.body.classList.add('proc-side-open');
@@ -80,9 +80,26 @@ function procCloseSide(){
 function procBoardVisible(){
   document.body.classList.add('board-ready');
   const wa=document.querySelector('.workarea');
-  if(wa && procIsMobile()){
-    wa.scrollLeft=0;
-    wa.scrollTop=0;
+  const pages=$('pages');
+  if(procIsMobile()){
+    if(pages){
+      pages.style.visibility='visible';
+      pages.style.opacity='1';
+      pages.style.display='flex';
+    }
+    if(wa){
+      wa.scrollLeft=0;
+      wa.scrollTop=0;
+    }
+  }
+}
+
+function procEnsureBoard(){
+  const pages=$('pages');
+  if(procIsMobile() && pages && !pages.children.length){
+    renderPages();
+    setZoom(procPreferredZoom());
+    procBoardVisible();
   }
 }
 function bind(){
@@ -123,6 +140,9 @@ function updateContextPanels(){
 
 function render(){
   state.doc.date=today();
+  if(!Number.isFinite(+state.activePage)) state.activePage=0;
+  if(state.activePage<0) state.activePage=0;
+  if(state.activePage>finalIndex()) state.activePage=0;
   renderDoc();
   renderPageList();
   renderLanes();
@@ -147,15 +167,15 @@ function setZoom(z){
       pages.style.width='1056px';
       pages.style.minWidth='1056px';
       pages.style.maxWidth='1056px';
-      pages.style.marginLeft='0';
-      pages.style.marginRight='0';
+      pages.style.margin='0';
+      pages.style.visibility='visible';
+      pages.style.opacity='1';
     }else{
       pages.style.zoom='';
       pages.style.width='';
       pages.style.minWidth='';
       pages.style.maxWidth='';
-      pages.style.marginLeft='';
-      pages.style.marginRight='';
+      pages.style.margin='';
       pages.style.transformOrigin='top center';
       pages.style.transform=`scale(${z})`;
     }
@@ -241,5 +261,5 @@ function exportSvg(){if(state.activePage>=state.flowPages.length)return;const sv
 function download(content,name,type){const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function runQA(){let out=[];out.push({ok:state.flowPages.length>=1,msg:'Existe al menos una página de flujograma'});out.push({ok:true,msg:'Página final obligatoria incluida'});state.flowPages.forEach((p,i)=>{out.push({ok:p.shapes.every(s=>s.x>=0&&s.y>=0&&s.x+s.w<=W&&s.y+s.h<=H),msg:`Pág. ${i+1}: figuras dentro del área`});out.push({ok:p.edges.every(e=>cleanPoints(e.points).length>=2),msg:`Pág. ${i+1}: flechas con puntos reales`})});return out}
 function showQA(){const box=$('qaBox'),res=runQA();box.hidden=false;box.innerHTML='<h3>Examen QA V26</h3>'+res.map(r=>`<p class="${r.ok?'qa-pass':'qa-fail'}">${r.ok?'✓':'•'} ${esc(r.msg)}</p>`).join('')+'<button id="closeQA">Cerrar</button>';$('closeQA').onclick=()=>box.hidden=true}
-function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();setTimeout(procBoardVisible,80);console.log('V40 procedimiento tablero visible',runQA())}
+function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();setTimeout(procBoardVisible,80);setTimeout(procEnsureBoard,120);console.log('V41 procedimiento tablero real visible',runQA())}
 init();

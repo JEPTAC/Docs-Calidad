@@ -1,25 +1,30 @@
-# QA V40
+# QA V41
 
-Problema detectado:
-- En V39 el tablero podía quedar fuera de la zona visible en celular.
-- Causa: el contenedor .pages se estaba reduciendo al ancho escalado, pero la página interna seguía midiendo 1056px. En flex/center esto podía desplazar la hoja fuera de pantalla en iOS.
+Problema reportado:
+- No se visualizaba el tablero/plantilla para editar procedimiento en móvil.
 
-Corrección aplicada:
-- .pages mantiene ancho real de 1056px.
-- El escalado se aplica con transform: scale().
-- transform-origin se fija en top left.
-- .workarea inicia en scrollLeft 0 / scrollTop 0.
-- Se fuerza visibilidad de .page, .flow-box, .flow-canvas y estructuras de plantilla.
+Diagnóstico:
+- El modo tipo Canva de V39/V40 usaba contenedores fixed y overflow controlado.
+- En iOS eso puede dejar la hoja fuera del área visible aunque el DOM exista.
+- El tablero dependía demasiado del cálculo visual del contenedor.
+
+Corrección:
+- El tablero de procedimientos móvil ahora se renderiza en flujo real.
+- .workarea vuelve a ser un bloque visible con scroll nativo.
+- .pages mantiene ancho real de 1056px y se escala desde top-left.
+- Se fuerza visibilidad de page, flow-box, flow-canvas y marco.
+- Se agregó fallback procEnsureBoard() para re-renderizar si el mount queda vacío.
 
 
 Resultados automáticos:
 {
   "main_node_check": true,
   "proc_node_check": true,
-  "board_visible_css": true,
+  "real_flow_board_css": true,
+  "pages_visible_css": true,
   "board_visible_js": true,
-  "setzoom_fixed": true,
-  "canva_mobile_kept": true,
+  "fit_labeled_tablero": true,
+  "canva_ui_kept": true,
   "word_intact": true,
   "instructivo_intact": true,
   "quality_template_intact": true
