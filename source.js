@@ -155,19 +155,19 @@ function sgcPages(){
   const content=`<div class="page">${sgcHeader(2)}<div class="sgc-content">${doc.sections.map((s,i)=>`<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(s.n)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${String(s.c||'').trim()?`<div class="sgc-section-content">${esc(s.c)}</div>`:''}</div>`).join('')}</div>${sgcFooter(2)}</div>`;
   return toc+content;
 }
-function sgcHeader(n){return `<div class="sgc-header"><div class="sgc-logo"><img src="${LOGO}"></div><div class="sgc-title">${esc(doc.title)}</div><div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div></div>`}
+function sgcHeader(n){
+  return `<div class="sgc-header-ref">
+    <img class="sgc-header-img" src="assets/header-ei-calidad.png" alt="Encabezado Electroingeniería">
+    <div class="sgc-title">${esc(doc.title)}</div>
+    <div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div>
+  </div>`;
+}
 function sgcFooter(n){
-  return `<div class="sgc-footer">
-    <div class="sgc-footer-left">
-      <span>Ingeniería Eléctrica</span>
-      <span class="sgc-bullet"></span>
-      <span>Suministros Eléctricos</span>
-      <span class="sgc-bullet"></span>
-      <span>Alumbrado Público</span>
-    </div>
-    <div class="sgc-footer-logo-wrap"><img class="sgc-footer-logo" src="${LOGO}" alt="EI"></div>
-    <div class="sgc-footer-right"><span>www.ei.com.co</span></div>
-  </div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`;
+  return `<div class="sgc-footer-ref">
+    <img class="sgc-footer-img" src="assets/footer-ei-calidad.png" alt="Pie de página Electroingeniería">
+  </div>
+  <div class="sgc-date">${today()}</div>
+  <div class="sgc-page-num">Pág. ${n} de 2</div>`;
 }
 function renderWord(){
   normalizeWordType();

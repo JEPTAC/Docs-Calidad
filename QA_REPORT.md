@@ -1,24 +1,28 @@
-# QA V31
+# QA V32
 
 - node --check source.js ejecutado.
-- sgcFooter reemplazado completo.
-- CSS del pie SGC reemplazado por versión basada en referencia.
-- Se eliminó el bloque amarillo anterior.
-- Funciones críticas mantenidas:
+- Footer usado: assets/footer-ei-calidad.png, copiado desde la imagen enviada.
+- Header usado: assets/header-ei-calidad.png, extraído desde el PDF de referencia.
+- sgcHeader reemplazado.
+- sgcFooter reemplazado.
+- CSS anterior del footer anulado.
+- Márgenes SGC ajustadas.
+- Funciones críticas conservadas:
   - tipos documentales Word;
-  - createFirstStep;
-  - addSub;
-  - addListGroup;
-  - renderStepEditor;
+  - instructivos;
+  - procedimientos;
   - exportPdf;
   - saveToBrowserCache.
 
 Resultado node --check: PASS
 {
-  "footer_function_updated": true,
-  "yellow_removed": true,
-  "footer_css_updated": true,
+  "footer_asset_exists": true,
+  "header_asset_exists": true,
+  "footer_exact_image_used": true,
+  "header_ref_used": true,
+  "old_yellow_footer_hidden": true,
+  "content_margin_25cm": true,
   "word_types_intact": true,
-  "instructivo_intacto": true,
-  "procedimiento_intacto": true
+  "instructivo_intact": true,
+  "procedimiento_intact": true
 }
