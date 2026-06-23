@@ -1,22 +1,27 @@
-# QA V26
+# QA V27
 
 - node --check source.js ejecutado.
-- Base usada: V25 estable.
-- No se reemplazó renderStepEditor.
-- No se reemplazó createFirstStep, addSub, addListGroup, loadStepImg ni loadGroupImg.
-- Se agregaron assets en carpeta assets/.
-- Se agregó introOverlay.
-- Se agregó historial localStorage RECENT_KEY.
-- Se agregó botón de regreso al inicio en procedimiento.
+- Solo se tocó intro:
+  - CSS de intro-overlay;
+  - capa intro-energy;
+  - clase experience-active en runIntro/closeIntro.
+- Funciones críticas verificadas:
+  - createFirstStep;
+  - addSub;
+  - addListGroup;
+  - renderStepEditor;
+  - loadStepImg;
+  - exportPdf;
+  - saveToBrowserCache.
 
 Resultado node --check: PASS
 {
-  "introOverlay": true,
-  "assets_all": true,
-  "history_panel": true,
-  "save_recent": true,
-  "home_buttons": true,
-  "stable_funcs": true,
-  "proc_home": true,
-  "proc_sticky": true
+  "intro_energy_html": true,
+  "experience_active_css": true,
+  "experience_active_js": true,
+  "create_steps_intact": true,
+  "sublistas_intact": true,
+  "image_intact": true,
+  "pdf_intact": true,
+  "cache_intact": true
 }

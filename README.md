@@ -1,14 +1,12 @@
-# Estudio Documental EI V26
+# Estudio Documental EI V27
 
-Base: V25 estable.
+Ajuste solicitado sobre la intro:
 
-Cambios agregados sin tocar el editor de instructivos/procedimientos:
-- Intro inicial con video, GIF de bienvenida y audios cargados en assets.
-- Inicio rediseñado con estilo premium institucional.
-- Historial lateral de últimos proyectos guardados en navegador.
-- Botón Guardar en navegador conserva el proyecto y alimenta historial.
-- Botón de retorno a Inicio en Word/Excel y en Procedimiento.
-- Barra lateral principal y barra de procedimiento ancladas.
-
-Notas de navegador:
-- El sonido se activa desde el botón "Iniciar experiencia" para cumplir las restricciones de reproducción automática del navegador.
+- Al oprimir "Iniciar experiencia", el fondo se vuelve más vivo.
+- Se agregaron movimientos al mismo fondo de la intro.
+- Se agregaron brillos institucionales, partículas y energía visual.
+- El video de fondo aumenta saturación, contraste, escala y movimiento.
+- La tarjeta de bienvenida tiene pulso visual y borde animado.
+- No se modificó el editor de procedimientos.
+- No se modificó el editor de instructivos.
+- No se modificó la creación de pasos, sublistas, imágenes ni PDF.

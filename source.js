@@ -872,9 +872,9 @@ function initIntroExperience(){
   if(!overlay)return;
   const video=$('introVideo'), introSound=$('introSound'), welcomeSound=$('welcomeSound');
   const start=$('introStart'), skip=$('introSkip'), replay=$('replayIntro');
-  const closeIntro=()=>{overlay.classList.add('hide');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
+  const closeIntro=()=>{overlay.classList.add('hide');overlay.classList.remove('experience-active');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
   const runIntro=()=>{
-    overlay.classList.remove('hide');overlay.classList.add('playing');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
+    overlay.classList.remove('hide');overlay.classList.add('playing','experience-active');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
     if(video){video.muted=true;playElement(video);}
     playElement(introSound);
     setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1300);

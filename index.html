@@ -1160,6 +1160,194 @@ body.intro-lock{overflow:hidden}
 .intro-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#001754;overflow:hidden;transition:opacity .5s ease, visibility .5s ease}.intro-overlay.hide{opacity:0;visibility:hidden;pointer-events:none}.intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42;filter:saturate(1.1) contrast(1.05)}.intro-shade{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(0,41,155,.08),rgba(0,12,48,.84)),linear-gradient(135deg,rgba(0,31,115,.72),rgba(0,23,84,.78))}.intro-card{position:relative;z-index:2;width:min(920px,92vw);background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.55);border-radius:32px;box-shadow:0 30px 90px rgba(0,0,0,.38);display:grid;grid-template-columns:300px 1fr;gap:24px;padding:24px;align-items:center;transform:translateY(0);animation:introRise .8s ease both}.intro-cat-wrap{background:linear-gradient(145deg,#eaf1ff,#ffffff);border:1px solid rgba(0,31,115,.12);border-radius:26px;padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.8)}.intro-cat{width:100%;display:block;border-radius:20px}.intro-kicker{display:inline-flex;background:#001F73;color:#EAC800;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;text-transform:uppercase}.intro-copy h1{margin:12px 0 8px;color:#001754;font-size:34px;line-height:1.04}.intro-copy p{color:#475467;font-size:15px;line-height:1.5}.intro-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px}.intro-copy small{display:block;color:#667085;font-weight:800}.intro-overlay.playing .intro-card{animation:introBeat .55s ease}.intro-overlay.show-welcome .intro-cat-wrap{box-shadow:0 0 0 5px rgba(234,200,0,.18),0 20px 40px rgba(0,31,115,.18)}
 @keyframes introRise{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes introBeat{0%,100%{transform:scale(1)}45%{transform:scale(1.015)}}@keyframes pulseGlow{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.12);opacity:1}}
 @media (max-width:1000px){.hero-premium{grid-template-columns:1fr}.cards-premium{grid-template-columns:1fr}.intro-card{grid-template-columns:1fr}.intro-cat-wrap{max-width:280px;margin:auto}.side{position:relative!important;height:auto;max-height:none}}
+
+
+/* V27: intro con fondo vivo al iniciar experiencia */
+.intro-overlay{
+  isolation:isolate;
+}
+
+.intro-overlay::before,
+.intro-overlay::after{
+  content:"";
+  position:absolute;
+  inset:-18%;
+  z-index:1;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .55s ease;
+}
+
+.intro-overlay::before{
+  background:
+    radial-gradient(circle at 18% 22%, rgba(234,200,0,.42), transparent 18%),
+    radial-gradient(circle at 78% 18%, rgba(0,41,155,.55), transparent 24%),
+    radial-gradient(circle at 58% 78%, rgba(255,255,255,.24), transparent 18%),
+    conic-gradient(from 90deg at 50% 50%, rgba(234,200,0,.22), rgba(0,31,115,.32), rgba(0,41,155,.38), rgba(234,200,0,.22));
+  filter:blur(18px) saturate(1.45);
+  transform:scale(1);
+}
+
+.intro-overlay::after{
+  background:
+    linear-gradient(115deg, transparent 0 42%, rgba(234,200,0,.25) 48%, transparent 56%),
+    linear-gradient(62deg, transparent 0 48%, rgba(255,255,255,.20) 50%, transparent 56%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(0deg, rgba(234,200,0,.045) 0 1px, transparent 1px 38px);
+  mix-blend-mode:screen;
+}
+
+.intro-overlay.experience-active::before{
+  opacity:1;
+  animation:eiIntroAura 5.2s ease-in-out infinite alternate;
+}
+
+.intro-overlay.experience-active::after{
+  opacity:1;
+  animation:eiIntroGrid 2.8s linear infinite;
+}
+
+.intro-overlay.experience-active .intro-video{
+  opacity:.92;
+  filter:saturate(1.7) contrast(1.18) brightness(1.10);
+  transform:scale(1.08);
+  animation:eiVideoPulse 5.2s ease-in-out infinite alternate;
+}
+
+.intro-overlay.experience-active .intro-shade{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(234,200,0,.12), transparent 28%),
+    linear-gradient(135deg, rgba(0,14,54,.40), rgba(0,31,115,.20), rgba(0,0,0,.32));
+  backdrop-filter:blur(1px);
+}
+
+.intro-overlay.experience-active .intro-card{
+  z-index:4;
+  border-color:rgba(234,200,0,.72);
+  box-shadow:
+    0 0 0 1px rgba(234,200,0,.24),
+    0 28px 80px rgba(0,31,115,.38),
+    0 0 70px rgba(234,200,0,.20);
+  animation:eiCardFloat 2.4s ease-in-out infinite alternate;
+}
+
+.intro-overlay.experience-active .intro-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  background:linear-gradient(120deg, transparent, rgba(234,200,0,.28), transparent, rgba(0,41,155,.22), transparent);
+  background-size:260% 260%;
+  z-index:-1;
+  filter:blur(10px);
+  animation:eiBorderFlow 2.2s linear infinite;
+}
+
+.intro-overlay.experience-active .intro-cat-wrap{
+  transform:translateZ(0);
+  animation:eiCatFloat 1.15s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 0 6px rgba(234,200,0,.18),
+    0 20px 55px rgba(0,31,115,.32),
+    0 0 42px rgba(234,200,0,.28);
+}
+
+.intro-overlay.experience-active .intro-copy h1{
+  text-shadow:0 0 22px rgba(234,200,0,.25);
+}
+
+.intro-overlay.experience-active .primary{
+  animation:eiButtonPulse .9s ease-in-out infinite alternate;
+  box-shadow:0 0 0 0 rgba(234,200,0,.52), 0 16px 32px rgba(0,31,115,.26);
+}
+
+.intro-energy{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity .45s ease;
+}
+
+.intro-overlay.experience-active .intro-energy{
+  opacity:1;
+}
+
+.intro-energy span{
+  position:absolute;
+  display:block;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:rgba(234,200,0,.95);
+  box-shadow:0 0 16px rgba(234,200,0,.90), 0 0 32px rgba(0,41,155,.45);
+  animation:eiSparkFly 2.8s linear infinite;
+}
+
+.intro-energy span:nth-child(1){left:8%;top:76%;animation-delay:0s;animation-duration:2.6s}
+.intro-energy span:nth-child(2){left:18%;top:86%;animation-delay:.32s;animation-duration:3.2s}
+.intro-energy span:nth-child(3){left:34%;top:82%;animation-delay:.15s;animation-duration:2.9s}
+.intro-energy span:nth-child(4){left:52%;top:88%;animation-delay:.55s;animation-duration:3.4s}
+.intro-energy span:nth-child(5){left:66%;top:80%;animation-delay:.22s;animation-duration:2.7s}
+.intro-energy span:nth-child(6){left:82%;top:84%;animation-delay:.72s;animation-duration:3.1s}
+.intro-energy span:nth-child(7){left:91%;top:72%;animation-delay:.40s;animation-duration:2.85s}
+.intro-energy span:nth-child(8){left:43%;top:92%;animation-delay:.95s;animation-duration:3.45s}
+
+@keyframes eiIntroAura{
+  0%{transform:scale(1) rotate(0deg) translate3d(0,0,0);filter:blur(20px) saturate(1.3)}
+  45%{transform:scale(1.08) rotate(5deg) translate3d(-2%,1%,0);filter:blur(15px) saturate(1.75)}
+  100%{transform:scale(1.14) rotate(-4deg) translate3d(2%,-1%,0);filter:blur(22px) saturate(1.55)}
+}
+
+@keyframes eiIntroGrid{
+  0%{transform:translate3d(0,0,0) scale(1.03);background-position:0 0,0 0,0 0,0 0}
+  100%{transform:translate3d(-3%,2%,0) scale(1.08);background-position:240px -120px,-120px 160px,92px 0,0 76px}
+}
+
+@keyframes eiVideoPulse{
+  0%{transform:scale(1.06);filter:saturate(1.45) contrast(1.08) brightness(1.06)}
+  100%{transform:scale(1.12);filter:saturate(1.9) contrast(1.22) brightness(1.16)}
+}
+
+@keyframes eiCardFloat{
+  from{transform:translateY(0) scale(1)}
+  to{transform:translateY(-10px) scale(1.012)}
+}
+
+@keyframes eiCatFloat{
+  from{transform:translateY(0) rotate(-1deg) scale(1)}
+  to{transform:translateY(-8px) rotate(1deg) scale(1.025)}
+}
+
+@keyframes eiBorderFlow{
+  from{background-position:0% 50%}
+  to{background-position:260% 50%}
+}
+
+@keyframes eiButtonPulse{
+  from{transform:translateY(0) scale(1)}
+  to{transform:translateY(-2px) scale(1.035)}
+}
+
+@keyframes eiSparkFly{
+  0%{transform:translate3d(0,0,0) scale(.55);opacity:0}
+  12%{opacity:1}
+  78%{opacity:.9}
+  100%{transform:translate3d(22vw,-88vh,0) scale(1.35);opacity:0}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .intro-overlay.experience-active::before,
+  .intro-overlay.experience-active::after,
+  .intro-overlay.experience-active .intro-card,
+  .intro-overlay.experience-active .intro-video,
+  .intro-overlay.experience-active .intro-cat-wrap,
+  .intro-energy span{
+    animation:none!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1168,6 +1356,7 @@ body.intro-lock{overflow:hidden}
   <audio id="introSound" src="assets/bass-logo.mp3" preload="auto"></audio>
   <audio id="welcomeSound" src="assets/level-up.mp3" preload="auto"></audio>
   <div class="intro-shade"></div>
+  <div class="intro-energy" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   <section class="intro-card">
     <div class="intro-cat-wrap"><img src="assets/happy-cat.gif" alt="Gato de bienvenida" class="intro-cat"></div>
     <div class="intro-copy">
@@ -2185,9 +2374,9 @@ function initIntroExperience(){
   if(!overlay)return;
   const video=$('introVideo'), introSound=$('introSound'), welcomeSound=$('welcomeSound');
   const start=$('introStart'), skip=$('introSkip'), replay=$('replayIntro');
-  const closeIntro=()=>{overlay.classList.add('hide');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
+  const closeIntro=()=>{overlay.classList.add('hide');overlay.classList.remove('experience-active');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
   const runIntro=()=>{
-    overlay.classList.remove('hide');overlay.classList.add('playing');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
+    overlay.classList.remove('hide');overlay.classList.add('playing','experience-active');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
     if(video){video.muted=true;playElement(video);}
     playElement(introSound);
     setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1300);
