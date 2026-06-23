@@ -1,14 +1,11 @@
-# Estudio Documental EI V28
+# Estudio Documental EI V29
 
-Intro optimizada:
+Cambios en editor Word:
 
-- El video de fondo ya no arranca automáticamente al abrir.
-- El video inicia únicamente al presionar "Iniciar experiencia".
-- Se quitó la carga pesada de partículas, blur, filtros y animaciones grandes.
-- El video queda sin opacidad artificial y sin filtros pesados.
-- Se conservaron animaciones leves:
-  - movimiento suave de tarjeta;
-  - movimiento suave del GIF;
-  - pulso leve del botón.
-- No se modificó el editor documental.
-- No se modificaron procedimientos, instructivos, sublistas, imágenes, PDF ni guardado.
+- Se limpió la plantilla SGC para que no muestre tabla editable ni gráfica editable dentro del documento.
+- Las secciones SGC se gestionan desde el panel lateral.
+- El documento renderiza título de sección y contenido sin controles editables encima de la hoja.
+- Se agregó elemento gráfico en el pie de página azul.
+- El pie de página azul llega al borde inferior de la hoja.
+- En el inicio se ocultan Exportar PDF final y Guardar en navegador.
+- No se modificó el editor de instructivos ni procedimientos.

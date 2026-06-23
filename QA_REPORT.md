@@ -1,14 +1,8 @@
-# QA V28
+# QA V29
 
 - node --check source.js ejecutado.
-- initIntroExperience reemplazado únicamente para controlar reproducción del video.
-- Video preparado en pausa al abrir.
-- Video inicia en runIntro.
-- CSS de intro optimizado:
-  - sin partículas;
-  - sin blur;
-  - sin filtros pesados;
-  - animaciones leves.
+- Base usada: V28.
+- Cambios limitados al panel Word, render SGC, footer SGC y ocultamiento de botones en modo inicio.
 - Funciones críticas verificadas:
   - createFirstStep;
   - addSub;
@@ -20,10 +14,10 @@
 
 Resultado node --check: PASS
 {
-  "video_no_autoplay_js": true,
-  "video_starts_on_button": true,
-  "no_particles_css": true,
-  "light_intro_css": true,
+  "no_table_chart_in_sgcPages": true,
+  "word_section_panel": true,
+  "footer_graphic": true,
+  "home_hides_export_save": true,
   "create_steps_intact": true,
   "sublistas_intact": true,
   "image_intact": true,

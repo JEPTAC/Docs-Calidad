@@ -38,11 +38,14 @@ let doc={
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function setMode(m){
   mode=m;
+  document.body.classList.toggle('mode-home',m==='home');
+  document.body.classList.toggle('mode-word',m==='word');
+  document.body.classList.toggle('mode-excel',m==='excel');
   $('home').classList.toggle('hidden',m!=='home');
   $('editor').classList.toggle('hidden',m==='home');
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==m));
   $('topTitle').textContent=m==='word'?'Documentos Word':m==='excel'?'Instructivo visual':'Centro documental';
-  $('topSub').textContent=m==='word'?'Oficios, circulares y documentos SGC con tablas y gráficas':m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
+  $('topSub').textContent=m==='word'?'Oficios, circulares y documentos SGC limpios desde panel':m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
   render();
   renderProjectHistory();
 }
@@ -62,9 +65,9 @@ function bind(){
   const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
   $('docBody').oninput=e=>{doc.body=e.target.value;render()};
-  $('addSection').onclick=()=>{doc.sections.push({n:String(doc.sections.length+1),t:'NUEVA SECCIÓN',c:'Contenido'});render()};
-  $('addWordTableRow').onclick=()=>{doc.wordTable.push(['','','']);render()};
-  $('addWordChart').onclick=()=>{doc.wordChart.push(40);render()};
+  const addSectionBtn=$('addSection'); if(addSectionBtn) addSectionBtn.onclick=()=>{doc.sections.push({n:String(doc.sections.length+1),t:'NUEVA SECCIÓN',c:''});render()};
+  const addWordTableRowBtn=$('addWordTableRow'); if(addWordTableRowBtn) addWordTableRowBtn.onclick=()=>{doc.wordTable.push(['','','']);render()};
+  const addWordChartBtn=$('addWordChart'); if(addWordChartBtn) addWordChartBtn.onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
   ['objectiveAlign','scopeAlign'].forEach(id=>{const el=$(id); if(el) el.onchange=e=>{doc[id]=e.target.value;render()}});
   $('addStep').onclick=()=>{createFirstStep()};
@@ -78,6 +81,7 @@ function syncInputs(){
   if($('docBody')) $('docBody').value=doc.body;
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??''});
   ['objectiveAlign','scopeAlign'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??'center'});
+  renderWordSectionEditor();
   renderStepEditor();
 }
 function render(){ensureDocDefaults();ensureSubDefaults();setZoom(zoom);syncInputs();if(mode==='word')renderWord();if(mode==='excel')renderInstructivo();}
@@ -87,17 +91,48 @@ function letterPage(){
 }
 function sgcPages(){
   const toc=`<div class="page">${sgcHeader(1)}<div class="sgc-content"><h3 class="center" style="color:#001F73">TABLA DE CONTENIDO</h3>${doc.sections.map((s,i)=>`<p><b>${esc(s.n)}.</b> ${esc(s.t)}<span style="float:right">${i+1}</span></p>`).join('')}</div>${sgcFooter(1)}</div>`;
-  const content=`<div class="page">${sgcHeader(2)}<div class="sgc-content">${doc.sections.map((s,i)=>`<div><div class="sgc-section-title"><span>${esc(s.n)}</span>&nbsp;&nbsp;${esc(s.t)}</div><div class="sgc-edit" contenteditable="true" data-sec="${i}">${esc(s.c).replace(/\n/g,'<br>')}</div></div>`).join('')}${tableHtml()}${chartHtml()}</div>${sgcFooter(2)}</div>`;
+  const content=`<div class="page">${sgcHeader(2)}<div class="sgc-content">${doc.sections.map((s,i)=>`<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(s.n)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${String(s.c||'').trim()?`<div class="sgc-section-content">${esc(s.c)}</div>`:''}</div>`).join('')}</div>${sgcFooter(2)}</div>`;
   return toc+content;
 }
 function sgcHeader(n){return `<div class="sgc-header"><div class="sgc-logo"><img src="${LOGO}"></div><div class="sgc-title">${esc(doc.title)}</div><div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div></div>`}
-function sgcFooter(n){return `<div class="sgc-footer"><span>Ingeniería Eléctrica</span><span>•</span><span>Suministros Eléctricos</span><span>•</span><span>Alumbrado Público</span><span>www.ei.com.co</span></div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`}
+function sgcFooter(n){return `<div class="sgc-footer"><span>Ingeniería Eléctrica</span><span>•</span><span>Suministros Eléctricos</span><span>•</span><span>Alumbrado Público</span><span>www.ei.com.co</span><span class="sgc-footer-graphic" aria-hidden="true"></span></div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`}
 function renderWord(){
   $('stage').innerHTML=(doc.wordType==='oficio'||doc.wordType==='circular')?letterPage():sgcPages();
-  setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};document.querySelectorAll('[data-sec]').forEach(el=>el.oninput=e=>{doc.sections[+e.currentTarget.dataset.sec].c=e.currentTarget.innerText});bindTableChart();},0);
+  setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};renderWordSectionEditor();},0);
 }
-function tableHtml(){return `<h3 style="color:#001F73">Tabla editable</h3><table class="word-table">${doc.wordTable.map((r,ri)=>`<tr>${r.map((c,ci)=>ri===0?`<th contenteditable="true" data-cell="${ri}-${ci}">${esc(c)}</th>`:`<td contenteditable="true" data-cell="${ri}-${ci}">${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`}
-function chartHtml(){const max=Math.max(...doc.wordChart,100);return `<h3 style="color:#001F73">Gráfica editable</h3><div class="word-chart">${doc.wordChart.map((v,i)=>`<div class="word-bar" style="height:${Math.max(12,v/max*130)}px"><span>${v}</span></div><input type="number" data-chart="${i}" value="${v}" style="width:65px;align-self:flex-start">`).join('')}</div>`}
+
+function renderWordSectionEditor(){
+  const box=$('wordSectionEditor');
+  if(!box)return;
+  if(doc.wordType!=='sgc'){
+    box.innerHTML='<p class="hint">Las secciones aplican para Manual / Guía / Política / Protocolo / Formato.</p>';
+    return;
+  }
+  const sections=doc.sections||[];
+  box.innerHTML=sections.map((s,i)=>`<div class="word-section-card">
+    <div class="word-section-card-title"><span>Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
+    <div class="grid2">
+      <label>Número<input data-word-sec-n="${i}" value="${esc(s.n)}"></label>
+      <label>Título<input data-word-sec-t="${i}" value="${esc(s.t)}"></label>
+    </div>
+    <label>Contenido desde panel<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
+  </div>`).join('') || '<p class="hint">Agregue una sección para iniciar el documento SGC.</p>';
+  box.querySelectorAll('[data-word-sec-n]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecN].n=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sec-t]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecT].t=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sec-c]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecC].c=e.target.value;renderWordOnly()});
+}
+function renderWordOnly(){
+  if(mode==='word'){
+    $('stage').innerHTML=(doc.wordType==='oficio'||doc.wordType==='circular')?letterPage():sgcPages();
+    setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};},0);
+  }
+}
+function removeWordSection(i){
+  doc.sections.splice(i,1);
+  render();
+}
+function tableHtml(){return `<h3 style="color:#001F73">Tabla</h3><table class="word-table">${doc.wordTable.map((r,ri)=>`<tr>${r.map((c,ci)=>ri===0?`<th contenteditable="true" data-cell="${ri}-${ci}">${esc(c)}</th>`:`<td contenteditable="true" data-cell="${ri}-${ci}">${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`}
+function chartHtml(){const max=Math.max(...doc.wordChart,100);return `<h3 style="color:#001F73">Gráfica</h3><div class="word-chart">${doc.wordChart.map((v,i)=>`<div class="word-bar" style="height:${Math.max(12,v/max*130)}px"><span>${v}</span></div><input type="number" data-chart="${i}" value="${v}" style="width:65px;align-self:flex-start">`).join('')}</div>`}
 function bindTableChart(){document.querySelectorAll('[data-cell]').forEach(el=>el.oninput=e=>{const [r,c]=e.target.dataset.cell.split('-').map(Number);doc.wordTable[r][c]=e.target.innerText});document.querySelectorAll('[data-chart]').forEach(el=>el.oninput=e=>{doc.wordChart[+e.target.dataset.chart]=Number(e.target.value)||0;render()})}
 
 
