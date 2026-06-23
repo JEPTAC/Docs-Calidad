@@ -82,6 +82,26 @@ function addTypedWordSection(title){
 function applyWordTypeBodyClass(){
   ['oficio','circular','manual','guia','politica','protocolo','formato'].forEach(t=>document.body.classList.toggle('word-type-'+t,doc.wordType===t));
 }
+
+function isMobileViewport(){
+  return window.innerWidth <= 1080;
+}
+function preferredMobileZoom(){
+  const baseWidth=816;
+  const available=Math.max(300, window.innerWidth - 22);
+  return Math.max(.36, Math.min(.78, available / baseWidth));
+}
+function openSide(){
+  document.body.classList.add('side-open');
+  const bd=$('mobileBackdrop'); if(bd) bd.classList.add('open');
+}
+function closeSide(){
+  document.body.classList.remove('side-open');
+  const bd=$('mobileBackdrop'); if(bd) bd.classList.remove('open');
+}
+function autoCloseSide(){
+  if(isMobileViewport()) closeSide();
+}
 function setMode(m){
   mode=m;
   normalizeWordType();
@@ -94,37 +114,26 @@ function setMode(m){
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==m));
   $('topTitle').textContent=m==='word'?'Documentos Word':m==='excel'?'Instructivo visual':'Centro documental';
   $('topSub').textContent=m==='word'?(wordTypeLabel(doc.wordType)+' · campos y secciones permitidas según tipo documental'):m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
+  if(isMobileViewport() && m!=='home') zoom=preferredMobileZoom();
   render();
   renderProjectHistory();
-  setTimeout(autoCloseSide,30);
+  setTimeout(autoCloseSide,40);
 }
-function openProcedure(){
-  mode='procedure';
-  document.body.classList.remove('mode-home','mode-word','mode-excel');
-  $('home').classList.add('hidden');
-  $('editor').classList.remove('hidden');
-  document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!=='procedure'));
-  $('topTitle').textContent='Procedimiento / Flujograma';
-  $('topSub').textContent='Editor visual de procedimientos con flujograma y página final';
-  render();
-  renderProjectHistory();
-  setTimeout(autoCloseSide,30);
-}
-function setZoom(z){zoom=Math.max(.35,Math.min(1.2,z));$('stage').style.transform=`scale(${zoom})`; $('zoomLabel').textContent=Math.round(zoom*100)+'%'}
-
-function openSide(){
-  document.body.classList.add('side-open');
-  const bd=$('mobileBackdrop'); if(bd) bd.classList.add('open');
-}
-function closeSide(){
-  document.body.classList.remove('side-open');
-  const bd=$('mobileBackdrop'); if(bd) bd.classList.remove('open');
-}
-function isMobileViewport(){
-  return window.innerWidth<=1080;
-}
-function autoCloseSide(){
-  if(isMobileViewport()) closeSide();
+function openProcedure(){window.location.href='procedimiento/index.html'}
+function setZoom(z){
+  zoom=Math.max(.35,Math.min(1.2,z));
+  const stage=$('stage');
+  if(stage){
+    if(isMobileViewport()){
+      stage.style.transform='none';
+      stage.style.zoom=zoom;
+    }else{
+      stage.style.zoom='';
+      stage.style.transform=`scale(${zoom})`;
+    }
+  }
+  const zl=$('zoomLabel');
+  if(zl) zl.textContent=Math.round(zoom*100)+'%';
 }
 function bind(){
   const homeTopBtn=$('homeTopBtn'); if(homeTopBtn) homeTopBtn.onclick=()=>setMode('home');
@@ -152,9 +161,21 @@ function bind(){
 
   const menuBtn=$('menuToggle'); if(menuBtn) menuBtn.onclick=openSide;
   const closeBtn=$('closeSide'); if(closeBtn) closeBtn.onclick=closeSide;
-  const backdrop=$('mobileBackdrop'); if(backdrop) backdrop.onclick=closeSide;
-  window.addEventListener('resize',()=>{ if(!isMobileViewport()) closeSide(); });
-  ['goWord','goExcel','goProcedure','homeTopBtn'].forEach(id=>{ const el=$(id); if(el){ const old=el.onclick; el.addEventListener('click',()=>setTimeout(autoCloseSide,30)); }});
+  const mobileBackdrop=$('mobileBackdrop'); if(mobileBackdrop) mobileBackdrop.onclick=closeSide;
+
+  const mobileHome=$('mobileHome'); if(mobileHome) mobileHome.onclick=()=>setMode('home');
+  const mobileTools=$('mobileTools'); if(mobileTools) mobileTools.onclick=openSide;
+  const mobileWord=$('mobileWord'); if(mobileWord) mobileWord.onclick=()=>setMode('word');
+  const mobileExcel=$('mobileExcel'); if(mobileExcel) mobileExcel.onclick=()=>setMode('excel');
+  const mobileSave=$('mobileSave'); if(mobileSave) mobileSave.onclick=()=>saveToBrowserCache();
+
+  window.addEventListener('resize',()=>{
+    if(!isMobileViewport()) closeSide();
+    if(isMobileViewport() && mode!=='home'){
+      zoom=preferredMobileZoom();
+      setZoom(zoom);
+    }
+  });
 
 }
 
@@ -1091,7 +1112,10 @@ function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');
   const stage=$('stage');
-  if(stage) stage.style.transform='none';
+  if(stage){
+    stage.style.transform='none';
+    stage.style.zoom='1';
+  }
   setTimeout(()=>{
     window.print();
     setTimeout(()=>{

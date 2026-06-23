@@ -1,20 +1,23 @@
-# Estudio Documental EI V35
+# Estudio Documental EI V36
 
-Cambios aplicados:
+Corrección fuerte de versión móvil:
 
-- Se agregaron iconos para navegador de computador:
-  - favicon.ico
-  - favicon-32x32.png
-  - favicon-16x16.png
-- Se agregó icono para iOS:
-  - apple-touch-icon.png
-- Se agregó manifest para instalación:
-  - site.webmanifest
-- Se añadieron metadatos PWA / Apple.
-- Se implementó versión móvil navegable:
-  - menú hamburguesa;
-  - barra lateral deslizante;
-  - botón cerrar panel;
-  - fondo oscuro al abrir menú;
-  - cierre automático al entrar a Inicio / Word / Instructivo / Procedimiento.
-- Se optimizó la vista móvil sin tocar la lógica funcional de los editores.
+- Se reconstruyó la navegación móvil con enfoque tipo herramienta de mercado.
+- Se agregó dock inferior tipo Canva/Notion:
+  - Inicio;
+  - Panel;
+  - Word;
+  - Instructivo;
+  - Guardar.
+- La barra lateral ahora es drawer móvil real:
+  - abre con botón Herramientas;
+  - cierra con X;
+  - tiene overlay;
+  - permite scroll interno hasta el fondo.
+- La plantilla ahora sí se ajusta en móvil con zoom real CSS.
+- Se evita que la página quede gigantesca e imposible de navegar.
+- El inicio se compactó para celular.
+- La intro se ajustó para celular y conserva el video visible.
+- Se conservaron iconos para navegador/iOS/Android.
+- No se modificó la plantilla de calidad V34.
+- No se modificó la lógica de instructivos, Word ni procedimientos.
