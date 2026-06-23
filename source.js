@@ -52,9 +52,8 @@ function bind(){
   $('goHome').onclick=()=>setMode('home'); $('openProcedure').onclick=openProcedure;
   $('zoomIn').onclick=()=>setZoom(zoom+.05); $('zoomOut').onclick=()=>setZoom(zoom-.05); $('zoomFit').onclick=()=>setZoom(.72);
   const printBtn=$('printPdf'); if(printBtn) printBtn.onclick=()=>exportPdf();
-  const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
   const saveCacheBtn=$('saveCache'); if(saveCacheBtn) saveCacheBtn.onclick=()=>saveToBrowserCache();
-
+  const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
   const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
   $('docBody').oninput=e=>{doc.body=e.target.value;render()};
@@ -363,37 +362,17 @@ function bindStepEditorControls(box){
   box.querySelectorAll('[data-group-img-x]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgX.split('-').map(Number);doc.steps[a].listGroups[g].imgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-group-img-y]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgY.split('-').map(Number);doc.steps[a].listGroups[g].imgY=Number(e.target.value);renderInstructivoOnly()});
 }
-
-function repaginateIfOverflow(){
-  if(mode!=='excel') return;
-  const pages=[...document.querySelectorAll('.instr-page')];
-  let overflow=false;
-  pages.forEach(p=>{
-    const content=p.querySelector('.instr-content');
-    if(!content) return;
-    const max=content.clientHeight-6;
-    if(content.scrollHeight>max) overflow=true;
-  });
-  if(overflow && !window.__eiStrictPaging){
-    window.__eiStrictPaging=true;
-    const oldPageCapacity=pageCapacity;
-    window.__eiPageCapacityOverride=true;
-    render();
-    window.__eiStrictPaging=false;
-  }
-}
-
 function renderInstructivoOnly(){
   const st=$('stage');
   if(st){
     st.innerHTML=instructivoHtml();
-    setTimeout(()=>{bindCanvasImages();repaginateIfOverflow();window.__eiPageCapacityOverride=false;},0);
+    setTimeout(bindCanvasImages,0);
   }
 }
 function renderInstructivo(){
   $('stage').innerHTML=instructivoHtml();
   renderStepEditor();
-  setTimeout(()=>{bindCanvasImages();repaginateIfOverflow();window.__eiPageCapacityOverride=false;},0);
+  setTimeout(bindCanvasImages,0);
 }
 function estimateTextRows(text, charsPerRow=62){
   const t=String(text||'').trim();
@@ -401,31 +380,29 @@ function estimateTextRows(text, charsPerRow=62){
   return Math.max(1, Math.ceil(t.length/charsPerRow));
 }
 function estimateNoteHeight(note){
-  const clean = String(note?.text||'').trim();
+  const clean=String(note?.text||'').trim();
   if(!clean) return 0;
-  return 18 + estimateTextRows(clean, 90)*12;
+  return 16 + estimateTextRows(clean, 90)*11;
 }
 function estimateSubHeight(ss, s){
-  const textH = 34 + estimateTextRows(ss.text||'', 40)*12;
+  const textH = 32 + estimateTextRows(ss.text||'', 42)*11;
   const imgH = Number(s.imgH||102);
-  return Math.max(Number(s.cardH||150), textH + imgH + 26);
+  return Math.max(Number(s.cardH||150), textH + imgH + 22);
 }
 function estimateStepImageHeight(s){
-  return Number(s.stepImgBoxH||245) + 42;
+  return Number(s.stepImgBoxH||245) + 36;
 }
 function estimateListItemHeight(ss){
-  return Math.max(30, 16 + estimateTextRows(ss.text||'', 52)*13);
+  return Math.max(28, 15 + estimateTextRows(ss.text||'', 54)*12);
 }
 function estimateGroupHeight(g,s,items){
   const arr=items||g.sub||[];
-  const listH = arr.reduce((a,x)=>a+estimateListItemHeight(x)+5, 0) + 36;
-  const imgH = Number(g.imgBoxH || s.stepImgBoxH || 245) + 42;
-  return Math.max(listH, imgH) + 12;
+  const listH = arr.reduce((a,x)=>a+estimateListItemHeight(x)+4,0) + 34;
+  const imgH = Number(g.imgBoxH || s.stepImgBoxH || 245) + 38;
+  return Math.max(listH,imgH) + 10;
 }
 function pageCapacity(first){
-  /* Área útil estricta antes del pie de página.
-     La primera hoja tiene menos capacidad porque incluye objetivo y alcance. */
-  return window.__eiPageCapacityOverride ? (first ? 600 : 700) : (first ? 665 : 765);
+  return first ? 660 : 755;
 }
 function notesHtmlFor(s,pos){
   return (s.notes||[]).filter(n=>String(n.text||'').trim()).map((n,j)=>noteHtml(n,doc.steps.indexOf(s),j)).join('');
@@ -807,20 +784,17 @@ function removeListImage(i,k){
 }
 
 const CACHE_KEY='ei_documental_cache_v1';
+
 function saveToBrowserCache(){
   try{
-    ensureDocDefaults();
-    ensureSubDefaults();
-    localStorage.setItem(CACHE_KEY, JSON.stringify({savedAt:new Date().toISOString(), doc}));
+    if(typeof ensureDocDefaults==='function') ensureDocDefaults();
+    if(typeof ensureSubDefaults==='function') ensureSubDefaults();
+    localStorage.setItem(CACHE_KEY, JSON.stringify({savedAt:new Date().toISOString(), doc:doc}));
     const st=$('cacheStatus');
-    if(st){
-      st.textContent='Guardado';
-      setTimeout(()=>{if(st.textContent==='Guardado') st.textContent='';},2200);
-    }
-  }catch(err){
-    alert('No se pudo guardar en el navegador: '+err.message);
-  }
+    if(st){st.textContent='Guardado en navegador';setTimeout(()=>{if(st.textContent==='Guardado en navegador')st.textContent='';},2500);}
+  }catch(err){alert('No se pudo guardar en el navegador: '+err.message);}
 }
+
 function loadFromBrowserCache(){
   try{
     const raw=localStorage.getItem(CACHE_KEY);
@@ -828,13 +802,13 @@ function loadFromBrowserCache(){
     const data=JSON.parse(raw);
     if(data && data.doc){
       doc=Object.assign(doc,data.doc);
-      ensureDocDefaults();
-      ensureSubDefaults();
+      if(typeof ensureDocDefaults==='function') ensureDocDefaults();
+      if(typeof ensureSubDefaults==='function') ensureSubDefaults();
+      const st=$('cacheStatus');
+      if(st){st.textContent='Documento cargado';setTimeout(()=>{if(st.textContent==='Documento cargado')st.textContent='';},2200);}
       return true;
     }
-  }catch(err){
-    console.warn('No se pudo cargar caché local',err);
-  }
+  }catch(err){console.warn('No se pudo cargar caché local',err);}
   return false;
 }
 function exportPdf(){
@@ -885,6 +859,5 @@ function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.s
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
 bind(); setMode('home');
 
-bind();
 loadFromBrowserCache();
 render();

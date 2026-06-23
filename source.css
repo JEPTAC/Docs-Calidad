@@ -1141,25 +1141,7 @@ body.print-mode .actions{
   touch-action:none!important;
 }
 
-
-/* V24: paginación más estricta y botón de guardado en navegador */
-.cache-status{
-  font-size:11px;
-  color:#EAC800;
-  font-weight:800;
-  min-width:120px;
-}
-
-.page-overflow-guard{
-  outline:1px dashed rgba(234,200,0,.25);
-}
-
-.step-compact.compact-slice{
-  break-inside:avoid;
-  page-break-inside:avoid;
-}
-
-.list-group-block{
-  break-inside:avoid;
-  page-break-inside:avoid;
-}
+/* V25: guardado local y paginación estricta sin alterar funciones previas */
+.cache-status{font-size:11px;color:#EAC800;font-weight:800;min-width:120px}
+.step-compact.compact-slice,.list-group-block{break-inside:avoid;page-break-inside:avoid}
+@media print{.cache-status{display:none!important}}
