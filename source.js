@@ -44,10 +44,15 @@ function setMode(m){
   $('topTitle').textContent=m==='word'?'Documentos Word':m==='excel'?'Instructivo visual':'Centro documental';
   $('topSub').textContent=m==='word'?'Oficios, circulares y documentos SGC con tablas y gráficas':m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
   render();
+  renderProjectHistory();
 }
 function openProcedure(){window.location.href='procedimiento/index.html'}
 function setZoom(z){zoom=Math.max(.35,Math.min(1.2,z));$('stage').style.transform=`scale(${zoom})`; $('zoomLabel').textContent=Math.round(zoom*100)+'%'}
 function bind(){
+  const homeTopBtn=$('homeTopBtn'); if(homeTopBtn) homeTopBtn.onclick=()=>setMode('home');
+  const clearHistoryBtn=$('clearProjectHistory'); if(clearHistoryBtn) clearHistoryBtn.onclick=()=>clearProjectHistory();
+  renderProjectHistory();
+
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>setMode(b.dataset.open));
   $('goHome').onclick=()=>setMode('home'); $('openProcedure').onclick=openProcedure;
   $('zoomIn').onclick=()=>setZoom(zoom+.05); $('zoomOut').onclick=()=>setZoom(zoom-.05); $('zoomFit').onclick=()=>setZoom(.72);
@@ -790,6 +795,8 @@ function saveToBrowserCache(){
     if(typeof ensureDocDefaults==='function') ensureDocDefaults();
     if(typeof ensureSubDefaults==='function') ensureSubDefaults();
     localStorage.setItem(CACHE_KEY, JSON.stringify({savedAt:new Date().toISOString(), doc:doc}));
+    saveRecentProject();
+    renderProjectHistory();
     const st=$('cacheStatus');
     if(st){st.textContent='Guardado en navegador';setTimeout(()=>{if(st.textContent==='Guardado en navegador')st.textContent='';},2500);}
   }catch(err){alert('No se pudo guardar en el navegador: '+err.message);}
@@ -810,6 +817,74 @@ function loadFromBrowserCache(){
     }
   }catch(err){console.warn('No se pudo cargar caché local',err);}
   return false;
+}
+
+const RECENT_KEY='ei_documental_recent_projects_v1';
+function currentProjectMeta(){
+  const modeLabel=mode==='word'?'Documento Word':mode==='excel'?'Instructivo':mode==='home'?'Inicio':'Documento';
+  const title=(mode==='excel'?(doc.instrTitle||doc.title):(doc.title||doc.instrTitle)) || 'Proyecto sin título';
+  const code=(mode==='excel'?(doc.instrCode||doc.code):(doc.code||doc.instrCode)) || '';
+  return {id:Date.now(),title,code,mode,modeLabel,date:new Date().toLocaleString('es-CO'),doc:JSON.parse(JSON.stringify(doc))};
+}
+function saveRecentProject(){
+  try{
+    const item=currentProjectMeta();
+    let arr=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]');
+    arr=[item,...arr].slice(0,5);
+    try{localStorage.setItem(RECENT_KEY,JSON.stringify(arr));}
+    catch(quotaErr){
+      arr=arr.map(x=>({id:x.id,title:x.title,code:x.code,mode:x.mode,modeLabel:x.modeLabel,date:x.date}));
+      localStorage.setItem(RECENT_KEY,JSON.stringify(arr));
+    }
+  }catch(err){console.warn('No se pudo actualizar historial',err);}
+}
+function renderProjectHistory(){
+  const box=$('projectHistory');
+  if(!box)return;
+  let arr=[];
+  try{arr=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]')||[];}catch(e){arr=[];}
+  if(!arr.length){box.innerHTML='<div class="project-history-empty">Aún no hay proyectos guardados en este navegador.</div>';return;}
+  box.innerHTML=arr.map((p,i)=>`<div class="project-history-item"><strong>${esc(p.title||'Proyecto sin título')}</strong><span>${esc(p.modeLabel||p.mode||'Documento')} ${p.code?'· '+esc(p.code):''}</span><span>${esc(p.date||'')}</span><button data-open-recent="${i}" ${p.doc?'':'disabled'}>${p.doc?'Abrir proyecto':'Solo referencia'}</button></div>`).join('');
+  box.querySelectorAll('[data-open-recent]').forEach(btn=>btn.onclick=()=>openRecentProject(Number(btn.dataset.openRecent)));
+}
+function openRecentProject(i){
+  try{
+    const arr=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]')||[];
+    const item=arr[i];
+    if(!item||!item.doc){alert('Este registro solo conserva referencia. Guarde nuevamente para conservar apertura completa.');return;}
+    doc=Object.assign(doc,item.doc);
+    if(typeof ensureDocDefaults==='function') ensureDocDefaults();
+    if(typeof ensureSubDefaults==='function') ensureSubDefaults();
+    setMode(item.mode==='word'||item.mode==='excel'?item.mode:'home');
+  }catch(err){alert('No se pudo abrir el proyecto guardado: '+err.message);}
+}
+function clearProjectHistory(){
+  localStorage.removeItem(RECENT_KEY);
+  renderProjectHistory();
+}
+function playElement(el){
+  if(!el)return Promise.resolve();
+  try{el.currentTime=0;return el.play().catch(()=>{});}catch(e){return Promise.resolve();}
+}
+function stopElement(el){try{if(el){el.pause();el.currentTime=0;}}catch(e){}}
+function initIntroExperience(){
+  const overlay=$('introOverlay');
+  if(!overlay)return;
+  const video=$('introVideo'), introSound=$('introSound'), welcomeSound=$('welcomeSound');
+  const start=$('introStart'), skip=$('introSkip'), replay=$('replayIntro');
+  const closeIntro=()=>{overlay.classList.add('hide');document.body.classList.remove('intro-lock');setTimeout(()=>{stopElement(introSound);stopElement(welcomeSound);},450);};
+  const runIntro=()=>{
+    overlay.classList.remove('hide');overlay.classList.add('playing');overlay.classList.remove('show-welcome');document.body.classList.add('intro-lock');
+    if(video){video.muted=true;playElement(video);}
+    playElement(introSound);
+    setTimeout(()=>{overlay.classList.add('show-welcome');playElement(welcomeSound);},1300);
+    setTimeout(closeIntro,5200);
+  };
+  document.body.classList.add('intro-lock');
+  if(video){video.muted=true;playElement(video);}
+  if(start)start.onclick=runIntro;
+  if(skip)skip.onclick=closeIntro;
+  if(replay)replay.onclick=runIntro;
 }
 function exportPdf(){
   const prevZoom = zoom;
@@ -861,3 +936,5 @@ bind(); setMode('home');
 
 loadFromBrowserCache();
 render();
+
+initIntroExperience();
