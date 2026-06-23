@@ -2297,3 +2297,127 @@ html, body{
     display:none!important;
   }
 }
+
+
+/* V37: corrección definitiva de scroll móvil y acceso a procedimientos */
+@media (max-width:1080px){
+  html{
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+
+  body{
+    height:auto!important;
+    min-height:100svh!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    position:static!important;
+    touch-action:pan-y!important;
+  }
+
+  body.side-open{
+    overflow-y:auto!important;
+    position:static!important;
+  }
+
+  .app{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-bottom:calc(96px + env(safe-area-inset-bottom))!important;
+  }
+
+  .main{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-bottom:calc(96px + env(safe-area-inset-bottom))!important;
+  }
+
+  .work{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    display:block!important;
+    padding-bottom:calc(136px + env(safe-area-inset-bottom))!important;
+  }
+
+  #editor{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-bottom:calc(130px + env(safe-area-inset-bottom))!important;
+  }
+
+  .stage{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-bottom:calc(110px + env(safe-area-inset-bottom))!important;
+  }
+
+  .side{
+    overflow-y:scroll!important;
+    overscroll-behavior:contain!important;
+    padding-bottom:calc(170px + env(safe-area-inset-bottom))!important;
+  }
+
+  .mobile-dock{
+    grid-template-columns:repeat(6,1fr)!important;
+    height:66px!important;
+    z-index:1200!important;
+  }
+
+  .mobile-dock button b{
+    font-size:9px!important;
+  }
+
+  .procedure-tools-panel{
+    display:block!important;
+  }
+
+  .procedure-tool-card{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:14px;
+    padding:10px;
+    display:grid;
+    gap:8px;
+  }
+
+  .procedure-tool-card b{
+    color:#EAC800;
+    font-size:13px;
+  }
+
+  .procedure-tool-card p{
+    margin:0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.32;
+    opacity:.95;
+  }
+}
+
+@media (max-width:520px){
+  .mobile-dock{
+    left:6px!important;
+    right:6px!important;
+    gap:4px!important;
+    padding:6px!important;
+  }
+
+  .mobile-dock button span{
+    font-size:15px!important;
+  }
+
+  .mobile-dock button b{
+    font-size:8.5px!important;
+  }
+
+  .work{
+    padding-bottom:calc(155px + env(safe-area-inset-bottom))!important;
+  }
+}

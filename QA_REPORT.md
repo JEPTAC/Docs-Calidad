@@ -1,35 +1,26 @@
-# QA V36
+# QA V37
 
-Revisión QA móvil realizada sobre la estructura:
+Problema reportado:
+- En móvil el scroll no permitía bajar más allá de cierta posición.
+- Procedimientos no estaba suficientemente visible en herramientas.
 
-Problemas encontrados en V35:
-- La plantilla seguía comportándose como hoja de escritorio.
-- El sidebar podía quedar inaccesible en celular.
-- El inicio era demasiado alto para pantalla móvil.
-- El scroll dependía de contenedores internos y podía no llegar al fondo.
-- No había navegación móvil persistente tipo app.
-
-Correcciones:
-- Drawer móvil con overlay.
-- Dock inferior persistente.
-- Scroll real en body y sidebar.
-- CSS zoom real para que la plantilla se vea en celular.
-- Home compacto.
-- Intro compacta.
-- Iconos y manifest conservados.
+Corrección:
+- body.side-open ya no bloquea overflow-y.
+- work/editor/stage tienen overflow visible y padding-bottom seguro.
+- sidebar usa overflow-y:scroll y overscroll-behavior.
+- mobile dock pasa a seis accesos incluyendo Procedimiento.
+- Se agrega panel "Procedimientos" en herramientas.
 
 Resultado node --check: PASS
 {
   "node_check_pass": true,
-  "icons": true,
-  "manifest": true,
-  "dock_html": true,
-  "drawer_html": true,
-  "responsive_css": true,
-  "zoom_mobile_js": true,
-  "intro_mobile_css": true,
+  "body_scroll_fixed": true,
+  "work_scroll_fixed": true,
+  "side_scroll_fixed": true,
+  "procedure_tools_panel": true,
+  "mobile_procedure_dock": true,
+  "six_column_dock": true,
+  "template_quality_intact": true,
   "word_intact": true,
-  "instructivo_intact": true,
-  "procedure_intact": true,
-  "template_quality_intact": true
+  "instructivo_intact": true
 }

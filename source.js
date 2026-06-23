@@ -177,6 +177,10 @@ function bind(){
     }
   });
 
+
+  const procToolsBtn=$('openProcedureFromTools'); if(procToolsBtn) procToolsBtn.onclick=openProcedure;
+  const mobileProcedure=$('mobileProcedure'); if(mobileProcedure) mobileProcedure.onclick=openProcedure;
+
 }
 
 function onWordTypeChanged(){
