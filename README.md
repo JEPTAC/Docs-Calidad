@@ -1,13 +1,20 @@
-# Estudio Documental EI V34
+# Estudio Documental EI V35
 
-Corrección puntual de encabezado:
+Cambios aplicados:
 
-- Encabezado corregido con sangría de 1 cm a cada lado.
-- Barra azul uniforme, sin recuadro oscuro diferente detrás del título.
-- Encabezado casi de ancho completo de la página.
-- Logo alineado y compacto.
-- Título central en amarillo y bloque derecho en el mismo azul.
-- El título por defecto se limpió; ahora inicia vacío y se muestra XXX en la plantilla si no se escribe.
-- Se conservan código y versión editables.
-- Márgenes del contenido SGC conservados en 2,5 cm.
-- No se modificaron instructivos ni procedimientos.
+- Se agregaron iconos para navegador de computador:
+  - favicon.ico
+  - favicon-32x32.png
+  - favicon-16x16.png
+- Se agregó icono para iOS:
+  - apple-touch-icon.png
+- Se agregó manifest para instalación:
+  - site.webmanifest
+- Se añadieron metadatos PWA / Apple.
+- Se implementó versión móvil navegable:
+  - menú hamburguesa;
+  - barra lateral deslizante;
+  - botón cerrar panel;
+  - fondo oscuro al abrir menú;
+  - cierre automático al entrar a Inicio / Word / Instructivo / Procedimiento.
+- Se optimizó la vista móvil sin tocar la lógica funcional de los editores.

@@ -96,9 +96,36 @@ function setMode(m){
   $('topSub').textContent=m==='word'?(wordTypeLabel(doc.wordType)+' · campos y secciones permitidas según tipo documental'):m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
   render();
   renderProjectHistory();
+  setTimeout(autoCloseSide,30);
 }
-function openProcedure(){window.location.href='procedimiento/index.html'}
+function openProcedure(){
+  mode='procedure';
+  document.body.classList.remove('mode-home','mode-word','mode-excel');
+  $('home').classList.add('hidden');
+  $('editor').classList.remove('hidden');
+  document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!=='procedure'));
+  $('topTitle').textContent='Procedimiento / Flujograma';
+  $('topSub').textContent='Editor visual de procedimientos con flujograma y página final';
+  render();
+  renderProjectHistory();
+  setTimeout(autoCloseSide,30);
+}
 function setZoom(z){zoom=Math.max(.35,Math.min(1.2,z));$('stage').style.transform=`scale(${zoom})`; $('zoomLabel').textContent=Math.round(zoom*100)+'%'}
+
+function openSide(){
+  document.body.classList.add('side-open');
+  const bd=$('mobileBackdrop'); if(bd) bd.classList.add('open');
+}
+function closeSide(){
+  document.body.classList.remove('side-open');
+  const bd=$('mobileBackdrop'); if(bd) bd.classList.remove('open');
+}
+function isMobileViewport(){
+  return window.innerWidth<=1080;
+}
+function autoCloseSide(){
+  if(isMobileViewport()) closeSide();
+}
 function bind(){
   const homeTopBtn=$('homeTopBtn'); if(homeTopBtn) homeTopBtn.onclick=()=>setMode('home');
   const clearHistoryBtn=$('clearProjectHistory'); if(clearHistoryBtn) clearHistoryBtn.onclick=()=>clearProjectHistory();
@@ -122,6 +149,13 @@ function bind(){
   $('addNote').onclick=()=>{if(!doc.steps.length) createFirstStep(); const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push({text:'',align:'left'});render()};
 
   $('activeStep').onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
+
+  const menuBtn=$('menuToggle'); if(menuBtn) menuBtn.onclick=openSide;
+  const closeBtn=$('closeSide'); if(closeBtn) closeBtn.onclick=closeSide;
+  const backdrop=$('mobileBackdrop'); if(backdrop) backdrop.onclick=closeSide;
+  window.addEventListener('resize',()=>{ if(!isMobileViewport()) closeSide(); });
+  ['goWord','goExcel','goProcedure','homeTopBtn'].forEach(id=>{ const el=$(id); if(el){ const old=el.onclick; el.addEventListener('click',()=>setTimeout(autoCloseSide,30)); }});
+
 }
 
 function onWordTypeChanged(){
