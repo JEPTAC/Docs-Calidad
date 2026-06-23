@@ -156,7 +156,19 @@ function sgcPages(){
   return toc+content;
 }
 function sgcHeader(n){return `<div class="sgc-header"><div class="sgc-logo"><img src="${LOGO}"></div><div class="sgc-title">${esc(doc.title)}</div><div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div></div>`}
-function sgcFooter(n){return `<div class="sgc-footer"><span>Ingeniería Eléctrica</span><span>•</span><span>Suministros Eléctricos</span><span>•</span><span>Alumbrado Público</span><span>www.ei.com.co</span><span class="sgc-footer-graphic" aria-hidden="true"></span></div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`}
+function sgcFooter(n){
+  return `<div class="sgc-footer">
+    <div class="sgc-footer-left">
+      <span>Ingeniería Eléctrica</span>
+      <span class="sgc-bullet"></span>
+      <span>Suministros Eléctricos</span>
+      <span class="sgc-bullet"></span>
+      <span>Alumbrado Público</span>
+    </div>
+    <div class="sgc-footer-logo-wrap"><img class="sgc-footer-logo" src="${LOGO}" alt="EI"></div>
+    <div class="sgc-footer-right"><span>www.ei.com.co</span></div>
+  </div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`;
+}
 function renderWord(){
   normalizeWordType();
   applyWordTypeBodyClass();

@@ -1,18 +1,14 @@
-# Estudio Documental EI V30
+# Estudio Documental EI V31
 
-Editor Word condicionado por tipo documental:
+Ajuste aplicado:
 
-- El panel lateral cambia según el tipo de documento:
-  - Oficio;
-  - Circular;
-  - Manual;
-  - Guía;
-  - Política;
-  - Protocolo;
-  - Formato.
-- Una política no muestra campos propios de circular.
-- Una circular no muestra secciones SGC de política, manual, guía, protocolo o formato.
-- Cada tipo SGC muestra elementos permitidos para agregar desde el panel.
-- Se puede cargar la estructura base de cada tipo documental.
-- Se mantiene la plantilla Word limpia: sin tabla editable ni gráfica editable dentro de la hoja.
-- No se modificó el editor de instructivos ni procedimientos.
+- Se reemplazó el pie de página Word / SGC.
+- Se retiró el elemento gráfico amarillo anterior.
+- Ahora el pie usa la referencia institucional:
+  - barra azul izquierda con textos;
+  - separadores circulares amarillos;
+  - logo EI al centro;
+  - barra azul derecha con www.ei.com.co.
+- La fecha y la paginación quedan encima del pie.
+- No se modificaron los tipos documentales.
+- No se modificaron instructivos ni procedimientos.
