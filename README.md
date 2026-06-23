@@ -1,11 +1,18 @@
-# Estudio Documental EI V29
+# Estudio Documental EI V30
 
-Cambios en editor Word:
+Editor Word condicionado por tipo documental:
 
-- Se limpió la plantilla SGC para que no muestre tabla editable ni gráfica editable dentro del documento.
-- Las secciones SGC se gestionan desde el panel lateral.
-- El documento renderiza título de sección y contenido sin controles editables encima de la hoja.
-- Se agregó elemento gráfico en el pie de página azul.
-- El pie de página azul llega al borde inferior de la hoja.
-- En el inicio se ocultan Exportar PDF final y Guardar en navegador.
+- El panel lateral cambia según el tipo de documento:
+  - Oficio;
+  - Circular;
+  - Manual;
+  - Guía;
+  - Política;
+  - Protocolo;
+  - Formato.
+- Una política no muestra campos propios de circular.
+- Una circular no muestra secciones SGC de política, manual, guía, protocolo o formato.
+- Cada tipo SGC muestra elementos permitidos para agregar desde el panel.
+- Se puede cargar la estructura base de cada tipo documental.
+- Se mantiene la plantilla Word limpia: sin tabla editable ni gráfica editable dentro de la hoja.
 - No se modificó el editor de instructivos ni procedimientos.

@@ -36,16 +36,64 @@ let doc={
   steps:[]
 };
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+const SGC_WORD_TYPES=['manual','guia','politica','protocolo','formato'];
+function isSgcWordType(t){return SGC_WORD_TYPES.includes(t||doc.wordType)}
+function isLetterWordType(t){return (t||doc.wordType)==='oficio'||(t||doc.wordType)==='circular'}
+function normalizeWordType(){
+  if(doc.wordType==='sgc') doc.wordType='manual';
+  if(!['oficio','circular','manual','guia','politica','protocolo','formato'].includes(doc.wordType)) doc.wordType='oficio';
+}
+function wordTypeLabel(t){
+  return {oficio:'Oficio',circular:'Circular',manual:'Manual',guia:'Guía',politica:'Política',protocolo:'Protocolo',formato:'Formato'}[t||doc.wordType]||'Documento';
+}
+function wordTypeMessage(t){
+  const map={
+    oficio:'Oficio: permite asunto, contenido y firma. No incluye campos de circular ni estructura SGC.',
+    circular:'Circular: permite número, para, de, asunto, contenido y firma. No incluye secciones SGC.',
+    manual:'Manual: permite secciones técnicas como objetivo, alcance, definiciones, contenido y control de cambios.',
+    guia:'Guía: permite secciones de orientación, desarrollo, recomendaciones y control de cambios.',
+    politica:'Política: permite objetivo, alcance, lineamientos, responsabilidades y control de cambios. No incluye campos de circular.',
+    protocolo:'Protocolo: permite condiciones, actividades, responsables, registros y control de cambios.',
+    formato:'Formato: permite identificación, campos del formato, instrucciones de diligenciamiento y control de cambios.'
+  };
+  return map[t||doc.wordType]||'Seleccione el tipo documental.';
+}
+function sectionPresetsForType(t){
+  const presets={
+    manual:[['1','OBJETIVO'],['2','ALCANCE'],['3','DEFINICIONES'],['4','CONTENIDO DEL MANUAL'],['5','DOCUMENTOS RELACIONADOS'],['6','CONTROL DE CAMBIOS']],
+    guia:[['1','OBJETIVO'],['2','ALCANCE'],['3','DESARROLLO DE LA GUÍA'],['4','RECOMENDACIONES'],['5','DOCUMENTOS RELACIONADOS'],['6','CONTROL DE CAMBIOS']],
+    politica:[['1','OBJETIVO'],['2','ALCANCE'],['3','LINEAMIENTOS DE LA POLÍTICA'],['4','RESPONSABILIDADES'],['5','SEGUIMIENTO Y CUMPLIMIENTO'],['6','CONTROL DE CAMBIOS']],
+    protocolo:[['1','OBJETIVO'],['2','ALCANCE'],['3','CONDICIONES GENERALES'],['4','DESARROLLO DEL PROTOCOLO'],['5','RESPONSABLES Y REGISTROS'],['6','CONTROL DE CAMBIOS']],
+    formato:[['1','IDENTIFICACIÓN DEL FORMATO'],['2','CAMPOS DEL FORMATO'],['3','INSTRUCCIONES DE DILIGENCIAMIENTO'],['4','RESPONSABLE DEL REGISTRO'],['5','CONTROL DE CAMBIOS']]
+  };
+  return presets[t]||[];
+}
+function setDefaultSectionsForWordType(t){
+  const presets=sectionPresetsForType(t);
+  doc.sections=presets.map(([n,t])=>({n,t,c:''}));
+  render();
+}
+function addTypedWordSection(title){
+  doc.sections=doc.sections||[];
+  doc.sections.push({n:String(doc.sections.length+1),t:title,c:''});
+  render();
+}
+function applyWordTypeBodyClass(){
+  ['oficio','circular','manual','guia','politica','protocolo','formato'].forEach(t=>document.body.classList.toggle('word-type-'+t,doc.wordType===t));
+}
 function setMode(m){
   mode=m;
+  normalizeWordType();
   document.body.classList.toggle('mode-home',m==='home');
   document.body.classList.toggle('mode-word',m==='word');
   document.body.classList.toggle('mode-excel',m==='excel');
+  applyWordTypeBodyClass();
   $('home').classList.toggle('hidden',m!=='home');
   $('editor').classList.toggle('hidden',m==='home');
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==m));
   $('topTitle').textContent=m==='word'?'Documentos Word':m==='excel'?'Instructivo visual':'Centro documental';
-  $('topSub').textContent=m==='word'?'Oficios, circulares y documentos SGC limpios desde panel':m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
+  $('topSub').textContent=m==='word'?(wordTypeLabel(doc.wordType)+' · campos y secciones permitidas según tipo documental'):m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
   render();
   renderProjectHistory();
 }
@@ -63,9 +111,9 @@ function bind(){
   const saveCacheBtn=$('saveCache'); if(saveCacheBtn) saveCacheBtn.onclick=()=>saveToBrowserCache();
   const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
   const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
-  ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
+  ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','asuntoCircular','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{if(id==='wordType'){doc.wordType=e.target.value;onWordTypeChanged();}else{doc[fieldMap(id)]=e.target.value;render()}}});
   $('docBody').oninput=e=>{doc.body=e.target.value;render()};
-  const addSectionBtn=$('addSection'); if(addSectionBtn) addSectionBtn.onclick=()=>{doc.sections.push({n:String(doc.sections.length+1),t:'NUEVA SECCIÓN',c:''});render()};
+  const addSectionBtn=$('addSection'); if(addSectionBtn) addSectionBtn.onclick=()=>{addTypedWordSection('NUEVA SECCIÓN')};
   const addWordTableRowBtn=$('addWordTableRow'); if(addWordTableRowBtn) addWordTableRowBtn.onclick=()=>{doc.wordTable.push(['','','']);render()};
   const addWordChartBtn=$('addWordChart'); if(addWordChartBtn) addWordChartBtn.onclick=()=>{doc.wordChart.push(40);render()};
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[id]=e.target.value;render()}});
@@ -75,12 +123,25 @@ function bind(){
 
   $('activeStep').onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
 }
-function fieldMap(id){return {wordType:'wordType',docTitle:'title',docCode:'code',docVersion:'version',cityDate:'cityDate',circularNo:'circularNo',para:'para',de:'de',asunto:'asunto',remitente:'remitente',cargo:'cargo'}[id]}
+
+function onWordTypeChanged(){
+  normalizeWordType();
+  applyWordTypeBodyClass();
+  if(isSgcWordType(doc.wordType) && (!doc.sections||!doc.sections.length)){
+    setDefaultSectionsForWordType(doc.wordType);
+    return;
+  }
+  render();
+}
+function fieldMap(id){return {wordType:'wordType',docTitle:'title',docCode:'code',docVersion:'version',cityDate:'cityDate',circularNo:'circularNo',para:'para',de:'de',asunto:'asunto',asuntoCircular:'asunto',remitente:'remitente',cargo:'cargo'}[id]}
 function syncInputs(){
-  ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.value=doc[fieldMap(id)]??''});
+  normalizeWordType();
+  applyWordTypeBodyClass();
+  ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','asuntoCircular','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.value=doc[fieldMap(id)]??''});
   if($('docBody')) $('docBody').value=doc.body;
   ['instrTitle','instrCode','instrVersion','objective','scope'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??''});
   ['objectiveAlign','scopeAlign'].forEach(id=>{const el=$(id); if(el) el.value=doc[id]??'center'});
+  renderWordTypeTools();
   renderWordSectionEditor();
   renderStepEditor();
 }
@@ -97,33 +158,56 @@ function sgcPages(){
 function sgcHeader(n){return `<div class="sgc-header"><div class="sgc-logo"><img src="${LOGO}"></div><div class="sgc-title">${esc(doc.title)}</div><div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div></div>`}
 function sgcFooter(n){return `<div class="sgc-footer"><span>Ingeniería Eléctrica</span><span>•</span><span>Suministros Eléctricos</span><span>•</span><span>Alumbrado Público</span><span>www.ei.com.co</span><span class="sgc-footer-graphic" aria-hidden="true"></span></div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de 2</div>`}
 function renderWord(){
-  $('stage').innerHTML=(doc.wordType==='oficio'||doc.wordType==='circular')?letterPage():sgcPages();
-  setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};renderWordSectionEditor();},0);
+  normalizeWordType();
+  applyWordTypeBodyClass();
+  $('stage').innerHTML=isLetterWordType(doc.wordType)?letterPage():sgcPages();
+  setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};renderWordTypeTools();renderWordSectionEditor();},0);
 }
 
+
+function renderWordTypeTools(){
+  const notice=$('wordTypeNotice');
+  if(notice) notice.textContent=wordTypeMessage(doc.wordType);
+  const tools=$('wordTypeTools');
+  if(!tools)return;
+  normalizeWordType();
+  if(!isSgcWordType(doc.wordType)){
+    tools.innerHTML='';
+    return;
+  }
+  const presets=sectionPresetsForType(doc.wordType);
+  tools.innerHTML=`<div class="word-type-tool-title">Elementos permitidos para ${wordTypeLabel(doc.wordType)}</div>
+    <div class="word-type-tool-grid">
+      <button onclick="setDefaultSectionsForWordType('${doc.wordType}')">Cargar estructura base de ${wordTypeLabel(doc.wordType)}</button>
+      ${presets.map(([n,t])=>`<button onclick="addTypedWordSection('${esc(t)}')">+ ${esc(t)}</button>`).join('')}
+    </div>`;
+}
 function renderWordSectionEditor(){
   const box=$('wordSectionEditor');
   if(!box)return;
-  if(doc.wordType!=='sgc'){
-    box.innerHTML='<p class="hint">Las secciones aplican para Manual / Guía / Política / Protocolo / Formato.</p>';
+  normalizeWordType();
+  if(!isSgcWordType(doc.wordType)){
+    box.innerHTML='';
     return;
   }
   const sections=doc.sections||[];
   box.innerHTML=sections.map((s,i)=>`<div class="word-section-card">
-    <div class="word-section-card-title"><span>Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
+    <div class="word-section-card-title"><span>${wordTypeLabel(doc.wordType)} · Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
     <div class="grid2">
       <label>Número<input data-word-sec-n="${i}" value="${esc(s.n)}"></label>
       <label>Título<input data-word-sec-t="${i}" value="${esc(s.t)}"></label>
     </div>
     <label>Contenido desde panel<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
-  </div>`).join('') || '<p class="hint">Agregue una sección para iniciar el documento SGC.</p>';
+  </div>`).join('') || '<p class="hint">Agregue una sección permitida para este tipo documental.</p>';
   box.querySelectorAll('[data-word-sec-n]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecN].n=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sec-t]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecT].t=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sec-c]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecC].c=e.target.value;renderWordOnly()});
 }
 function renderWordOnly(){
   if(mode==='word'){
-    $('stage').innerHTML=(doc.wordType==='oficio'||doc.wordType==='circular')?letterPage():sgcPages();
+    normalizeWordType();
+    applyWordTypeBodyClass();
+    $('stage').innerHTML=isLetterWordType(doc.wordType)?letterPage():sgcPages();
     setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};},0);
   }
 }

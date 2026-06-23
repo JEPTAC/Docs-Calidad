@@ -1536,3 +1536,70 @@ body.mode-home #cacheStatus{
   min-height:auto!important;
   padding:0!important;
 }
+
+
+/* V30: panel Word condicionado por tipo documental */
+.word-panel-group{
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:9px;
+  margin:9px 0;
+}
+
+.word-type-notice{
+  background:linear-gradient(135deg, rgba(234,200,0,.18), rgba(255,255,255,.08));
+  border:1px solid rgba(234,200,0,.35);
+  color:#fff;
+  border-radius:12px;
+  padding:9px;
+  font-size:12px;
+  line-height:1.35;
+  font-weight:700;
+}
+
+.word-type-tools{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin:9px 0;
+}
+
+.word-type-tool-title{
+  color:#EAC800;
+  font-weight:900;
+  font-size:12px;
+}
+
+.word-type-tool-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+}
+
+.word-type-tool-grid button{
+  text-align:left;
+  justify-content:flex-start;
+  white-space:normal;
+  line-height:1.15;
+}
+
+.word-section-card{
+  animation:none!important;
+}
+
+body.word-type-oficio [data-word-circular],
+body.word-type-oficio [data-word-sgc],
+body.word-type-circular [data-word-sgc],
+body.word-type-manual [data-word-letter],
+body.word-type-manual [data-word-circular],
+body.word-type-guia [data-word-letter],
+body.word-type-guia [data-word-circular],
+body.word-type-politica [data-word-letter],
+body.word-type-politica [data-word-circular],
+body.word-type-protocolo [data-word-letter],
+body.word-type-protocolo [data-word-circular],
+body.word-type-formato [data-word-letter],
+body.word-type-formato [data-word-circular]{
+  display:none!important;
+}

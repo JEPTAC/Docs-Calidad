@@ -1,26 +1,31 @@
-# QA V29
+# QA V30
 
 - node --check source.js ejecutado.
-- Base usada: V28.
-- Cambios limitados al panel Word, render SGC, footer SGC y ocultamiento de botones en modo inicio.
-- Funciones críticas verificadas:
-  - createFirstStep;
-  - addSub;
-  - addListGroup;
-  - renderStepEditor;
-  - loadStepImg;
-  - exportPdf;
-  - saveToBrowserCache.
+- Tipos Word separados:
+  - oficio;
+  - circular;
+  - manual;
+  - guia;
+  - politica;
+  - protocolo;
+  - formato.
+- Validado:
+  - panel condicionado por tipo;
+  - render SGC limpio;
+  - footer gráfico conservado;
+  - inicio sin exportar/guardar;
+  - instructivos intactos;
+  - procedimientos intactos.
 
 Resultado node --check: PASS
 {
-  "no_table_chart_in_sgcPages": true,
-  "word_section_panel": true,
+  "word_types_options": true,
+  "type_helpers": true,
+  "conditional_css": true,
+  "type_tools": true,
+  "sgc_clean": true,
   "footer_graphic": true,
   "home_hides_export_save": true,
-  "create_steps_intact": true,
-  "sublistas_intact": true,
-  "image_intact": true,
-  "pdf_intact": true,
-  "cache_intact": true
+  "instructivo_intacto": true,
+  "procedimiento_link_intacto": true
 }
