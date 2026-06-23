@@ -157,9 +157,15 @@ function sgcPages(){
 }
 function sgcHeader(n){
   return `<div class="sgc-header-ref">
-    <img class="sgc-header-img" src="assets/header-ei-calidad.png" alt="Encabezado Electroingeniería">
-    <div class="sgc-title">${esc(doc.title)}</div>
-    <div class="sgc-meta"><div>${esc(doc.code)}</div><div>${esc(doc.version)}</div></div>
+    <div class="sgc-header-base"></div>
+    <div class="sgc-header-leftcap">
+      <img class="sgc-header-logo" src="${LOGO}" alt="Electroingeniería">
+    </div>
+    <div class="sgc-title-wrap"><div class="sgc-title">${esc(doc.title)}</div></div>
+    <div class="sgc-meta">
+      <div class="sgc-code">${esc(doc.code)}</div>
+      <div class="sgc-version">${esc(doc.version)}</div>
+    </div>
   </div>`;
 }
 function sgcFooter(n){
