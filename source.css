@@ -2421,3 +2421,17 @@ html, body{
     padding-bottom:calc(155px + env(safe-area-inset-bottom))!important;
   }
 }
+
+
+/* V38: ajuste fino de scroll móvil principal */
+@media (max-width:1080px){
+  .app{padding-bottom:calc(70px + env(safe-area-inset-bottom))!important}
+  .main{padding-bottom:calc(70px + env(safe-area-inset-bottom))!important}
+  .work{padding-bottom:calc(105px + env(safe-area-inset-bottom))!important}
+  #editor{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+  .stage{padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}
+  .side{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important}
+}
+@media (max-width:520px){
+  .work{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+}

@@ -1,26 +1,42 @@
-# QA V37
+# QA V38
 
-Problema reportado:
-- En móvil el scroll no permitía bajar más allá de cierta posición.
-- Procedimientos no estaba suficientemente visible en herramientas.
+Análisis QA:
+1. Procedimiento en iOS:
+   - Causa detectada: el editor de procedimientos era una página independiente y conservaba layout desktop.
+   - La hoja de procedimiento mide 11in x 8.5in y no se ajustaba al viewport móvil.
+   - setZoom usaba transform: scale(), lo cual en iOS no garantiza altura real de scroll.
 
-Corrección:
-- body.side-open ya no bloquea overflow-y.
-- work/editor/stage tienen overflow visible y padding-bottom seguro.
-- sidebar usa overflow-y:scroll y overscroll-behavior.
-- mobile dock pasa a seis accesos incluyendo Procedimiento.
-- Se agrega panel "Procedimientos" en herramientas.
+2. Corrección:
+   - Se agregó procPreferredZoom().
+   - setZoom ahora usa CSS zoom en móvil.
+   - workarea/pages/body quedan con overflow visible.
+   - Se agrega dock móvil específico.
+   - Se agrega drawer de herramientas para procedimientos.
 
-Resultado node --check: PASS
+3. Scroll:
+   - Se redujeron paddings inferiores en la app principal.
+   - Se conserva margen seguro para el dock.
+
+4. Estado:
+   - Word intacto.
+   - Instructivo intacto.
+   - Plantilla Calidad V34 intacta.
+
+
+Resultados automáticos:
 {
-  "node_check_pass": true,
-  "body_scroll_fixed": true,
-  "work_scroll_fixed": true,
-  "side_scroll_fixed": true,
-  "procedure_tools_panel": true,
-  "mobile_procedure_dock": true,
-  "six_column_dock": true,
+  "main_node_check": true,
+  "proc_node_check": true,
+  "proc_mobile_zoom": true,
+  "proc_dock": true,
+  "proc_drawer": true,
+  "main_scroll_tuned": true,
   "template_quality_intact": true,
   "word_intact": true,
   "instructivo_intact": true
 }
+
+node main stderr:
+
+
+node procedimiento stderr:
