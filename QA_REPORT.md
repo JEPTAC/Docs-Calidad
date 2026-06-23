@@ -1,21 +1,20 @@
-# QA V23
+# QA V24
 
 - node --check source.js ejecutado.
-- stepImageOnlyHtml restaurado con render estable.
-- loadStepImg restaurado a comportamiento anterior estable.
-- CSS de .step-main-img corregido:
-  - height;
-  - min-height;
-  - position relative;
-  - overflow hidden;
-  - img visible.
-- Cambio limitado a imagen general sin subpasos.
+- pageCapacity ajustado con margen de seguridad.
+- Estimadores de nota, grupo e imagen reforzados.
+- repaginateIfOverflow agregado como guardia visual.
+- Botón saveCache agregado.
+- saveToBrowserCache/loadFromBrowserCache agregados.
+- localStorage con clave ei_documental_cache_v1.
 
 Resultado node --check: PASS
 {
-  "step_main_img_height": true,
-  "stepImageOnlyHtml": true,
-  "loadStepImg": true,
-  "listener_data_step_img": true,
-  "sublistas_intactas": true
+  "save_button_html": true,
+  "cache_functions": true,
+  "autoload": true,
+  "strict_capacity": true,
+  "overflow_guard": true,
+  "sublistas_intactas": true,
+  "imagen_general_intacta": true
 }

@@ -53,6 +53,8 @@ function bind(){
   $('zoomIn').onclick=()=>setZoom(zoom+.05); $('zoomOut').onclick=()=>setZoom(zoom-.05); $('zoomFit').onclick=()=>setZoom(.72);
   const printBtn=$('printPdf'); if(printBtn) printBtn.onclick=()=>exportPdf();
   const saveBtn=$('saveJson'); if(saveBtn) saveBtn.onclick=saveJson;
+  const saveCacheBtn=$('saveCache'); if(saveCacheBtn) saveCacheBtn.onclick=()=>saveToBrowserCache();
+
   const openBtn=$('openJson'); if(openBtn) openBtn.onchange=openJson;
   ['wordType','docTitle','docCode','docVersion','cityDate','circularNo','para','de','asunto','remitente','cargo'].forEach(id=>{const el=$(id); if(el) el.oninput=e=>{doc[fieldMap(id)]=e.target.value;render()}});
   $('docBody').oninput=e=>{doc.body=e.target.value;render()};
@@ -361,17 +363,37 @@ function bindStepEditorControls(box){
   box.querySelectorAll('[data-group-img-x]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgX.split('-').map(Number);doc.steps[a].listGroups[g].imgX=Number(e.target.value);renderInstructivoOnly()});
   box.querySelectorAll('[data-group-img-y]').forEach(el=>el.oninput=e=>{const [a,g]=e.target.dataset.groupImgY.split('-').map(Number);doc.steps[a].listGroups[g].imgY=Number(e.target.value);renderInstructivoOnly()});
 }
+
+function repaginateIfOverflow(){
+  if(mode!=='excel') return;
+  const pages=[...document.querySelectorAll('.instr-page')];
+  let overflow=false;
+  pages.forEach(p=>{
+    const content=p.querySelector('.instr-content');
+    if(!content) return;
+    const max=content.clientHeight-6;
+    if(content.scrollHeight>max) overflow=true;
+  });
+  if(overflow && !window.__eiStrictPaging){
+    window.__eiStrictPaging=true;
+    const oldPageCapacity=pageCapacity;
+    window.__eiPageCapacityOverride=true;
+    render();
+    window.__eiStrictPaging=false;
+  }
+}
+
 function renderInstructivoOnly(){
   const st=$('stage');
   if(st){
     st.innerHTML=instructivoHtml();
-    setTimeout(bindCanvasImages,0);
+    setTimeout(()=>{bindCanvasImages();repaginateIfOverflow();window.__eiPageCapacityOverride=false;},0);
   }
 }
 function renderInstructivo(){
   $('stage').innerHTML=instructivoHtml();
   renderStepEditor();
-  setTimeout(bindCanvasImages,0);
+  setTimeout(()=>{bindCanvasImages();repaginateIfOverflow();window.__eiPageCapacityOverride=false;},0);
 }
 function estimateTextRows(text, charsPerRow=62){
   const t=String(text||'').trim();
@@ -379,27 +401,31 @@ function estimateTextRows(text, charsPerRow=62){
   return Math.max(1, Math.ceil(t.length/charsPerRow));
 }
 function estimateNoteHeight(note){
-  return 12 + estimateTextRows(note.text||'', 120)*8;
+  const clean = String(note?.text||'').trim();
+  if(!clean) return 0;
+  return 18 + estimateTextRows(clean, 90)*12;
 }
 function estimateSubHeight(ss, s){
-  const textH = 24 + estimateTextRows(ss.text||'', 48)*9;
+  const textH = 34 + estimateTextRows(ss.text||'', 40)*12;
   const imgH = Number(s.imgH||102);
-  return Math.max(Number(s.cardH||150), textH + imgH + 12);
+  return Math.max(Number(s.cardH||150), textH + imgH + 26);
 }
 function estimateStepImageHeight(s){
-  return Number(s.stepImgBoxH||245) + 18;
+  return Number(s.stepImgBoxH||245) + 42;
 }
 function estimateListItemHeight(ss){
-  return Math.max(24, 12 + estimateTextRows(ss.text||'', 62)*10);
+  return Math.max(30, 16 + estimateTextRows(ss.text||'', 52)*13);
 }
 function estimateGroupHeight(g,s,items){
   const arr=items||g.sub||[];
-  const listH = arr.reduce((a,x)=>a+estimateListItemHeight(x)+3, 0) + 26;
-  const imgH = Number(g.imgBoxH || s.stepImgBoxH || 245) + 26;
-  return Math.max(listH, imgH) + 8;
+  const listH = arr.reduce((a,x)=>a+estimateListItemHeight(x)+5, 0) + 36;
+  const imgH = Number(g.imgBoxH || s.stepImgBoxH || 245) + 42;
+  return Math.max(listH, imgH) + 12;
 }
 function pageCapacity(first){
-  return first ? 815 : 850;
+  /* Área útil estricta antes del pie de página.
+     La primera hoja tiene menos capacidad porque incluye objetivo y alcance. */
+  return window.__eiPageCapacityOverride ? (first ? 600 : 700) : (first ? 665 : 765);
 }
 function notesHtmlFor(s,pos){
   return (s.notes||[]).filter(n=>String(n.text||'').trim()).map((n,j)=>noteHtml(n,doc.steps.indexOf(s),j)).join('');
@@ -779,6 +805,38 @@ function removeListImage(i,k){
   if(doc.steps[i] && doc.steps[i].listGroups && doc.steps[i].listGroups[k]) doc.steps[i].listGroups[k].image='';
   render();
 }
+
+const CACHE_KEY='ei_documental_cache_v1';
+function saveToBrowserCache(){
+  try{
+    ensureDocDefaults();
+    ensureSubDefaults();
+    localStorage.setItem(CACHE_KEY, JSON.stringify({savedAt:new Date().toISOString(), doc}));
+    const st=$('cacheStatus');
+    if(st){
+      st.textContent='Guardado';
+      setTimeout(()=>{if(st.textContent==='Guardado') st.textContent='';},2200);
+    }
+  }catch(err){
+    alert('No se pudo guardar en el navegador: '+err.message);
+  }
+}
+function loadFromBrowserCache(){
+  try{
+    const raw=localStorage.getItem(CACHE_KEY);
+    if(!raw) return false;
+    const data=JSON.parse(raw);
+    if(data && data.doc){
+      doc=Object.assign(doc,data.doc);
+      ensureDocDefaults();
+      ensureSubDefaults();
+      return true;
+    }
+  }catch(err){
+    console.warn('No se pudo cargar caché local',err);
+  }
+  return false;
+}
 function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');
@@ -826,3 +884,7 @@ function createFirstStep(){
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
 bind(); setMode('home');
+
+bind();
+loadFromBrowserCache();
+render();
