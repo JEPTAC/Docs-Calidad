@@ -89,14 +89,18 @@ function bind(){
  $('addLane').onclick=addLane;$('exportSvg').onclick=exportSvg;$('printPdf').onclick=()=>window.print();$('showAll').onclick=()=>{$('pages').classList.toggle('show-all')};
  document.addEventListener('keydown',e=>{if(e.key==='Delete')deleteSelection();if(e.key==='Escape'){state.selected=[];state.selectedEdge=null;state.selectedPoint=null;setTool('select')}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();duplicateSelection()}});
 
+
+
  const procMenu=$('procMenu'); if(procMenu) procMenu.onclick=procOpenSide;
+ const procCanvaTools=$('procCanvaTools'); if(procCanvaTools) procCanvaTools.onclick=procOpenSide;
  const procClose=$('procClose'); if(procClose) procClose.onclick=procCloseSide;
  const procBackdrop=$('procBackdrop'); if(procBackdrop) procBackdrop.onclick=procCloseSide;
- const procDockHome=$('procDockHome'); if(procDockHome) procDockHome.onclick=()=>{window.location.href='../index.html'};
- const procDockTools=$('procDockTools'); if(procDockTools) procDockTools.onclick=procOpenSide;
- const procDockFit=$('procDockFit'); if(procDockFit) procDockFit.onclick=()=>setZoom(procPreferredZoom());
- const procDockAll=$('procDockAll'); if(procDockAll) procDockAll.onclick=()=>{$('pages').classList.toggle('show-all')};
- const procDockPdf=$('procDockPdf'); if(procDockPdf) procDockPdf.onclick=()=>window.print();
+ const procMobileSheetClose=$('procMobileSheetClose'); if(procMobileSheetClose) procMobileSheetClose.onclick=procCloseSheet;
+ const procMobileSelect=$('procMobileSelect'); if(procMobileSelect) procMobileSelect.onclick=()=>{setTool('select');procCloseSheet()};
+ const procMobileConnect=$('procMobileConnect'); if(procMobileConnect) procMobileConnect.onclick=()=>{setTool('connect');procCloseSheet()};
+ const procMobileShapesBtn=$('procMobileShapes'); if(procMobileShapesBtn) procMobileShapesBtn.onclick=procMobileShapes;
+ const procMobilePagesBtn=$('procMobilePages'); if(procMobilePagesBtn) procMobilePagesBtn.onclick=procMobilePages;
+ const procMobileFit=$('procMobileFit'); if(procMobileFit) procMobileFit.onclick=()=>setZoom(procPreferredZoom());
  window.addEventListener('resize',()=>{if(procIsMobile())setZoom(procPreferredZoom());else setZoom(state.zoom);});
 
 }
@@ -116,10 +120,14 @@ function setZoom(z){
   const pages=$('pages');
   if(pages){
     if(procIsMobile()){
-      pages.style.transform='none';
-      pages.style.zoom=z;
+      pages.style.zoom='';
+      pages.style.transform=`scale(${z})`;
+      pages.style.width=(1056*z)+'px';
+      pages.style.minWidth=(1056*z)+'px';
     }else{
       pages.style.zoom='';
+      pages.style.width='';
+      pages.style.minWidth='';
       pages.style.transform=`scale(${z})`;
     }
   }

@@ -755,9 +755,424 @@ button.primary{
   .proc-menu,.proc-close,.proc-mobile-dock,.proc-backdrop{display:none!important}
 }
 
+
+/* V39: Procedimiento móvil emulando herramienta tipo Canva */
+.proc-canva-top,
+.proc-canva-dock,
+.proc-mobile-sheet{
+  display:none;
+}
+
+@media (max-width:1080px){
+  html,body{
+    height:100%!important;
+    min-height:100%!important;
+    overflow:hidden!important;
+    background:#eef2f7!important;
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    touch-action:manipulation!important;
+  }
+
+  .app{
+    display:block!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+    padding:0!important;
+    background:#eef2f7!important;
+  }
+
+  .proc-home-btn{
+    display:none!important;
+  }
+
+  .proc-canva-top{
+    position:fixed!important;
+    display:grid!important;
+    grid-template-columns:42px 1fr auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    height:calc(58px + env(safe-area-inset-top))!important;
+    padding:calc(8px + env(safe-area-inset-top)) 10px 8px!important;
+    background:rgba(255,255,255,.96)!important;
+    backdrop-filter:blur(14px)!important;
+    border-bottom:1px solid rgba(0,41,155,.14)!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.08)!important;
+    z-index:1600!important;
+    box-sizing:border-box!important;
+  }
+
+  .proc-canva-home{
+    width:38px!important;
+    height:38px!important;
+    border-radius:14px!important;
+    background:#0A3AA3!important;
+    color:#fff!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-decoration:none!important;
+    font-size:18px!important;
+    font-weight:900!important;
+  }
+
+  .proc-canva-title{
+    display:flex!important;
+    flex-direction:column!important;
+    min-width:0!important;
+    line-height:1.05!important;
+  }
+
+  .proc-canva-title strong{
+    color:#001F73!important;
+    font-size:15px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .proc-canva-title span{
+    color:#667085!important;
+    font-size:11px!important;
+  }
+
+  #procCanvaTools{
+    display:inline-flex!important;
+    background:#EAC800!important;
+    color:#001754!important;
+    border-radius:14px!important;
+    min-height:38px!important;
+    padding:8px 10px!important;
+    font-size:11px!important;
+  }
+
+  .side{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    width:min(94vw,430px)!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    z-index:1800!important;
+    transform:translateX(-105%)!important;
+    transition:transform .24s ease!important;
+    padding:calc(62px + env(safe-area-inset-top)) 14px calc(120px + env(safe-area-inset-bottom))!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    border-radius:0 22px 22px 0!important;
+    box-sizing:border-box!important;
+  }
+
+  body.proc-side-open .side{
+    transform:translateX(0)!important;
+  }
+
+  .proc-backdrop{
+    position:fixed!important;
+    inset:0!important;
+    z-index:1700!important;
+    background:rgba(0,0,0,.48)!important;
+    backdrop-filter:blur(2px)!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transition:opacity .2s ease!important;
+  }
+
+  .proc-backdrop.open{
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+
+  .proc-close{
+    display:flex!important;
+    position:absolute!important;
+    top:calc(12px + env(safe-area-inset-top))!important;
+    right:12px!important;
+    width:40px!important;
+    height:40px!important;
+    border-radius:999px!important;
+    background:#fff!important;
+    color:#00299B!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-shadow:0 8px 22px rgba(0,0,0,.20)!important;
+    z-index:2!important;
+  }
+
+  .main{
+    display:block!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+    padding:0!important;
+    background:#eef2f7!important;
+  }
+
+  .toolbar{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    top:calc(58px + env(safe-area-inset-top))!important;
+    height:48px!important;
+    z-index:1500!important;
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:6px!important;
+    align-items:center!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:6px 10px!important;
+    background:rgba(248,250,255,.95)!important;
+    border-bottom:1px solid rgba(0,41,155,.10)!important;
+    box-sizing:border-box!important;
+    backdrop-filter:blur(10px)!important;
+  }
+
+  .toolbar .group{
+    display:flex!important;
+    flex:0 0 auto!important;
+    gap:6px!important;
+    padding:0!important;
+    border-right:0!important;
+  }
+
+  .toolbar button,
+  .toolbar .file-btn{
+    flex:0 0 auto!important;
+    min-height:34px!important;
+    height:34px!important;
+    padding:7px 10px!important;
+    border-radius:12px!important;
+    font-size:11px!important;
+    white-space:nowrap!important;
+  }
+
+  .workarea{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    top:calc(106px + env(safe-area-inset-top))!important;
+    bottom:calc(78px + env(safe-area-inset-bottom))!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:auto!important;
+    padding:18px 18px 42px!important;
+    display:block!important;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(234,200,0,.12), transparent 24%),
+      linear-gradient(135deg,#eef2f7,#dde6f3)!important;
+    box-sizing:border-box!important;
+  }
+
+  .pages{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    gap:18px!important;
+    transform:none!important;
+    transform-origin:top center!important;
+    overflow:visible!important;
+    margin:0 auto!important;
+    width:max-content!important;
+    min-width:100%!important;
+    padding:0!important;
+  }
+
+  .page{
+    display:block!important;
+    flex:0 0 auto!important;
+    margin:0 auto 18px!important;
+    box-shadow:0 10px 26px rgba(0,0,0,.24)!important;
+    background:#fff!important;
+  }
+
+  .page:not(.active-page){
+    display:none!important;
+  }
+
+  .show-all .page{
+    display:block!important;
+  }
+
+  .proc-canva-dock{
+    position:fixed!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:calc(7px + env(safe-area-inset-bottom))!important;
+    height:64px!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,1fr)!important;
+    gap:6px!important;
+    padding:6px!important;
+    background:rgba(255,255,255,.97)!important;
+    border:1px solid rgba(0,31,115,.14)!important;
+    border-radius:22px!important;
+    box-shadow:0 12px 34px rgba(0,0,0,.25)!important;
+    z-index:1600!important;
+    backdrop-filter:blur(14px)!important;
+  }
+
+  .proc-canva-dock button{
+    border:0!important;
+    background:linear-gradient(180deg,#F8FAFF,#FFFFFF)!important;
+    color:#00299B!important;
+    box-shadow:none!important;
+    border-radius:16px!important;
+    padding:4px 2px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:2px!important;
+    min-width:0!important;
+  }
+
+  .proc-canva-dock button.active{
+    background:#EAF0FF!important;
+    box-shadow:inset 0 0 0 2px rgba(0,41,155,.16)!important;
+  }
+
+  .proc-canva-dock span{
+    font-size:15px!important;
+    font-weight:900!important;
+    line-height:1!important;
+  }
+
+  .proc-canva-dock b{
+    font-size:9px!important;
+    line-height:1!important;
+  }
+
+  .proc-mobile-sheet{
+    display:block!important;
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:calc(78px + env(safe-area-inset-bottom))!important;
+    max-height:52dvh!important;
+    background:#fff!important;
+    border-radius:24px 24px 0 0!important;
+    box-shadow:0 -12px 34px rgba(0,0,0,.22)!important;
+    z-index:1550!important;
+    transform:translateY(110%)!important;
+    transition:transform .24s ease!important;
+    overflow:hidden!important;
+  }
+
+  .proc-mobile-sheet.open{
+    transform:translateY(0)!important;
+  }
+
+  .proc-mobile-sheet-head{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    padding:12px 14px!important;
+    border-bottom:1px solid #EAECF0!important;
+  }
+
+  .proc-mobile-sheet-head strong{
+    color:#001F73!important;
+    font-size:15px!important;
+  }
+
+  .proc-mobile-sheet-head button{
+    width:36px!important;
+    height:36px!important;
+    border-radius:999px!important;
+    background:#EEF3FF!important;
+    color:#001F73!important;
+    box-shadow:none!important;
+  }
+
+  .proc-mobile-sheet-body{
+    padding:12px 14px calc(16px + env(safe-area-inset-bottom))!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    max-height:calc(52dvh - 62px)!important;
+  }
+
+  .proc-sheet-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:8px!important;
+  }
+
+  .proc-sheet-grid button{
+    min-height:52px!important;
+    background:#F8FAFF!important;
+    color:#001F73!important;
+    border:1px solid #D6E1FF!important;
+    box-shadow:none!important;
+    border-radius:14px!important;
+    font-size:11px!important;
+    text-align:center!important;
+  }
+
+  .proc-sheet-list{
+    display:grid!important;
+    gap:8px!important;
+  }
+
+  .proc-sheet-list button{
+    justify-content:flex-start!important;
+    background:#F8FAFF!important;
+    color:#001F73!important;
+    border:1px solid #D6E1FF!important;
+    box-shadow:none!important;
+    border-radius:14px!important;
+  }
+
+  .proc-mobile-dock{
+    display:none!important;
+  }
+}
+
+@media (max-width:520px){
+  .proc-canva-title strong{font-size:14px!important}
+  #procCanvaTools{font-size:10px!important;padding:8px!important}
+  .toolbar{height:44px!important;top:calc(56px + env(safe-area-inset-top))!important}
+  .workarea{top:calc(100px + env(safe-area-inset-top))!important}
+  .proc-canva-dock{left:6px!important;right:6px!important;height:62px!important;gap:4px!important}
+  .proc-canva-dock b{font-size:8.2px!important}
+}
+
 </style>
 </head>
 <body>
+<div id="procBackdrop" class="proc-backdrop no-print"></div>
+<header id="procCanvaTop" class="proc-canva-top no-print">
+  <a class="proc-canva-home" href="../index.html">←</a>
+  <div class="proc-canva-title">
+    <strong>Procedimientos EI</strong>
+    <span>Editor móvil tipo canvas</span>
+  </div>
+  <button id="procCanvaTools" type="button">Herramientas</button>
+</header>
+<nav id="procCanvaDock" class="proc-canva-dock no-print">
+  <button id="procMobileSelect" type="button"><span>↖</span><b>Seleccionar</b></button>
+  <button id="procMobileShapes" type="button"><span>＋</span><b>Figuras</b></button>
+  <button id="procMobileConnect" type="button"><span>↔</span><b>Conectar</b></button>
+  <button id="procMobilePages" type="button"><span>▣</span><b>Páginas</b></button>
+  <button id="procMobileFit" type="button"><span>□</span><b>Ajustar</b></button>
+</nav>
+<section id="procMobileSheet" class="proc-mobile-sheet no-print">
+  <div class="proc-mobile-sheet-head">
+    <strong id="procMobileSheetTitle">Herramientas</strong>
+    <button id="procMobileSheetClose" type="button">✕</button>
+  </div>
+  <div id="procMobileSheetBody" class="proc-mobile-sheet-body"></div>
+</section>
 <div id="procBackdrop" class="proc-backdrop no-print"></div>
 <a id="procHomeBtn" class="proc-home-btn no-print" href="../index.html">← Inicio</a>
 <div class="app">
@@ -893,14 +1308,18 @@ function bind(){
  $('addLane').onclick=addLane;$('exportSvg').onclick=exportSvg;$('printPdf').onclick=()=>window.print();$('showAll').onclick=()=>{$('pages').classList.toggle('show-all')};
  document.addEventListener('keydown',e=>{if(e.key==='Delete')deleteSelection();if(e.key==='Escape'){state.selected=[];state.selectedEdge=null;state.selectedPoint=null;setTool('select')}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();duplicateSelection()}});
 
+
+
  const procMenu=$('procMenu'); if(procMenu) procMenu.onclick=procOpenSide;
+ const procCanvaTools=$('procCanvaTools'); if(procCanvaTools) procCanvaTools.onclick=procOpenSide;
  const procClose=$('procClose'); if(procClose) procClose.onclick=procCloseSide;
  const procBackdrop=$('procBackdrop'); if(procBackdrop) procBackdrop.onclick=procCloseSide;
- const procDockHome=$('procDockHome'); if(procDockHome) procDockHome.onclick=()=>{window.location.href='../index.html'};
- const procDockTools=$('procDockTools'); if(procDockTools) procDockTools.onclick=procOpenSide;
- const procDockFit=$('procDockFit'); if(procDockFit) procDockFit.onclick=()=>setZoom(procPreferredZoom());
- const procDockAll=$('procDockAll'); if(procDockAll) procDockAll.onclick=()=>{$('pages').classList.toggle('show-all')};
- const procDockPdf=$('procDockPdf'); if(procDockPdf) procDockPdf.onclick=()=>window.print();
+ const procMobileSheetClose=$('procMobileSheetClose'); if(procMobileSheetClose) procMobileSheetClose.onclick=procCloseSheet;
+ const procMobileSelect=$('procMobileSelect'); if(procMobileSelect) procMobileSelect.onclick=()=>{setTool('select');procCloseSheet()};
+ const procMobileConnect=$('procMobileConnect'); if(procMobileConnect) procMobileConnect.onclick=()=>{setTool('connect');procCloseSheet()};
+ const procMobileShapesBtn=$('procMobileShapes'); if(procMobileShapesBtn) procMobileShapesBtn.onclick=procMobileShapes;
+ const procMobilePagesBtn=$('procMobilePages'); if(procMobilePagesBtn) procMobilePagesBtn.onclick=procMobilePages;
+ const procMobileFit=$('procMobileFit'); if(procMobileFit) procMobileFit.onclick=()=>setZoom(procPreferredZoom());
  window.addEventListener('resize',()=>{if(procIsMobile())setZoom(procPreferredZoom());else setZoom(state.zoom);});
 
 }
@@ -920,10 +1339,14 @@ function setZoom(z){
   const pages=$('pages');
   if(pages){
     if(procIsMobile()){
-      pages.style.transform='none';
-      pages.style.zoom=z;
+      pages.style.zoom='';
+      pages.style.transform=`scale(${z})`;
+      pages.style.width=(1056*z)+'px';
+      pages.style.minWidth=(1056*z)+'px';
     }else{
       pages.style.zoom='';
+      pages.style.width='';
+      pages.style.minWidth='';
       pages.style.transform=`scale(${z})`;
     }
   }

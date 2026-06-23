@@ -1,12 +1,22 @@
-# Estudio Documental EI V38
+# Estudio Documental EI V39
 
-Correcciones aplicadas:
+Cambio principal:
 
-- Procedimientos corregido para iOS/celular:
-  - la plantilla ahora se ajusta automáticamente al ancho de pantalla;
-  - se usa zoom CSS real en móvil;
-  - se agregó menú de herramientas móvil;
-  - se agregó dock móvil propio de procedimientos.
-- Se ajustó el scroll general para que no sobrepase tanto al final.
-- Se mantiene scroll hasta el fondo.
-- No se tocaron la plantilla de calidad, Word ni instructivos.
+- El editor de Procedimientos en celular se transformó a una experiencia tipo Canva:
+  - barra superior móvil;
+  - canvas central;
+  - dock inferior;
+  - hoja ajustada al ancho del teléfono;
+  - panel inferior para figuras;
+  - panel inferior para páginas;
+  - drawer lateral para herramientas completas.
+
+Motivo:
+- En celular no es viable manejar el editor de procedimientos igual que escritorio.
+- La plantilla de procedimiento horizontal 11in x 8.5in necesitaba un modo canvas real.
+
+No se modificó:
+- Word.
+- Instructivos.
+- Plantilla de calidad.
+- PDF.
