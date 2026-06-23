@@ -76,6 +76,15 @@ function procCloseSide(){
   document.body.classList.remove('proc-side-open');
   const b=$('procBackdrop'); if(b)b.classList.remove('open');
 }
+
+function procBoardVisible(){
+  document.body.classList.add('board-ready');
+  const wa=document.querySelector('.workarea');
+  if(wa && procIsMobile()){
+    wa.scrollLeft=0;
+    wa.scrollTop=0;
+  }
+}
 function bind(){
  ['docTitle','docCode','docVersion'].forEach(id=>$(id).addEventListener('change',e=>{pushHistory();state.doc[{docTitle:'title',docCode:'code',docVersion:'version'}[id]]=e.target.value;render()}));
  document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addShape(b.dataset.add));
@@ -100,7 +109,7 @@ function bind(){
  const procMobileConnect=$('procMobileConnect'); if(procMobileConnect) procMobileConnect.onclick=()=>{setTool('connect');procCloseSheet()};
  const procMobileShapesBtn=$('procMobileShapes'); if(procMobileShapesBtn) procMobileShapesBtn.onclick=procMobileShapes;
  const procMobilePagesBtn=$('procMobilePages'); if(procMobilePagesBtn) procMobilePagesBtn.onclick=procMobilePages;
- const procMobileFit=$('procMobileFit'); if(procMobileFit) procMobileFit.onclick=()=>setZoom(procPreferredZoom());
+ const procMobileFit=$('procMobileFit'); if(procMobileFit) procMobileFit.onclick=()=>{setZoom(procPreferredZoom());setTimeout(procBoardVisible,30)};
  window.addEventListener('resize',()=>{if(procIsMobile())setZoom(procPreferredZoom());else setZoom(state.zoom);});
 
 }
@@ -112,7 +121,19 @@ function updateContextPanels(){
  document.querySelectorAll('.final-only').forEach(el=>el.classList.toggle('context-hidden', !isFinal));
 }
 
-function render(){state.doc.date=today();renderDoc();renderPageList();renderLanes();renderFinalEditor();updateContextPanels();renderInspector();setZoom(state.zoom);$('snapToggle').classList.toggle('active',state.snap);renderPages()}
+function render(){
+  state.doc.date=today();
+  renderDoc();
+  renderPageList();
+  renderLanes();
+  renderFinalEditor();
+  updateContextPanels();
+  renderInspector();
+  setZoom(state.zoom);
+  $('snapToggle').classList.toggle('active',state.snap);
+  renderPages();
+  if(procIsMobile()) setTimeout(procBoardVisible,40);
+}
 function renderDoc(){$('docTitle').value=state.doc.title;$('docCode').value=state.doc.code;$('docVersion').value=state.doc.version;$('autoDate').value=state.doc.date;$('autoPages').value=totalPages()+' páginas'}
 function setZoom(z){
   if(procIsMobile()) z=procPreferredZoom();
@@ -121,17 +142,26 @@ function setZoom(z){
   if(pages){
     if(procIsMobile()){
       pages.style.zoom='';
+      pages.style.transformOrigin='top left';
       pages.style.transform=`scale(${z})`;
-      pages.style.width=(1056*z)+'px';
-      pages.style.minWidth=(1056*z)+'px';
+      pages.style.width='1056px';
+      pages.style.minWidth='1056px';
+      pages.style.maxWidth='1056px';
+      pages.style.marginLeft='0';
+      pages.style.marginRight='0';
     }else{
       pages.style.zoom='';
       pages.style.width='';
       pages.style.minWidth='';
+      pages.style.maxWidth='';
+      pages.style.marginLeft='';
+      pages.style.marginRight='';
+      pages.style.transformOrigin='top center';
       pages.style.transform=`scale(${z})`;
     }
   }
-  $('zoomLabel').textContent=Math.round(z*100)+'%';
+  const zl=$('zoomLabel');
+  if(zl) zl.textContent=Math.round(z*100)+'%';
 }
 function renderPageList(){const box=$('pageList');box.innerHTML='';state.flowPages.forEach((p,i)=>{const d=document.createElement('div');d.className='page-item '+(i===state.activePage?'active':'');d.innerHTML=`<span>Flujograma ${i+1}</span><small>Pág. ${i+1}</small>`;d.onclick=()=>{state.activePage=i;state.selected=[];state.selectedEdge=null;state.selectedPoint=null;render()};box.appendChild(d)});const f=document.createElement('div');f.className='page-item final '+(state.activePage===finalIndex()?'active':'');f.innerHTML=`<span>Normas y políticas</span><small>Pág. ${totalPages()}</small>`;f.onclick=()=>{state.activePage=finalIndex();state.selected=[];state.selectedEdge=null;state.selectedPoint=null;render()};box.appendChild(f)}
 function renderPages(){const mount=$('pages');mount.innerHTML='';state.flowPages.forEach((p,i)=>mount.appendChild(flowPageEl(p,i)));mount.appendChild(finalPageEl());renderCanvases()}
@@ -211,5 +241,5 @@ function exportSvg(){if(state.activePage>=state.flowPages.length)return;const sv
 function download(content,name,type){const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function runQA(){let out=[];out.push({ok:state.flowPages.length>=1,msg:'Existe al menos una página de flujograma'});out.push({ok:true,msg:'Página final obligatoria incluida'});state.flowPages.forEach((p,i)=>{out.push({ok:p.shapes.every(s=>s.x>=0&&s.y>=0&&s.x+s.w<=W&&s.y+s.h<=H),msg:`Pág. ${i+1}: figuras dentro del área`});out.push({ok:p.edges.every(e=>cleanPoints(e.points).length>=2),msg:`Pág. ${i+1}: flechas con puntos reales`})});return out}
 function showQA(){const box=$('qaBox'),res=runQA();box.hidden=false;box.innerHTML='<h3>Examen QA V26</h3>'+res.map(r=>`<p class="${r.ok?'qa-pass':'qa-fail'}">${r.ok?'✓':'•'} ${esc(r.msg)}</p>`).join('')+'<button id="closeQA">Cerrar</button>';$('closeQA').onclick=()=>box.hidden=true}
-function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();console.log('V38 procedimiento iOS QA',runQA())}
+function init(){bind();normalize();if(procIsMobile())state.zoom=procPreferredZoom();render();setTimeout(procBoardVisible,80);console.log('V40 procedimiento tablero visible',runQA())}
 init();

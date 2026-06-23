@@ -1,22 +1,10 @@
-# Estudio Documental EI V39
+# Estudio Documental EI V40
 
-Cambio principal:
+Corrección puntual:
 
-- El editor de Procedimientos en celular se transformó a una experiencia tipo Canva:
-  - barra superior móvil;
-  - canvas central;
-  - dock inferior;
-  - hoja ajustada al ancho del teléfono;
-  - panel inferior para figuras;
-  - panel inferior para páginas;
-  - drawer lateral para herramientas completas.
-
-Motivo:
-- En celular no es viable manejar el editor de procedimientos igual que escritorio.
-- La plantilla de procedimiento horizontal 11in x 8.5in necesitaba un modo canvas real.
-
-No se modificó:
-- Word.
-- Instructivos.
-- Plantilla de calidad.
-- PDF.
+- Se corrigió la visualización del tablero de procedimientos en celular/iOS.
+- El tablero ahora queda visible desde la carga.
+- Se ajustó el cálculo del canvas para que la plantilla no quede desplazada fuera de pantalla.
+- La hoja de procedimiento mantiene su tamaño real 11in × 8.5in, pero se escala visualmente sin perder el área visible.
+- El botón Ajustar vuelve el tablero al inicio visible.
+- No se modificó Word, instructivos ni la plantilla de calidad.
