@@ -898,6 +898,7 @@ function finalIndex(){return state.flowPages.length}
 function shape(type,text,x,y,lane=0){let s={id:uid(),type,text,x,y,w:112,h:58,lane};setSize(s);return s}
 function setSize(s){const m={start:[66,28],end:[66,28],activity:[112,58],decision:[88,88],document:[118,66],delay:[92,58],offpage:[36,44],samepage:[32,32],text:[120,36],note:[120,72],subprocess:[126,62],database:[108,68],manual:[118,56],input:[118,58]};[s.w,s.h]=m[s.type]||[112,58]}
 function edge(points,label=''){return{id:uid(),points:cleanRoute(points),label,color:'#222222',width:1.8,style:'solid',arrow:'end',connStart:null,connEnd:null,routeMode:'manual'}}
+function routeSnap(v){try{return snap(v)}catch(err){return Math.round(v/SNAP)*SNAP}}
 function newFlowPage(){
  const n1=shape('start','INICIO',66,86,0),n2=shape('activity','REALIZAR actividad',210,70,0),n3=shape('end','FIN',410,86,0);
  let p={id:uid(),lanes:[{process:'PROCESO',role:'Responsable / Cargo'}],shapes:[n1,n2,n3],edges:[]};
@@ -946,12 +947,11 @@ function connect(page,from,to,label=''){
  return e
 }
 function bestAnchor(a,b){const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2);const side=Math.abs(dx)>=Math.abs(dy)?(dx>=0?'right':'left'):(dy>=0?'bottom':'top');return{...anchor(a,side),side}}
-function anchor(s,side){return{left:{x:s.x,y:s.y+s.h/2},right:{x:s.x+s.w,y:s.y+s.h/2},top:{x:s.x+s.w/2,y:s.y},bottom:{x:s.x+w/2,y:s.y+s.h}}[side]}
 function anchor(s,side){return{left:{x:s.x,y:s.y+s.h/2},right:{x:s.x+s.w,y:s.y+s.h/2},top:{x:s.x+s.w/2,y:s.y},bottom:{x:s.x+s.w/2,y:s.y+s.h}}[side]}
 function sideVector(side){return{left:{x:-1,y:0},right:{x:1,y:0},top:{x:0,y:-1},bottom:{x:0,y:1}}[side]||{x:1,y:0}}
 function nudgePoint(p,side,d=30){const v=sideVector(side);return{x:p.x+v.x*d,y:p.y+v.y*d,side:p.side}}
 function cleanRoute(points){
- let pts=cleanPoints(points).map(p=>({x:snap(p.x),y:snap(p.y)}));
+ let pts=cleanPoints(points).map(p=>({x:routeSnap(p.x),y:routeSnap(p.y)}));
  pts=pts.filter((p,i)=>i===0||Math.abs(p.x-pts[i-1].x)>1||Math.abs(p.y-pts[i-1].y)>1);
  let changed=true;
  while(changed){
@@ -968,8 +968,8 @@ function cleanRoute(points){
 function routeCore(a,b,startSide,endSide){
  const hStart=['left','right'].includes(startSide),hEnd=['left','right'].includes(endSide);
  if(Math.abs(a.x-b.x)<1||Math.abs(a.y-b.y)<1)return[a,b];
- if(hStart&&hEnd){const mx=snap((a.x+b.x)/2);return[a,{x:mx,y:a.y},{x:mx,y:b.y},b]}
- if(!hStart&&!hEnd){const my=snap((a.y+b.y)/2);return[a,{x:a.x,y:my},{x:b.x,y:my},b]}
+ if(hStart&&hEnd){const mx=routeSnap((a.x+b.x)/2);return[a,{x:mx,y:a.y},{x:mx,y:b.y},b]}
+ if(!hStart&&!hEnd){const my=routeSnap((a.y+b.y)/2);return[a,{x:a.x,y:my},{x:b.x,y:my},b]}
  if(hStart&&!hEnd)return[a,{x:b.x,y:a.y},b];
  return[a,{x:a.x,y:b.y},b]
 }
@@ -1148,7 +1148,7 @@ function insertManualCut(e,segIndex,mx,my){
  e.routeMode='manual';
  const a=e.points[segIndex],b=e.points[segIndex+1];
  if(!a||!b)return;
- const cut={x:snap(mx),y:snap(my)};
+ const cut={x:routeSnap(mx),y:routeSnap(my)};
  if(Math.abs(a.x-b.x)<1||Math.abs(a.y-b.y)<1){
   e.points.splice(segIndex+1,0,cut);
  }else{
