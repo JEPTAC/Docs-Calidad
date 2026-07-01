@@ -82,26 +82,6 @@ function addTypedWordSection(title){
 function applyWordTypeBodyClass(){
   ['oficio','circular','manual','guia','politica','protocolo','formato'].forEach(t=>document.body.classList.toggle('word-type-'+t,doc.wordType===t));
 }
-
-function isMobileViewport(){
-  return window.innerWidth <= 1080;
-}
-function preferredMobileZoom(){
-  const baseWidth=816;
-  const available=Math.max(300, window.innerWidth - 22);
-  return Math.max(.36, Math.min(.78, available / baseWidth));
-}
-function openSide(){
-  document.body.classList.add('side-open');
-  const bd=$('mobileBackdrop'); if(bd) bd.classList.add('open');
-}
-function closeSide(){
-  document.body.classList.remove('side-open');
-  const bd=$('mobileBackdrop'); if(bd) bd.classList.remove('open');
-}
-function autoCloseSide(){
-  if(isMobileViewport()) closeSide();
-}
 function setMode(m){
   mode=m;
   normalizeWordType();
@@ -114,27 +94,11 @@ function setMode(m){
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==m));
   $('topTitle').textContent=m==='word'?'Documentos Word':m==='excel'?'Instructivo visual':'Centro documental';
   $('topSub').textContent=m==='word'?(wordTypeLabel(doc.wordType)+' · campos y secciones permitidas según tipo documental'):m==='excel'?'Paso general, pasos específicos, imágenes y señalización visual':'Seleccione un tipo documental';
-  if(isMobileViewport() && m!=='home') zoom=preferredMobileZoom();
   render();
   renderProjectHistory();
-  setTimeout(autoCloseSide,40);
 }
 function openProcedure(){window.location.href='procedimiento/index.html'}
-function setZoom(z){
-  zoom=Math.max(.35,Math.min(1.2,z));
-  const stage=$('stage');
-  if(stage){
-    if(isMobileViewport()){
-      stage.style.transform='none';
-      stage.style.zoom=zoom;
-    }else{
-      stage.style.zoom='';
-      stage.style.transform=`scale(${zoom})`;
-    }
-  }
-  const zl=$('zoomLabel');
-  if(zl) zl.textContent=Math.round(zoom*100)+'%';
-}
+function setZoom(z){zoom=Math.max(.35,Math.min(1.2,z));$('stage').style.transform=`scale(${zoom})`; $('zoomLabel').textContent=Math.round(zoom*100)+'%'}
 function bind(){
   const homeTopBtn=$('homeTopBtn'); if(homeTopBtn) homeTopBtn.onclick=()=>setMode('home');
   const clearHistoryBtn=$('clearProjectHistory'); if(clearHistoryBtn) clearHistoryBtn.onclick=()=>clearProjectHistory();
@@ -158,29 +122,6 @@ function bind(){
   $('addNote').onclick=()=>{if(!doc.steps.length) createFirstStep(); const i=Number(doc.activeStep||0);doc.steps[i].notes=doc.steps[i].notes||[];doc.steps[i].notes.push({text:'',align:'left'});render()};
 
   $('activeStep').onchange=e=>{doc.activeStep=Number(e.target.value)||0;render()};
-
-  const menuBtn=$('menuToggle'); if(menuBtn) menuBtn.onclick=openSide;
-  const closeBtn=$('closeSide'); if(closeBtn) closeBtn.onclick=closeSide;
-  const mobileBackdrop=$('mobileBackdrop'); if(mobileBackdrop) mobileBackdrop.onclick=closeSide;
-
-  const mobileHome=$('mobileHome'); if(mobileHome) mobileHome.onclick=()=>setMode('home');
-  const mobileTools=$('mobileTools'); if(mobileTools) mobileTools.onclick=openSide;
-  const mobileWord=$('mobileWord'); if(mobileWord) mobileWord.onclick=()=>setMode('word');
-  const mobileExcel=$('mobileExcel'); if(mobileExcel) mobileExcel.onclick=()=>setMode('excel');
-  const mobileSave=$('mobileSave'); if(mobileSave) mobileSave.onclick=()=>saveToBrowserCache();
-
-  window.addEventListener('resize',()=>{
-    if(!isMobileViewport()) closeSide();
-    if(isMobileViewport() && mode!=='home'){
-      zoom=preferredMobileZoom();
-      setZoom(zoom);
-    }
-  });
-
-
-  const procToolsBtn=$('openProcedureFromTools'); if(procToolsBtn) procToolsBtn.onclick=openProcedure;
-  const mobileProcedure=$('mobileProcedure'); if(mobileProcedure) mobileProcedure.onclick=openProcedure;
-
 }
 
 function onWordTypeChanged(){
@@ -1116,10 +1057,7 @@ function exportPdf(){
   const prevZoom = zoom;
   document.body.classList.add('print-mode');
   const stage=$('stage');
-  if(stage){
-    stage.style.transform='none';
-    stage.style.zoom='1';
-  }
+  if(stage) stage.style.transform='none';
   setTimeout(()=>{
     window.print();
     setTimeout(()=>{
