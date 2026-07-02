@@ -2066,18 +2066,62 @@ function edgeLabelPoint(e,label){
  if(Math.abs(dx)>=Math.abs(dy)) return {x:mx,y:my-5,anchor:'middle'};
  return {x:mx+14,y:my,anchor:'start'};
 }
+function edgeDisplayPoints(page,e){
+ const pts=cleanRoute(e.points).map(p=>({...p}));
+ if(pts.length<2)return pts;
+ const out=(side,d)=>{
+  const v=sideVector(side);
+  return {x:v.x*d,y:v.y*d}
+ };
+ if(e.connStart){
+  const v=out(e.connStart.side,6);
+  pts[0]={x:routeSnap(pts[0].x+v.x),y:routeSnap(pts[0].y+v.y)}
+ }
+ if(e.connEnd){
+  const v=out(e.connEnd.side,12);
+  pts[pts.length-1]={x:routeSnap(pts[pts.length-1].x+v.x),y:routeSnap(pts[pts.length-1].y+v.y)}
+ }
+ return cleanRoute(pts)
+}
+
+function edgeLabelPointFromPoints(points,label){
+ const pts=cleanPoints(points);
+ if(pts.length<2)return {x:0,y:0,anchor:'middle'};
+ let segIndex=0,bestLen=-1;
+ for(let i=0;i<pts.length-1;i++){
+  const a=pts[i], b=pts[i+1], len=Math.hypot(b.x-a.x,b.y-a.y);
+  if(len>bestLen){bestLen=len;segIndex=i}
+ }
+ const a=pts[segIndex], b=pts[segIndex+1];
+ const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+ const dx=b.x-a.x, dy=b.y-a.y;
+ const upper=String(label||'').trim().toUpperCase();
+ if(upper==='SI' || upper==='NO'){
+   if(Math.abs(dx)>=Math.abs(dy)){
+     const y = my + (upper==='SI' ? -12 : 14);
+     return {x:mx,y,anchor:'middle'};
+   }
+   const x = mx + (dx>=0 ? 14 : -14);
+   return {x,y:my,anchor:dx>=0?'start':'end'};
+ }
+ if(Math.abs(dx)>=Math.abs(dy)) return {x:mx,y:my-5,anchor:'middle'};
+ return {x:mx+14,y:my,anchor:'start'};
+}
+
 function drawEdge(svg,page,e,idx){
  updateConnected(page,e);
  e.points=cleanRoute(e.points);
  if(e.points.length<2)return;
- const d=roundedPath(e.points,12);
+ const drawPts=edgeDisplayPoints(page,e);
+ if(drawPts.length<2)return;
+ const d=roundedPath(drawPts,12);
  const path=el('path',{d,class:'edge-path '+(state.selectedEdge===e.id&&state.activePage===idx?'edge-selected':''),stroke:normColor(e.color),'stroke-width':e.width||1.8,'stroke-dasharray':e.style==='dashed'?'7 5':(e.style==='dotted'?'2 4':''),'marker-end':e.arrow==='none'?'':'url(#arrow)'});
  const hit=el('path',{d,class:'edge-hit'});
  hit.onpointerdown=ev=>edgeSelect(ev,e,idx);
  svg.appendChild(path);svg.appendChild(hit);
  const label=String(e.label||'').trim();
  if(label){
-  const pos=edgeLabelPoint(e,label), upper=label.toUpperCase();
+  const pos=edgeLabelPointFromPoints(drawPts,label), upper=label.toUpperCase();
   if(!['SI','NO'].includes(upper))svg.appendChild(edgeLabelBox(svg,label,{x:pos.x,y:pos.y+13}));
   const t=el('text',{x:pos.x,y:pos.y,class:'edge-label '+(['SI','NO'].includes(upper)?'decision-edge-label':''),'text-anchor':pos.anchor,'font-size':fontVal(e.labelSize,12)});
   t.textContent=label;
