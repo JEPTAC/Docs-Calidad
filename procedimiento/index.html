@@ -1323,6 +1323,27 @@ button.primary{
   }
 }
 
+
+/* V51: precisión de conexión y SI/NO sin globo */
+.decision-edge-label{
+  fill:#00299B!important;
+  stroke:none!important;
+  paint-order:normal!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+}
+.edge-label-bg{
+  display:block;
+}
+.edge-path{
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+.edge-end{
+  r:6;
+}
+
 </style>
 </head>
 <body>
@@ -1526,7 +1547,8 @@ function routeCore(a,b,startSide,endSide){
  return[a,{x:a.x,y:b.y},b]
 }
 function routeAnchors(sa,ea){
- const exit=nudgePoint(sa,sa.side,30),entry=nudgePoint(ea,ea.side,-30);
+ const exit=nudgePoint(sa,sa.side,30);
+ const entry=nudgePoint(ea,ea.side,30);
  return cleanRoute([sa,exit,...routeCore(exit,entry,sa.side,ea.side).slice(1,-1),entry,ea])
 }
 function rerouteAuto(page,e){
@@ -1742,7 +1764,7 @@ function svgDown(ev,svg,page,idx){
  if(tool==='freeArrow'){
   const s=pt(svg,ev);
   pushHistory();
-  const e=edge(cleanRoute([{x:snap(s.x),y:snap(s.y)},{x:snap(s.x+90),y:snap(s.y)}]));
+  const e=edge(cleanRoute([{x:snap(s.x),y:snap(s.y)},{x:snap(s.x+105),y:snap(s.y)}]));
   e.routeMode='manual';
   page.edges.push(e);
   state.selectedEdge=e.id;
@@ -1842,11 +1864,12 @@ function drawEdge(svg,page,e,idx){
  const hit=el('path',{d,class:'edge-hit'});
  hit.onpointerdown=ev=>edgeSelect(ev,e,idx);
  svg.appendChild(path);svg.appendChild(hit);
- if(String(e.label||'').trim()){
-  const m=pathMidPoint(e.points);
-  svg.appendChild(edgeLabelBox(svg,e.label,m));
-  const t=el('text',{x:m.x,y:m.y-5,class:'edge-label','text-anchor':'middle'});
-  t.textContent=e.label;
+ const label=String(e.label||'').trim();
+ if(label){
+  const m=pathMidPoint(e.points), upper=label.toUpperCase();
+  if(!['SI','NO'].includes(upper))svg.appendChild(edgeLabelBox(svg,label,m));
+  const t=el('text',{x:m.x,y:m.y-5,class:'edge-label '+(['SI','NO'].includes(upper)?'decision-edge-label':''),'text-anchor':'middle'});
+  t.textContent=label;
   svg.appendChild(t)
  }
  if(state.selectedEdge===e.id&&state.activePage===idx)edgeControls(svg,e)
