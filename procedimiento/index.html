@@ -1403,6 +1403,14 @@ button.primary{
   stroke:#00299B!important;
 }
 
+
+.lane-label,.lane-label>div,.lane-text,.flow-head,.flow-head>div{font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif!important}
+.lane-text{letter-spacing:.01em}
+.edge-end,.edge-point,.edge-mid{vector-effect:non-scaling-stroke}
+.edge-mid{fill:#fff;stroke:#0084ff;stroke-width:2;cursor:move}
+.edge-mid:hover{fill:#D9EEFF;stroke:#005AD3}
+.decision-edge-label{font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif}
+
 </style>
 </head>
 <body>
@@ -1909,7 +1917,7 @@ function renderLaneForPage(page,idx){
   lab.style.top=top+'%';
   lab.style.height=h+'%';
   const ps=fontVal(l.processSize,9),rs=fontVal(l.roleSize,8);
-  lab.innerHTML=`<div data-lane-click="${i}" data-field="process"><span class="lane-text" style="font-size:${ps}px">${esc(l.process)}</span></div><div data-lane-click="${i}" data-field="role"><span class="lane-text" style="font-size:${rs}px">${esc(l.role)}</span></div>`;
+  lab.innerHTML=`<div data-lane-click="${i}" data-field="process"><span class="lane-text" style="font-size:${ps}px;font-family:Century Gothic, Aptos, Montserrat, Arial, sans-serif">${esc(l.process)}</span></div><div data-lane-click="${i}" data-field="role"><span class="lane-text" style="font-size:${rs}px;font-family:Century Gothic, Aptos, Montserrat, Arial, sans-serif">${esc(l.role)}</span></div>`;
   lab.querySelectorAll('[data-lane-click]').forEach(el=>el.onclick=ev=>{ev.stopPropagation();state.activePage=idx;selectLane(+el.dataset.laneClick,el.dataset.field)});
   resp.appendChild(lab);
   if(i<n-1){const ln=document.createElement('div');ln.className='lane-line';ln.style.top=((i+1)/n*100)+'%';box.appendChild(ln)}
@@ -2086,8 +2094,10 @@ function edgeControls(svg,e){
  });
  for(let i=0;i<e.points.length-1;i++){
   const a=e.points[i],b=e.points[i+1],mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
-  const c=el('circle',{cx:mx,cy:my,r:4,class:'edge-mid'});
-  c.onpointerdown=ev=>{ev.stopPropagation();pushHistory();e.routeMode='manual';insertManualCut(e,i,mx,my);render()};
+  const c=el('circle',{cx:mx,cy:my,r:5,class:'edge-mid'});
+  c.onpointerdown=ev=>segmentDown(ev,svg,e,i);
+  c.ondblclick=ev=>{ev.stopPropagation();pushHistory();e.routeMode='manual';insertManualCut(e,i,mx,my);render()};
+  c.setAttribute('title','Arrastra para mover el tramo. Doble clic para crear un corte manual.');
   svg.appendChild(c)
  }
 }
@@ -2118,6 +2128,62 @@ function pointDown(ev,svg,e,i){
  };
  window.addEventListener('pointermove',move);
  window.addEventListener('pointerup',up)
+}
+
+function segmentDown(ev,svg,e,segIndex){
+ ev.stopPropagation();
+ state.selected=[];
+ state.selectedEdge=e.id;
+ state.selectedPoint=null;
+ renderInspector();
+ renderCanvases();
+ const old=cleanRoute(e.points);
+ let changed=false,started=false;
+ const move=mv=>{
+  if(!started){pushHistory();started=true}
+  changed=true;
+  e.routeMode='manual';
+  const q=pt(svg,mv);
+  e.points=moveEdgeSegment(old,e,segIndex,{x:clamp(snap(q.x),0,W),y:clamp(snap(q.y),0,H)});
+  renderCanvases()
+ };
+ const up=()=>{
+  if(changed){e.points=cleanRoute(e.points)}
+  window.removeEventListener('pointermove',move);
+  window.removeEventListener('pointerup',up);
+  render()
+ };
+ window.addEventListener('pointermove',move);
+ window.addEventListener('pointerup',up)
+}
+
+function moveEdgeSegment(old,e,segIndex,q){
+ const pts=cleanPoints(old).map(p=>({...p}));
+ if(pts.length<2)return pts;
+ if(pts.length===2)return routeFromSegmentDrag(pts[0],pts[1],q);
+ const a=pts[segIndex],b=pts[segIndex+1];
+ if(!a||!b)return pts;
+ const horizontal=Math.abs(a.y-b.y)<=Math.abs(a.x-b.x);
+ const first=segIndex===0, last=segIndex===pts.length-2;
+ if(horizontal){
+  const ny=routeSnap(q.y);
+  if(first)return cleanRoute([pts[0],{x:pts[0].x,y:ny},{x:pts[1].x,y:ny},...pts.slice(2)]);
+  if(last)return cleanRoute([...pts.slice(0,segIndex),{x:pts[segIndex].x,y:ny},{x:pts[segIndex+1].x,y:ny},pts[pts.length-1]]);
+  pts[segIndex].y=ny; pts[segIndex+1].y=ny;
+  return cleanRoute(pts)
+ }
+ const nx=routeSnap(q.x);
+ if(first)return cleanRoute([pts[0],{x:nx,y:pts[0].y},{x:nx,y:pts[1].y},...pts.slice(2)]);
+ if(last)return cleanRoute([...pts.slice(0,segIndex),{x:nx,y:pts[segIndex].y},{x:nx,y:pts[segIndex+1].y},pts[pts.length-1]]);
+ pts[segIndex].x=nx; pts[segIndex+1].x=nx;
+ return cleanRoute(pts)
+}
+
+function routeFromSegmentDrag(a,b,q){
+ const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+ const dx=Math.abs(q.x-mx),dy=Math.abs(q.y-my);
+ if(dy>=dx)return cleanRoute([a,{x:a.x,y:routeSnap(q.y)},{x:b.x,y:routeSnap(q.y)},b]);
+ return cleanRoute([a,{x:routeSnap(q.x),y:a.y},{x:routeSnap(q.x),y:b.y},b])
 }
 
 function moveRoutePoint(old,i,q){
@@ -2385,7 +2451,7 @@ function renderInspector(){
  if(state.selectedEdge){
   const e=page.edges.find(x=>x.id===state.selectedEdge);
   if(!e){box.innerHTML='Flecha no encontrada.';return}
-  box.innerHTML=`<label>Etiqueta<input id="edgeLabel" value="${esc(e.label||'')}"></label><div class="grid2"><label>Tamaño texto<input id="edgeLabelSize" type="number" min="7" max="24" step=".5" value="${fontVal(e.labelSize,12)}"></label><label>Grosor<input id="edgeWidth" type="number" min="1" max="8" step=".2" value="${e.width||1.8}"></label></div><div class="grid2"><label>Estilo<select id="edgeStyle"><option value="solid">Continua</option><option value="dashed">Guiones</option><option value="dotted">Puntos</option></select></label><label>Punta<select id="edgeArrow"><option value="end">Final</option><option value="none">Sin punta</option></select></label></div><label>Color<input id="edgeColor" type="color" value="${normColor(e.color)}"></label><div class="actions"><button id="autoCut">Corte automático</button><button id="manualCut">+ Corte manual</button><button id="removePoint">Eliminar corte</button><button id="cleanCuts">Limpiar dobleces</button><button id="straighten">Enderezar</button><button id="disconnect">Desconectar</button><button id="reverseEdge">Invertir</button></div>`;
+  box.innerHTML=`<label>Etiqueta<input id="edgeLabel" value="${esc(e.label||'')}"></label><div class="grid2"><label>Tamaño texto<input id="edgeLabelSize" type="number" min="7" max="24" step=".5" value="${fontVal(e.labelSize,12)}"></label><label>Grosor<input id="edgeWidth" type="number" min="1" max="8" step=".2" value="${e.width||1.8}"></label></div><div class="grid2"><label>Estilo<select id="edgeStyle"><option value="solid">Continua</option><option value="dashed">Guiones</option><option value="dotted">Puntos</option></select></label><label>Punta<select id="edgeArrow"><option value="end">Final</option><option value="none">Sin punta</option></select></label></div><label>Color<input id="edgeColor" type="color" value="${normColor(e.color)}"></label><div class="actions"><button id="autoCut">Corte automático</button><button id="manualCut">+ Corte manual</button><button id="removePoint">Eliminar corte</button><button id="cleanCuts">Limpiar dobleces</button><button id="straighten">Enderezar</button><button id="dirH">Dirección horizontal</button><button id="dirV">Dirección vertical</button><button id="disconnect">Desconectar</button><button id="reverseEdge">Invertir</button></div><p class="hint">Mueva los <b>puntos azules</b> para desplazar tramos como en Canva. Mueva los <b>extremos</b> para reconectar la flecha. Doble clic sobre un punto azul para agregar un corte manual.</p>`;
   $('edgeStyle').value=e.style||'solid';$('edgeArrow').value=e.arrow||'end';
   $('edgeLabel').onchange=ev=>{pushHistory();e.label=ev.target.value;render()};
   $('edgeLabelSize').onchange=ev=>{pushHistory();e.labelSize=+ev.target.value||12;render()};
@@ -2398,6 +2464,8 @@ function renderInspector(){
   $('removePoint').onclick=()=>{if(state.selectedPoint>0&&state.selectedPoint<e.points.length-1){pushHistory();e.routeMode='manual';e.points.splice(state.selectedPoint,1);e.points=cleanRoute(e.points);state.selectedPoint=null;render()}};
   $('cleanCuts').onclick=()=>{pushHistory();simplifySelectedRoute(e);render()};
   $('straighten').onclick=()=>{pushHistory();e.routeMode='manual';e.points=cleanRoute([e.points[0],e.points.at(-1)]);render()};
+  const dirH=$('dirH'); if(dirH)dirH.onclick=()=>{pushHistory();e.routeMode='manual'; const a=e.points[0], b=e.points.at(-1), my=routeSnap(((a.y+b.y)/2)); e.points=cleanRoute([a,{x:a.x,y:my},{x:b.x,y:my},b]); render()};
+  const dirV=$('dirV'); if(dirV)dirV.onclick=()=>{pushHistory();e.routeMode='manual'; const a=e.points[0], b=e.points.at(-1), mx=routeSnap(((a.x+b.x)/2)); e.points=cleanRoute([a,{x:mx,y:a.y},{x:mx,y:b.y},b]); render()};
   $('disconnect').onclick=()=>{pushHistory();e.routeMode='manual';e.connStart=null;e.connEnd=null;render()};
   $('reverseEdge').onclick=()=>{pushHistory();e.points.reverse();const tmp=e.connStart;e.connStart=e.connEnd;e.connEnd=tmp;render()};
   return
