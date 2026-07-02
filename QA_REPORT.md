@@ -1,36 +1,57 @@
-# QA V41
+# QA V62
 
-Problema reportado:
-- No se visualizaba el tablero/plantilla para editar procedimiento en móvil.
+Solicitud:
+- En Word poder colocar subtítulos 3.1, 3.2, etc.
+- Poder agregar subtítulos.
+- Subtítulos en azul, Century Gothic, sin diseño adicional.
+- Que se agreguen solos a la tabla de contenido con su página.
 
-Diagnóstico:
-- El modo tipo Canva de V39/V40 usaba contenedores fixed y overflow controlado.
-- En iOS eso puede dejar la hoja fuera del área visible aunque el DOM exista.
-- El tablero dependía demasiado del cálculo visual del contenedor.
+Correcciones:
+1. Modelo:
+   - Cada sección SGC ahora soporta `sub`.
+   - Los subtítulos tienen número, título y contenido.
+2. Panel:
+   - Cada sección tiene botón `+ Subtítulo`.
+   - Se puede editar número, subtítulo y contenido.
+   - Se puede eliminar subtítulo.
+3. Numeración:
+   - El subtítulo se genera con base en la sección: 3.1, 3.2, etc.
+   - Si cambia el número de la sección, los subtítulos se renumeran.
+4. Render Word:
+   - La tabla de contenido incluye secciones y subtítulos.
+   - Cada fila muestra página.
+   - El contenido muestra el subtítulo sin caja ni diseño adicional.
+5. Estilo:
+   - Subtítulo azul #001F73.
+   - Fuente Century Gothic.
+   - Sin fondo, sin borde, sin bloque adicional.
 
-Corrección:
-- El tablero de procedimientos móvil ahora se renderiza en flujo real.
-- .workarea vuelve a ser un bloque visible con scroll nativo.
-- .pages mantiene ancho real de 1056px y se escala desde top-left.
-- Se fuerza visibilidad de page, flow-box, flow-canvas y marco.
-- Se agregó fallback procEnsureBoard() para re-renderizar si el mount queda vacío.
-
-
-Resultados automáticos:
+Resultados:
 {
-  "main_node_check": true,
-  "proc_node_check": true,
-  "real_flow_board_css": true,
-  "pages_visible_css": true,
-  "board_visible_js": true,
-  "fit_labeled_tablero": true,
-  "canva_ui_kept": true,
+  "source_node_check": true,
+  "inline_script_check": true,
+  "runtime_subtitle_check": true,
+  "runtime_stdout": "RUNTIME_OK_V62 3.1 \u001b[33mtrue\u001b[39m",
+  "add_subtitle_function": true,
+  "remove_subtitle_function": true,
+  "toc_includes_subtitles": true,
+  "content_renders_subtitles": true,
+  "blue_century_subtitle_style": true,
+  "word_panel_subtitle_editor": true,
   "word_intact": true,
   "instructivo_intact": true,
-  "quality_template_intact": true
+  "procedure_intact": true
 }
 
-node main stderr:
+node source.js stderr:
 
 
-node procedimiento stderr:
+node inline script stderr:
+
+
+runtime stdout:
+RUNTIME_OK_V62 3.1 [33mtrue[39m
+
+
+runtime stderr:
+

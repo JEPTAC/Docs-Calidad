@@ -1,4 +1,7 @@
 
+const LETTERHEAD="";
+const LOGO="";
+
 const $=id=>document.getElementById(id);
 let mode='home';
 let zoom=.72;
@@ -1192,3 +1195,4 @@ loadFromBrowserCache();
 render();
 
 initIntroExperience();
+

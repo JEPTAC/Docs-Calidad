@@ -6,6 +6,7 @@
 <title>Estudio Documental EI</title>
 <link rel="icon" href="data:,">
 <style>
+
 :root{
   --ei-blue:#001F73;
   --ei-blue-2:#00299B;
@@ -1886,6 +1887,74 @@ body.word-type-formato [data-word-circular]{
   line-height:1.38!important;
   overflow:hidden!important;
 }
+
+
+/* V62: subtítulos SGC tipo Word, sin diseño adicional */
+.sgc-toc-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin:6px 0;
+  color:#111;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.5pt;
+  line-height:1.25;
+}
+
+.sgc-toc-sub{
+  margin-left:.28in;
+  color:#111;
+}
+
+.sgc-subsection-block{
+  margin:8px 0 10px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+.sgc-subsection-title{
+  color:#001F73;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.8pt;
+  font-weight:900;
+  margin:8px 0 4px;
+  line-height:1.25;
+}
+
+.sgc-subsection-content{
+  color:#111;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.5pt;
+  line-height:1.38;
+  white-space:pre-line;
+  padding:0 2px 6px;
+}
+
+.word-subsection-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:8px;
+}
+
+.word-subsection-card{
+  border-left:3px solid #EAC800;
+  background:rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:8px;
+}
+
+.word-subsection-card-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  color:#EAC800;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
 </style>
 </head>
 <body>
@@ -2079,11 +2148,12 @@ let doc={
   remitente:'NOMBRE DEL REMITENTE',
   cargo:'Cargo desempeñado',
   sections:[
-    {n:'1',t:'OBJETIVO',c:'Definir el objetivo del documento.'},
-    {n:'2',t:'ALCANCE',c:'Establecer el alcance de aplicación.'},
-    {n:'3',t:'CONTENIDO',c:'Desarrollar el contenido técnico del documento.'},
-    {n:'3.1',t:'Documentos relacionados:',c:'X-X-X'},
-    {n:'3.2',t:'CONTROL DE CAMBIOS',c:'Versión 1'}
+    {n:'1',t:'OBJETIVO',c:'Definir el objetivo del documento.',sub:[]},
+    {n:'2',t:'ALCANCE',c:'Establecer el alcance de aplicación.',sub:[]},
+    {n:'3',t:'CONTENIDO',c:'Desarrollar el contenido técnico del documento.',sub:[
+      {n:'3.1',t:'Documentos relacionados',c:'X-X-X'},
+      {n:'3.2',t:'CONTROL DE CAMBIOS',c:'Versión 1'}
+    ]}
   ],
   wordTable:[['Versión','Vigente desde','Observación'],['Versión 1','','']],
   wordChart:[30,55,80],
@@ -2133,12 +2203,12 @@ function sectionPresetsForType(t){
 }
 function setDefaultSectionsForWordType(t){
   const presets=sectionPresetsForType(t);
-  doc.sections=presets.map(([n,t])=>({n,t,c:''}));
+  doc.sections=presets.map(([n,t])=>({n,t,c:'',sub:[]}));
   render();
 }
 function addTypedWordSection(title){
   doc.sections=doc.sections||[];
-  doc.sections.push({n:String(doc.sections.length+1),t:title,c:''});
+  doc.sections.push({n:String(doc.sections.length+1),t:title,c:'',sub:[]});
   render();
 }
 function applyWordTypeBodyClass(){
@@ -2213,8 +2283,9 @@ function letterPage(){
   return `<div class="page"><div class="word-letter-bg" style="background-image:url('${LETTERHEAD}')"></div><div class="text-layer" contenteditable="true" id="letterEdit"><p>${esc(doc.cityDate)}</p>${isCircular?`<p class="center"><b>CIRCULAR No. ${esc(doc.circularNo)}</b></p><p><b>PARA:</b> ${esc(doc.para)}</p><p><b>DE:</b> ${esc(doc.de)}</p><p><b>ASUNTO:</b> ${esc(doc.asunto)}</p><div class="line"></div>`:''}<p>${esc(doc.body).replace(/\n/g,'<br>')}</p><div class="sign"><div class="line" style="width:240px"></div><b>${esc(doc.remitente)}</b><span>${esc(doc.cargo)}</span></div></div></div>`;
 }
 function sgcPages(){
-  const toc=`<div class="page">${sgcHeader(1)}<div class="sgc-content"><h3 class="center" style="color:#001F73">TABLA DE CONTENIDO</h3>${doc.sections.map((s,i)=>`<p><b>${esc(s.n)}.</b> ${esc(s.t)}<span style="float:right">${i+1}</span></p>`).join('')}</div>${sgcFooter(1)}</div>`;
-  const content=`<div class="page">${sgcHeader(2)}<div class="sgc-content">${doc.sections.map((s,i)=>`<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(s.n)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${String(s.c||'').trim()?`<div class="sgc-section-content">${esc(s.c)}</div>`:''}</div>`).join('')}</div>${sgcFooter(2)}</div>`;
+  ensureWordSubtitles();
+  const toc=`<div class="page">${sgcHeader(1)}<div class="sgc-content"><h3 class="center" style="color:#001F73">TABLA DE CONTENIDO</h3>${sgcTocHtml()}</div>${sgcFooter(1)}</div>`;
+  const content=`<div class="page">${sgcHeader(2)}<div class="sgc-content">${sgcSectionsHtml()}</div>${sgcFooter(2)}</div>`;
   return toc+content;
 }
 function sgcHeader(n){
@@ -2237,11 +2308,78 @@ function sgcFooter(n){
 function renderWord(){
   normalizeWordType();
   applyWordTypeBodyClass();
+  ensureWordSubtitles();
   $('stage').innerHTML=isLetterWordType(doc.wordType)?letterPage():sgcPages();
   setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};renderWordTypeTools();renderWordSectionEditor();},0);
 }
 
 
+
+function cleanSectionNumber(n,fallback=''){
+  const s=String(n??'').trim().replace(/\.+$/,'');
+  return s || String(fallback||'');
+}
+function ensureWordSubtitles(){
+  doc.sections=doc.sections||[];
+  doc.sections=doc.sections.map((s,i)=>{
+    const sec={n:String(s.n??(i+1)),t:s.t||'',c:s.c||'',sub:Array.isArray(s.sub)?s.sub:[]};
+    sec.sub=sec.sub.map((ss,j)=>({
+      n:cleanSectionNumber(ss.n,`${cleanSectionNumber(sec.n,i+1)}.${j+1}`),
+      t:ss.t||'',
+      c:ss.c||''
+    }));
+    return sec
+  });
+}
+function nextSubNumber(i){
+  ensureWordSubtitles();
+  const sec=doc.sections[i];
+  const base=cleanSectionNumber(sec?.n,i+1);
+  return `${base}.${(sec?.sub||[]).length+1}`;
+}
+function renumberSubsections(i){
+  ensureWordSubtitles();
+  const sec=doc.sections[i];
+  if(!sec)return;
+  const base=cleanSectionNumber(sec.n,i+1);
+  sec.sub=(sec.sub||[]).map((ss,j)=>({...ss,n:`${base}.${j+1}`}));
+}
+function addWordSubsection(i){
+  const n=nextSubNumber(i);
+  const sec=doc.sections[i];
+  if(!sec)return;
+  sec.sub=sec.sub||[];
+  sec.sub.push({n,t:'Nuevo subtítulo',c:''});
+  render();
+}
+function removeWordSubsection(i,j){
+  ensureWordSubtitles();
+  const sec=doc.sections[i];
+  if(!sec||!sec.sub)return;
+  sec.sub.splice(j,1);
+  renumberSubsections(i);
+  render();
+}
+function wordContentPage(){
+  return 2;
+}
+function sgcTocHtml(){
+  ensureWordSubtitles();
+  return doc.sections.map((s,i)=>{
+    const secNo=cleanSectionNumber(s.n,i+1);
+    const secRow=`<p class="sgc-toc-row"><span><b>${esc(secNo)}</b>&nbsp;&nbsp;${esc(s.t)}</span><span>${wordContentPage()}</span></p>`;
+    const subRows=(s.sub||[]).map((ss,j)=>`<p class="sgc-toc-row sgc-toc-sub"><span><b>${esc(cleanSectionNumber(ss.n,`${secNo}.${j+1}`))}</b>&nbsp;&nbsp;${esc(ss.t)}</span><span>${wordContentPage()}</span></p>`).join('');
+    return secRow+subRows
+  }).join('');
+}
+function sgcSectionsHtml(){
+  ensureWordSubtitles();
+  return doc.sections.map((s,i)=>{
+    const secNo=cleanSectionNumber(s.n,i+1);
+    const subs=(s.sub||[]).map((ss,j)=>`<div class="sgc-subsection-block"><div class="sgc-subsection-title">${esc(cleanSectionNumber(ss.n,`${secNo}.${j+1}`))}&nbsp;&nbsp;${esc(ss.t)}</div>${String(ss.c||'').trim()?`<div class="sgc-subsection-content">${esc(ss.c)}</div>`:''}</div>`).join('');
+    return `<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(secNo)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${String(s.c||'').trim()?`<div class="sgc-section-content">${esc(s.c)}</div>`:''}${subs}</div>`;
+  }).join('');
+}
 function renderWordTypeTools(){
   const notice=$('wordTypeNotice');
   if(notice) notice.textContent=wordTypeMessage(doc.wordType);
@@ -2267,28 +2405,46 @@ function renderWordSectionEditor(){
     box.innerHTML='';
     return;
   }
+  ensureWordSubtitles();
   const sections=doc.sections||[];
-  box.innerHTML=sections.map((s,i)=>`<div class="word-section-card">
-    <div class="word-section-card-title"><span>${wordTypeLabel(doc.wordType)} · Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
-    <div class="grid2">
-      <label>Número<input data-word-sec-n="${i}" value="${esc(s.n)}"></label>
-      <label>Título<input data-word-sec-t="${i}" value="${esc(s.t)}"></label>
-    </div>
-    <label>Contenido desde panel<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
-  </div>`).join('') || '<p class="hint">Agregue una sección permitida para este tipo documental.</p>';
-  box.querySelectorAll('[data-word-sec-n]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecN].n=e.target.value;renderWordOnly()});
+  box.innerHTML=sections.map((s,i)=>{
+    const subHtml=(s.sub||[]).map((ss,j)=>`<div class="word-subsection-card">
+      <div class="word-subsection-card-title"><span>Subtítulo ${esc(ss.n)}</span><button class="danger" onclick="removeWordSubsection(${i},${j})">Eliminar subtítulo</button></div>
+      <div class="grid2">
+        <label>Número<input data-word-sub-n="${i}-${j}" value="${esc(ss.n)}"></label>
+        <label>Subtítulo<input data-word-sub-t="${i}-${j}" value="${esc(ss.t)}"></label>
+      </div>
+      <label>Contenido del subtítulo<textarea rows="3" data-word-sub-c="${i}-${j}">${esc(ss.c||'')}</textarea></label>
+    </div>`).join('');
+    return `<div class="word-section-card">
+      <div class="word-section-card-title"><span>${wordTypeLabel(doc.wordType)} · Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
+      <div class="grid2">
+        <label>Número<input data-word-sec-n="${i}" value="${esc(s.n)}"></label>
+        <label>Título<input data-word-sec-t="${i}" value="${esc(s.t)}"></label>
+      </div>
+      <label>Contenido desde panel<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
+      <div class="actions"><button onclick="addWordSubsection(${i})">+ Subtítulo ${esc(nextSubNumber(i))}</button></div>
+      <div class="word-subsection-list">${subHtml}</div>
+    </div>`;
+  }).join('') || '<p class="hint">Agregue una sección permitida para este tipo documental.</p>';
+  box.querySelectorAll('[data-word-sec-n]').forEach(el=>el.oninput=e=>{const i=+e.target.dataset.wordSecN;doc.sections[i].n=e.target.value;renumberSubsections(i);renderWordOnly();renderWordSectionEditor()});
   box.querySelectorAll('[data-word-sec-t]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecT].t=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sec-c]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecC].c=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sub-n]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubN.split('-').map(Number);doc.sections[i].sub[j].n=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sub-t]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubT.split('-').map(Number);doc.sections[i].sub[j].t=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sub-c]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubC.split('-').map(Number);doc.sections[i].sub[j].c=e.target.value;renderWordOnly()});
 }
 function renderWordOnly(){
   if(mode==='word'){
     normalizeWordType();
     applyWordTypeBodyClass();
+    ensureWordSubtitles();
     $('stage').innerHTML=isLetterWordType(doc.wordType)?letterPage():sgcPages();
     setTimeout(()=>{const le=$('letterEdit'); if(le) le.oninput=e=>{doc.body=e.currentTarget.innerText};},0);
   }
 }
 function removeWordSection(i){
+  ensureWordSubtitles();
   doc.sections.splice(i,1);
   render();
 }

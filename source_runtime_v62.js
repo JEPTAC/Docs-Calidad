@@ -1,4 +1,9 @@
 
+const LETTERHEAD='';
+const LOGO='';
+global.document={getElementById:()=>null,querySelectorAll:()=>[],body:{classList:{toggle:()=>{}}}};
+global.window={};
+
 const $=id=>document.getElementById(id);
 let mode='home';
 let zoom=.72;
@@ -1186,9 +1191,27 @@ function createFirstStep(){
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
-bind(); setMode('home');
-
-loadFromBrowserCache();
-render();
-
-initIntroExperience();
+try {
+  render=()=>{};
+  mode='word';
+  doc.wordType='manual';
+  doc.sections=[
+    {n:'1',t:'OBJETIVO',c:'Contenido objetivo',sub:[]},
+    {n:'3',t:'CONTENIDO',c:'Contenido base',sub:[]}
+  ];
+  ensureWordSubtitles();
+  addWordSubsection(1);
+  if(doc.sections[1].sub[0].n!=='3.1') throw new Error('Subtítulo no numeró como 3.1');
+  doc.sections[1].sub[0].t='Marco documental';
+  doc.sections[1].sub[0].c='Detalle del subtítulo';
+  const html=sgcPages();
+  if(!html.includes('sgc-subsection-title')) throw new Error('No renderizó subtítulo');
+  if(!html.includes('3.1')) throw new Error('No incluyó 3.1');
+  if(!html.includes('Marco documental')) throw new Error('No incluyó título del subtítulo');
+  if(!html.includes('sgc-toc-sub')) throw new Error('No agregó subtítulo a tabla de contenido');
+  if(!html.includes('<span>2</span>')) throw new Error('No incluyó página en tabla de contenido');
+  console.log('RUNTIME_OK_V62', doc.sections[1].sub[0].n, html.includes('TABLA DE CONTENIDO'));
+} catch (err) {
+  console.error(err && err.stack ? err.stack : err);
+  process.exit(1);
+}

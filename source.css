@@ -1879,3 +1879,70 @@ body.word-type-formato [data-word-circular]{
   line-height:1.38!important;
   overflow:hidden!important;
 }
+
+
+/* V62: subtítulos SGC tipo Word, sin diseño adicional */
+.sgc-toc-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin:6px 0;
+  color:#111;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.5pt;
+  line-height:1.25;
+}
+
+.sgc-toc-sub{
+  margin-left:.28in;
+  color:#111;
+}
+
+.sgc-subsection-block{
+  margin:8px 0 10px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+.sgc-subsection-title{
+  color:#001F73;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.8pt;
+  font-weight:900;
+  margin:8px 0 4px;
+  line-height:1.25;
+}
+
+.sgc-subsection-content{
+  color:#111;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.5pt;
+  line-height:1.38;
+  white-space:pre-line;
+  padding:0 2px 6px;
+}
+
+.word-subsection-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:8px;
+}
+
+.word-subsection-card{
+  border-left:3px solid #EAC800;
+  background:rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:8px;
+}
+
+.word-subsection-card-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  color:#EAC800;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:6px;
+}
