@@ -1345,7 +1345,7 @@ button.primary{
 }
 
 
-/* V52: edición integral de textos y tamaños */
+/* V53: tamaños de texto conservando figuras V51 */
 .lane-label{
   cursor:pointer;
 }
@@ -1353,9 +1353,6 @@ button.primary{
   outline:2px solid #7C3AED;
   outline-offset:-2px;
   background:rgba(124,58,237,.06);
-}
-.lane-label.lane-selected .lane-text{
-  color:#001F73;
 }
 .editable-doc-text{
   cursor:pointer;
@@ -1691,8 +1688,8 @@ function renderDoc(){
  $('docTitle').value=state.doc.title;
  $('docCode').value=state.doc.code;
  $('docVersion').value=state.doc.version;
- const t=$('docTitleSize'); if(t)t.value=state.doc.titleSize||12.5;
- const m=$('docMetaSize'); if(m)m.value=state.doc.metaSize||13;
+ const t=$('docTitleSize'); if(t)t.value=fontVal(state.doc.titleSize,12.5);
+ const m=$('docMetaSize'); if(m)m.value=fontVal(state.doc.metaSize,13);
  $('autoDate').value=state.doc.date;
  $('autoPages').value=totalPages()+' páginas'
 }
@@ -1781,7 +1778,7 @@ function pageBase(idx){
  const page=document.createElement('div');
  page.className='page '+(state.activePage===idx?'active-page':'');
  page.dataset.pageIndex=idx;
- const titleSize=+(state.doc.titleSize||12.5), metaSize=+(state.doc.metaSize||13), footerSize=+(state.doc.footerSize||12);
+ const titleSize=fontVal(state.doc.titleSize,12.5), metaSize=fontVal(state.doc.metaSize,13), footerSize=fontVal(state.doc.footerSize,12);
  page.innerHTML=`<div class="page-frame"></div><div class="header"><div class="logo-cell"><img src="${LOGO_DATA}"></div><div class="title-cell editable-doc-text" data-doc-text="title" style="font-size:${titleSize}px">${esc(state.doc.title)}</div><div class="meta-cell editable-doc-text" data-doc-text="meta" style="font-size:${metaSize}px"><div>${esc(state.doc.code)}</div><div>${esc(state.doc.version)}</div></div></div><div class="footer" style="font-size:${footerSize}px"><div>${esc(state.doc.date)}</div><div>Pág. ${idx+1} de ${totalPages()}</div></div>`;
  return page
 }
@@ -1790,7 +1787,7 @@ function finalPageEl(finalIdx=0){
  const idx=state.flowPages.length+finalIdx, f=getFinalPage(finalIdx), page=pageBase(idx);
  page.classList.add('final-page');
  const suffix=finalPagesCount()>1?` ${finalIdx+1}`:'';
- const titleSize=+(f.titleSize||10.5), bodySize=+(f.bodySize||10.8);
+ const titleSize=fontVal(f.titleSize,10.5), bodySize=fontVal(f.bodySize,10.8);
  page.innerHTML+=`<div class="final-title" style="font-size:${titleSize}px">Normas y Políticas de la Identificación del Procedimiento${suffix}</div>
  <div class="final-body" style="font-size:${bodySize}px"><div>${finalHtmlLeft(f)}</div><div>${finalHtmlRight(f)}</div></div>`;
  return page
@@ -1798,6 +1795,7 @@ function finalPageEl(finalIdx=0){
 function renderLanes(){if(state.activePage>=state.flowPages.length){$('lanesPanel').style.display='none';return}$('lanesPanel').style.display='block';renderLaneEditor()}
 function renderCanvases(){state.flowPages.forEach((p,idx)=>{renderLaneForPage(p,idx);const svg=document.querySelector(`[data-canvas="${idx}"]`);if(svg){svg.innerHTML=defs();p.edges.forEach(e=>drawEdge(svg,p,e,idx));p.shapes.forEach(s=>svg.appendChild(drawShape(svg,p,s,idx)));svg.onpointerdown=ev=>svgDown(ev,svg,p,idx)}})}
 
+function fontVal(v,d){return Number.isFinite(+v)?+v:d}
 function selectLane(idx,field='process'){
  state.selected=[];
  state.selectedEdge=null;
@@ -1814,7 +1812,6 @@ function selectDocText(kind='title'){
  state.selectedLane=null;
  renderInspectorDocText(kind)
 }
-function fontVal(v,d){return Number.isFinite(+v)?+v:d}
 function renderLaneForPage(page,idx){
  const resp=document.querySelector(`[data-resp="${idx}"]`),box=document.querySelector(`[data-flowbox="${idx}"]`);
  if(!resp||!box)return;
@@ -1872,7 +1869,6 @@ function svgDown(ev,svg,page,idx){
   state.selected=[];
   state.selectedEdge=null;
   state.selectedPoint=null;
-  state.selectedLane=null;
   render()
  }
 }
@@ -1990,7 +1986,6 @@ function pointDown(ev,svg,e,i){
  state.selected=[];
  state.selectedEdge=e.id;
  state.selectedPoint=i;
- state.selectedLane=null;
  renderInspector();
  renderCanvases();
  const old=cleanRoute(e.points);
@@ -2073,13 +2068,13 @@ function shapeBody(g,s,x,y,w,h){
  const fill=s.fill||'', stroke=s.stroke||'#1D2939', op=s.opacity??1, textColor=s.textColor||'#111111';
  const common={stroke:stroke,'stroke-width':1.25,opacity:op,class:'shape-outline'};
  const rect=(rx=0,fy=fill||'#fff')=>g.appendChild(el('rect',{x,y,width:w,height:h,rx,ry:rx,fill:fy,...common}));
- if(['start','end'].includes(s.type)){g.appendChild(el('rect',{x,y,width:w,height:h,rx:h/2,ry:h/2,fill:fill||EI_BLUE,stroke:'#001754','stroke-width':1.25,opacity:op,class:'shape-outline'}));addText(g,s.text,x+w/2,y+h/2,'terminal-text',textColor||'#fff',fontVal(s.fontSize,12))}
+ if(['start','end'].includes(s.type)){g.appendChild(el('rect',{x,y,width:w,height:h,rx:h/2,ry:h/2,fill:fill||EI_BLUE,stroke:'#001754','stroke-width':1.25,opacity:op,class:'shape-outline'}));addText(g,s.text,x+w/2,y+h/2,'terminal-text',textColor||'#fff',s.fontSize)}
  else if(s.type==='activity'){rect(6,fill||'#FFFFFF');addActivityText(g,s,x+w/2,y+h/2,w,textColor)}
  else if(s.type==='decision'){g.appendChild(el('polygon',{points:`${x+w/2},${y} ${x+w},${y+h/2} ${x+w/2},${y+h} ${x},${y+h/2}`,fill:fill||'url(#softYellow)',...common}));addWrapped(g,s.text,x+w/2,y+h/2,w*.72,'small-text',textColor,s.fontSize)}
  else if(s.type==='document'){g.appendChild(el('path',{d:`M${x},${y} H${x+w} V${y+h-12} C${x+w-26},${y+h-4} ${x+26},${y+h-20} ${x},${y+h-10} Z`,fill:fill||'#FFFFFF',...common}));addActivityText(g,s,x+w/2,y+h/2-4,w,textColor)}
  else if(s.type==='delay'){g.appendChild(el('path',{d:`M${x},${y} H${x+w-h/2} Q${x+w},${y} ${x+w},${y+h/2} Q${x+w},${y+h} ${x+w-h/2},${y+h} H${x} Z`,fill:fill||'url(#softBlue)',...common}));addWrapped(g,s.text,x+w/2,y+h/2,w-8,'small-text',textColor,s.fontSize)}
- else if(s.type==='offpage'){g.appendChild(el('polygon',{points:`${x},${y} ${x+w},${y} ${x+w},${y+h*.62} ${x+w/2},${y+h} ${x},${y+h*.62}`,fill:fill||EI_BLUE,stroke:'#001754','stroke-width':1.25,opacity:op,class:'shape-outline'}));addText(g,s.text,x+w/2,y+h*.45,'terminal-text',textColor||'#fff',fontVal(s.fontSize,12))}
- else if(s.type==='samepage'||s.type==='circle'){g.appendChild(el('circle',{cx:x+w/2,cy:y+h/2,r:Math.min(w,h)/2,fill:fill||(s.type==='samepage'?EI_BLUE:'url(#softBlue)'),...common}));addText(g,s.text,x+w/2,y+h/2,s.type==='samepage'?'terminal-text':'small-text',s.type==='samepage'?(textColor||'#fff'):textColor,fontVal(s.fontSize,s.type==='samepage'?12:10))}
+ else if(s.type==='offpage'){g.appendChild(el('polygon',{points:`${x},${y} ${x+w},${y} ${x+w},${y+h*.62} ${x+w/2},${y+h} ${x},${y+h*.62}`,fill:fill||EI_BLUE,stroke:'#001754','stroke-width':1.25,opacity:op,class:'shape-outline'}));addText(g,s.text,x+w/2,y+h*.45,'terminal-text',textColor||'#fff',s.fontSize)}
+ else if(s.type==='samepage'||s.type==='circle'){g.appendChild(el('circle',{cx:x+w/2,cy:y+h/2,r:Math.min(w,h)/2,fill:fill||(s.type==='samepage'?EI_BLUE:'url(#softBlue)'),...common}));addText(g,s.text,x+w/2,y+h/2,s.type==='samepage'?'terminal-text':'small-text',s.type==='samepage'?(textColor||'#fff'):textColor,s.fontSize)}
  else if(s.type==='rectangle'){rect(4,fill||'#FFFFFF');addWrapped(g,s.text,x+w/2,y+h/2,w-8,'small-text',textColor,s.fontSize)}
  else if(s.type==='rounded'){rect(14,fill||'url(#softBlue)');addWrapped(g,s.text,x+w/2,y+h/2,w-12,'small-text',textColor,s.fontSize)}
  else if(s.type==='triangle'){g.appendChild(el('polygon',{points:`${x+w/2},${y} ${x+w},${y+h} ${x},${y+h}`,fill:fill||'url(#softYellow)',...common}));addWrapped(g,s.text,x+w/2,y+h*.62,w*.72,'small-text',textColor,s.fontSize)}
@@ -2100,7 +2095,7 @@ function shapeDown(ev,svg,page,s,idx){
   else if(connectFrom!==s.id){pushHistory();page.edges.push(connect(page,connectFrom,s.id));connectFrom=null;state.selected=[];setTool('select');render()}
   return
  }
- if(s.locked){state.selected=[s.id];state.selectedEdge=null;state.selectedPoint=null;state.selectedLane=null;renderInspector();renderCanvases();return}
+ if(s.locked){state.selected=[s.id];state.selectedEdge=null;state.selectedPoint=null;renderInspector();renderCanvases();return}
  const resizing=ev.target.classList&&ev.target.classList.contains('resize-handle');
  if(ev.shiftKey){if(!state.selected.includes(s.id))state.selected.push(s.id)}
  else if(s.groupId){state.selected=page.shapes.filter(x=>x.groupId===s.groupId).map(x=>x.id)}
@@ -2123,8 +2118,8 @@ function shapeDown(ev,svg,page,s,idx){
 function pt(svg,ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 function el(tag,attrs){const e=document.createElementNS(SVG_NS,tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(v!==null&&v!==undefined&&v!=='')e.setAttribute(k,v)});return e}
 function addText(g,text,x,y,cls,color='',fontSize=null){const attrs={x,y,class:'node-text '+cls};if(fontSize)attrs['font-size']=fontSize;const t=el('text',attrs);if(color)t.setAttribute('fill',color);t.textContent=text;g.appendChild(t)}
-function addWrapped(g,text,cx,cy,maxW,cls,color='',fontSize=null){const fs=fontVal(fontSize,10),lines=wrap(text,Math.max(7,Math.floor(maxW/(fs*.62)))).slice(0,5),lh=Math.max(9,fs*1.18),sy=cy-(lines.length-1)*lh/2;lines.forEach((line,i)=>addText(g,line,cx,sy+i*lh,cls,color,fs))}
-function addActivityText(g,s,cx,cy,w,color=''){const fs=fontVal(s.fontSize,10),parts=String(s.text).trim().split(/\s+/),verb=(parts.shift()||'').toUpperCase(),rest=parts.join(' ');const t=el('text',{x:cx,y:cy-(rest?fs*.78:0),class:'node-text activity-text','font-size':fs});const sp=el('tspan',{class:'verb'});sp.textContent=verb;if(color)sp.setAttribute('fill',color);t.appendChild(sp);g.appendChild(t);if(rest)wrap(rest,Math.max(8,Math.floor(w/(fs*.62)))).slice(0,3).forEach((line,i)=>{const tt=el('text',{x:cx,y:cy+fs*.65+i*(fs*1.15),class:'node-text activity-text','font-size':fs}),rs=el('tspan',{class:'rest'});rs.textContent=line;if(color)rs.setAttribute('fill',color);tt.appendChild(rs);g.appendChild(tt)})}
+function addWrapped(g,text,cx,cy,maxW,cls,color='',fontSize=null){const lines=wrap(text,Math.max(9,Math.floor(maxW/7))).slice(0,5),lh=12,sy=cy-(lines.length-1)*lh/2;lines.forEach((line,i)=>addText(g,line,cx,sy+i*lh,cls,color,fontSize))}
+function addActivityText(g,s,cx,cy,w,color=''){const parts=String(s.text).trim().split(/\s+/),verb=(parts.shift()||'').toUpperCase(),rest=parts.join(' '),fs=s.fontSize||null;const t=el('text',{x:cx,y:cy-(rest?8:0),class:'node-text activity-text'});if(fs)t.setAttribute('font-size',fs);const sp=el('tspan',{class:'verb'});sp.textContent=verb;if(color)sp.setAttribute('fill',color);t.appendChild(sp);g.appendChild(t);if(rest)wrap(rest,Math.max(10,Math.floor(w/7))).slice(0,3).forEach((line,i)=>{const tt=el('text',{x:cx,y:cy+7+i*12,class:'node-text activity-text'});if(fs)tt.setAttribute('font-size',fs);const rs=el('tspan',{class:'rest'});rs.textContent=line;if(color)rs.setAttribute('fill',color);tt.appendChild(rs);g.appendChild(tt)})}
 function wrap(text,max){let words=String(text).split(/\s+/).filter(Boolean),lines=[],cur='';words.forEach(w=>{const test=cur?cur+' '+w:w;if(test.length>max&&cur){lines.push(cur);cur=w}else cur=test});if(cur)lines.push(cur);return lines}
 function laneFromY(page,y){return clamp(Math.floor(y/(H/page.lanes.length)),0,page.lanes.length-1)}
 
@@ -2270,7 +2265,7 @@ function renderInspector(){
  const page=activeFlow();
  if(state.selectedLane){
   const i=clamp(state.selectedLane.index,0,page.lanes.length-1),l=page.lanes[i];
-  box.innerHTML=`<label>Proceso<input id="laneProcessText" value="${esc(l.process)}"></label><label>Cargo / responsable<input id="laneRoleText" value="${esc(l.role)}"></label><div class="grid2"><label>Tam. proceso<input id="laneProcessSize" type="number" min="6" max="18" step=".5" value="${fontVal(l.processSize,9)}"></label><label>Tam. cargo<input id="laneRoleSize" type="number" min="6" max="18" step=".5" value="${fontVal(l.roleSize,8)}"></label></div><p class="hint">Estos campos editan directamente los textos verticales de responsables, por ejemplo VENTAS, LOGÍSTICA, Asesor comercial o Coordinador logístico.</p>`;
+  box.innerHTML=`<label>Proceso<input id="laneProcessText" value="${esc(l.process)}"></label><label>Cargo / responsable<input id="laneRoleText" value="${esc(l.role)}"></label><div class="grid2"><label>Tam. proceso<input id="laneProcessSize" type="number" min="6" max="18" step=".5" value="${fontVal(l.processSize,9)}"></label><label>Tam. cargo<input id="laneRoleSize" type="number" min="6" max="18" step=".5" value="${fontVal(l.roleSize,8)}"></label></div><p class="hint">Edita los textos verticales de responsables, por ejemplo VENTAS, LOGÍSTICA, Asesor comercial o Coordinador logístico.</p>`;
   $('laneProcessText').onchange=e=>{pushHistory();l.process=e.target.value;render()};
   $('laneRoleText').onchange=e=>{pushHistory();l.role=e.target.value;render()};
   $('laneProcessSize').onchange=e=>{pushHistory();l.processSize=+e.target.value||9;render()};
@@ -2280,7 +2275,7 @@ function renderInspector(){
  if(state.selectedEdge){
   const e=page.edges.find(x=>x.id===state.selectedEdge);
   if(!e){box.innerHTML='Flecha no encontrada.';return}
-  box.innerHTML=`<label>Etiqueta<input id="edgeLabel" value="${esc(e.label||'')}"></label><div class="grid2"><label>Tamaño texto<input id="edgeLabelSize" type="number" min="7" max="24" step=".5" value="${fontVal(e.labelSize,12)}"></label><label>Grosor<input id="edgeWidth" type="number" min="1" max="8" step=".2" value="${e.width||1.8}"></label></div><div class="grid2"><label>Estilo<select id="edgeStyle"><option value="solid">Continua</option><option value="dashed">Guiones</option><option value="dotted">Puntos</option></select></label><label>Punta<select id="edgeArrow"><option value="end">Final</option><option value="none">Sin punta</option></select></label></div><label>Color<input id="edgeColor" type="color" value="${normColor(e.color)}"></label><div class="actions"><button id="autoCut">Corte automático</button><button id="manualCut">+ Corte manual</button><button id="removePoint">Eliminar corte</button><button id="cleanCuts">Limpiar dobleces</button><button id="straighten">Enderezar</button><button id="disconnect">Desconectar</button><button id="reverseEdge">Invertir</button></div><p class="hint">Puedes ajustar el tamaño de SI, NO o cualquier etiqueta de flecha desde Tamaño texto.</p>`;
+  box.innerHTML=`<label>Etiqueta<input id="edgeLabel" value="${esc(e.label||'')}"></label><div class="grid2"><label>Tamaño texto<input id="edgeLabelSize" type="number" min="7" max="24" step=".5" value="${fontVal(e.labelSize,12)}"></label><label>Grosor<input id="edgeWidth" type="number" min="1" max="8" step=".2" value="${e.width||1.8}"></label></div><div class="grid2"><label>Estilo<select id="edgeStyle"><option value="solid">Continua</option><option value="dashed">Guiones</option><option value="dotted">Puntos</option></select></label><label>Punta<select id="edgeArrow"><option value="end">Final</option><option value="none">Sin punta</option></select></label></div><label>Color<input id="edgeColor" type="color" value="${normColor(e.color)}"></label><div class="actions"><button id="autoCut">Corte automático</button><button id="manualCut">+ Corte manual</button><button id="removePoint">Eliminar corte</button><button id="cleanCuts">Limpiar dobleces</button><button id="straighten">Enderezar</button><button id="disconnect">Desconectar</button><button id="reverseEdge">Invertir</button></div>`;
   $('edgeStyle').value=e.style||'solid';$('edgeArrow').value=e.arrow||'end';
   $('edgeLabel').onchange=ev=>{pushHistory();e.label=ev.target.value;render()};
   $('edgeLabelSize').onchange=ev=>{pushHistory();e.labelSize=+ev.target.value||12;render()};
