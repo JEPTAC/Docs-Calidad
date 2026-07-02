@@ -2073,14 +2073,13 @@ function edgeDisplayPoints(page,e){
   const v=sideVector(side);
   return {x:v.x*d,y:v.y*d}
  };
- // V60: más pegadas a los cuadros, sin superponerse.
- // Aquí no usamos routeSnap para el render visual fino.
+ // V61: flechas casi unidas al cuadro, con separación mínima pero limpia.
  if(e.connStart){
-  const v=out(e.connStart.side,3);
+  const v=out(e.connStart.side,1.5);
   pts[0]={x:pts[0].x+v.x,y:pts[0].y+v.y}
  }
  if(e.connEnd){
-  const v=out(e.connEnd.side,6);
+  const v=out(e.connEnd.side,3);
   pts[pts.length-1]={x:pts[pts.length-1].x+v.x,y:pts[pts.length-1].y+v.y}
  }
  return pts
