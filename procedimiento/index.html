@@ -1558,6 +1558,7 @@ function bestAnchor(a,b){const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.
 function anchor(s,side){return{left:{x:s.x,y:s.y+s.h/2},right:{x:s.x+s.w,y:s.y+s.h/2},top:{x:s.x+s.w/2,y:s.y},bottom:{x:s.x+s.w/2,y:s.y+s.h}}[side]}
 function sideVector(side){return{left:{x:-1,y:0},right:{x:1,y:0},top:{x:0,y:-1},bottom:{x:0,y:1}}[side]||{x:1,y:0}}
 function nudgePoint(p,side,d=18){const v=sideVector(side);return{x:p.x+v.x*d,y:p.y+v.y*d,side:p.side}}
+function arrowDockPoint(p,side,gap=10){const v=sideVector(side);return{x:p.x+v.x*gap,y:p.y+v.y*gap,side:p.side}}
 function cleanRoute(points){
  let pts=cleanPoints(points).map(p=>({x:routeSnap(p.x),y:routeSnap(p.y)}));
  pts=pts.filter((p,i)=>i===0||Math.abs(p.x-pts[i-1].x)>1||Math.abs(p.y-pts[i-1].y)>1);
@@ -1584,7 +1585,8 @@ function routeCore(a,b,startSide,endSide){
 function routeAnchors(sa,ea){
  const exit=nudgePoint(sa,sa.side,18);
  const entry=nudgePoint(ea,ea.side,18);
- return cleanRoute([sa,exit,...routeCore(exit,entry,sa.side,ea.side).slice(1,-1),entry,ea])
+ const end=arrowDockPoint(ea,ea.side,10);
+ return cleanRoute([sa,exit,...routeCore(exit,entry,sa.side,ea.side).slice(1,-1),entry,end])
 }
 function rerouteAuto(page,e){
  if(!e.connStart||!e.connEnd)return;
@@ -1597,7 +1599,7 @@ function rerouteAuto(page,e){
 function updateConnected(page,e){
  if(e.routeMode==='auto'&&e.connStart&&e.connEnd){rerouteAuto(page,e);return}
  if(e.connStart){const s=page.shapes.find(x=>x.id===e.connStart.nodeId);if(s&&e.points[0])e.points[0]=anchor(s,e.connStart.side)}
- if(e.connEnd){const s=page.shapes.find(x=>x.id===e.connEnd.nodeId);if(s&&e.points.at(-1))e.points[e.points.length-1]=anchor(s,e.connEnd.side)}
+ if(e.connEnd){const s=page.shapes.find(x=>x.id===e.connEnd.nodeId);if(s&&e.points.at(-1))e.points[e.points.length-1]=arrowDockPoint(anchor(s,e.connEnd.side),e.connEnd.side,10)}
  e.points=cleanRoute(e.points)
 }
 
@@ -1889,7 +1891,7 @@ function renderLaneEditor(){
  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(page.lanes.length<=1)return;pushHistory();page.lanes.splice(+b.dataset.del,1);page.shapes.forEach(s=>s.lane=clamp(s.lane,0,page.lanes.length-1));state.selectedLane=null;render()})
 }
 function defs(){return`<defs>
-  <marker id="arrow" markerWidth="7" markerHeight="7" refX="2.2" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 z" fill="#1D2939"/></marker>
+  <marker id="arrow" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4 L0,8 z" fill="#1D2939"/></marker>
   <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F2F5FA"/></linearGradient>
   <linearGradient id="softBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FBFF"/><stop offset="1" stop-color="#EAF0FF"/></linearGradient>
   <linearGradient id="softYellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFBE8"/><stop offset="1" stop-color="#FFF1A6"/></linearGradient>
