@@ -1332,6 +1332,7 @@ button.primary{
   font-size:12px!important;
   font-weight:900!important;
   letter-spacing:.02em!important;
+  dominant-baseline:middle!important;
 }
 .edge-label-bg{
   display:block;
@@ -1368,6 +1369,11 @@ button.primary{
   font-weight:900;
 }
 
+
+.flow-head .flow-head-cell{cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.flow-head .flow-head-cell:hover{background:rgba(0,55,138,.06)}
+.flow-head .flow-head-cell.selected{outline:2px dashed rgba(124,58,237,.65);outline-offset:-2px}
+
 </style>
 </head>
 <body>
@@ -1401,6 +1407,8 @@ button.primary{
 <label>Título<textarea id="docTitle" rows="3"></textarea></label>
 <div class="grid2"><label>Código<input id="docCode"></label><label>Versión<input id="docVersion"></label></div>
 <div class="grid2"><label>Tam. título<input id="docTitleSize" type="number" min="8" max="22" step=".5"></label><label>Tam. código/versión<input id="docMetaSize" type="number" min="8" max="20" step=".5"></label></div>
+<div class="grid2"><label>Texto recuadro izq.<input id="flowHeadLeft"></label><label>Texto recuadro der.<input id="flowHeadRight"></label></div>
+<div class="grid2"><label>Tam. recuadro izq.<input id="flowHeadLeftSize" type="number" min="8" max="22" step=".5"></label><label>Tam. recuadro der.<input id="flowHeadRightSize" type="number" min="8" max="22" step=".5"></label></div>
 <div class="grid2"><label>Fecha<input id="autoDate" readonly></label><label>Páginas<input id="autoPages" readonly></label></div>
 </section>
 <section class="panel"><h2>Páginas</h2>
@@ -1534,7 +1542,7 @@ function demo(){
  const n1=shape('start','INICIO',66,86,0),n2=shape('activity','RECEPCIONAR solicitud',170,62,0),n3=shape('activity','ENVIAR solicitud',338,62,0),n4=shape('decision','¿HAY CABLE disponible?',500,44,0),n5=shape('activity','INFORMAR novedad',656,62,0),n6=shape('activity','VERIFICAR disponibilidad en sistema',210,250,1),n7=shape('activity','REALIZAR compromiso en ERP',400,250,1),n8=shape('activity','REALIZAR corte',590,426,2),n9=shape('offpage','A',760,433,2);
  let p={id:uid(),lanes:[{process:'VENTAS',role:'Asesor comercial',processSize:9,roleSize:8},{process:'LOGÍSTICA',role:'Coordinador logístico',processSize:9,roleSize:8},{process:'LOGÍSTICA',role:'Auxiliares de corte',processSize:9,roleSize:8}],shapes:[n1,n2,n3,n4,n5,n6,n7,n8,n9],edges:[]};
  p.edges=[connect(p,n1.id,n2.id),connect(p,n2.id,n3.id),connect(p,n3.id,n4.id),connect(p,n4.id,n5.id,'NO'),connect(p,n4.id,n6.id,'SI'),connect(p,n6.id,n7.id),connect(p,n7.id,n8.id),connect(p,n8.id,n9.id)];
- return{zoom:.78,grid:true,snap:true,activePage:0,selected:[],selectedEdge:null,selectedPoint:null,selectedLane:null,doc:{title:'PROCEDIMIENTO PARA LA GESTIÓN Y EJECUCIÓN DE CORTE DE CABLES',code:'S-PR-9',version:'Versión 1',date:today(),titleSize:12.5,metaSize:13,footerSize:12},flowPages:[p],finalPage:defaultFinalHtml()}
+ return{zoom:.78,grid:true,snap:true,activePage:0,selected:[],selectedEdge:null,selectedPoint:null,selectedLane:null,doc:{title:'PROCEDIMIENTO PARA LA GESTIÓN Y EJECUCIÓN DE CORTE DE CABLES',code:'S-PR-9',version:'Versión 1',date:today(),titleSize:12.5,metaSize:13,footerSize:12,flowHeadLeft:'RESPONSABLE',flowHeadRight:'FLUJOGRAMA',flowHeadLeftSize:12,flowHeadRightSize:12},flowPages:[p],finalPage:defaultFinalHtml()}
 }
 function connect(page,from,to,label=''){
  const a=page.shapes.find(s=>s.id===from),b=page.shapes.find(s=>s.id===to);
@@ -1549,7 +1557,7 @@ function connect(page,from,to,label=''){
 function bestAnchor(a,b){const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2);const side=Math.abs(dx)>=Math.abs(dy)?(dx>=0?'right':'left'):(dy>=0?'bottom':'top');return{...anchor(a,side),side}}
 function anchor(s,side){return{left:{x:s.x,y:s.y+s.h/2},right:{x:s.x+s.w,y:s.y+s.h/2},top:{x:s.x+s.w/2,y:s.y},bottom:{x:s.x+s.w/2,y:s.y+s.h}}[side]}
 function sideVector(side){return{left:{x:-1,y:0},right:{x:1,y:0},top:{x:0,y:-1},bottom:{x:0,y:1}}[side]||{x:1,y:0}}
-function nudgePoint(p,side,d=30){const v=sideVector(side);return{x:p.x+v.x*d,y:p.y+v.y*d,side:p.side}}
+function nudgePoint(p,side,d=18){const v=sideVector(side);return{x:p.x+v.x*d,y:p.y+v.y*d,side:p.side}}
 function cleanRoute(points){
  let pts=cleanPoints(points).map(p=>({x:routeSnap(p.x),y:routeSnap(p.y)}));
  pts=pts.filter((p,i)=>i===0||Math.abs(p.x-pts[i-1].x)>1||Math.abs(p.y-pts[i-1].y)>1);
@@ -1574,8 +1582,8 @@ function routeCore(a,b,startSide,endSide){
  return[a,{x:a.x,y:b.y},b]
 }
 function routeAnchors(sa,ea){
- const exit=nudgePoint(sa,sa.side,30);
- const entry=nudgePoint(ea,ea.side,30);
+ const exit=nudgePoint(sa,sa.side,18);
+ const entry=nudgePoint(ea,ea.side,18);
  return cleanRoute([sa,exit,...routeCore(exit,entry,sa.side,ea.side).slice(1,-1),entry,ea])
 }
 function rerouteAuto(page,e){
@@ -1610,7 +1618,7 @@ function exportPdfClean(){
   },120);
 }
 function bind(){
- ['docTitle','docCode','docVersion','docTitleSize','docMetaSize'].forEach(id=>{const el=$(id); if(el)el.addEventListener('change',e=>{pushHistory();state.doc[{docTitle:'title',docCode:'code',docVersion:'version',docTitleSize:'titleSize',docMetaSize:'metaSize'}[id]]=id.includes('Size')?(+e.target.value||state.doc[{docTitleSize:'titleSize',docMetaSize:'metaSize'}[id]]):e.target.value;render()})});
+ ['docTitle','docCode','docVersion','docTitleSize','docMetaSize','flowHeadLeft','flowHeadRight','flowHeadLeftSize','flowHeadRightSize'].forEach(id=>{const el=$(id); if(el)el.addEventListener('change',e=>{pushHistory(); const map={docTitle:'title',docCode:'code',docVersion:'version',docTitleSize:'titleSize',docMetaSize:'metaSize',flowHeadLeft:'flowHeadLeft',flowHeadRight:'flowHeadRight',flowHeadLeftSize:'flowHeadLeftSize',flowHeadRightSize:'flowHeadRightSize'}; const k=map[id]; state.doc[k]=id.includes('Size')?(+e.target.value||state.doc[k]):e.target.value; render()})});
  document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addShape(b.dataset.add));document.querySelectorAll('[data-object]').forEach(b=>b.onclick=()=>addObjectFromLibrary(b.dataset.object));const objectSearch=$('objectSearch'); if(objectSearch)objectSearch.oninput=()=>{const q=objectSearch.value.toLowerCase();document.querySelectorAll('[data-object]').forEach(b=>b.style.display=b.textContent.toLowerCase().includes(q)?'':'none')};
  $('toggleGrid').onclick=()=>{state.grid=!state.grid;renderCanvases()};$('snapToggle').onclick=()=>{state.snap=!state.snap;render()};
  $('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('duplicateBtn').onclick=duplicateSelection;$('deleteBtn').onclick=deleteSelection;
@@ -1690,6 +1698,10 @@ function renderDoc(){
  $('docVersion').value=state.doc.version;
  const t=$('docTitleSize'); if(t)t.value=fontVal(state.doc.titleSize,12.5);
  const m=$('docMetaSize'); if(m)m.value=fontVal(state.doc.metaSize,13);
+ const fhl=$('flowHeadLeft'); if(fhl)fhl.value=state.doc.flowHeadLeft||'RESPONSABLE';
+ const fhr=$('flowHeadRight'); if(fhr)fhr.value=state.doc.flowHeadRight||'FLUJOGRAMA';
+ const fhls=$('flowHeadLeftSize'); if(fhls)fhls.value=fontVal(state.doc.flowHeadLeftSize,12);
+ const fhrs=$('flowHeadRightSize'); if(fhrs)fhrs.value=fontVal(state.doc.flowHeadRightSize,12);
  $('autoDate').value=state.doc.date;
  $('autoPages').value=totalPages()+' páginas'
 }
@@ -1772,7 +1784,11 @@ function renderPages(){
  state.flowPages.forEach((p,i)=>mount.appendChild(flowPageEl(p,i)));
  ensureFinalPages().forEach((p,i)=>mount.appendChild(finalPageEl(i)));
  renderCanvases();
- mount.querySelectorAll('[data-doc-text]').forEach(el=>el.onclick=ev=>{ev.stopPropagation();selectDocText(el.dataset.docText)})
+ mount.querySelectorAll('[data-doc-text]').forEach(el=>el.onclick=ev=>{ev.stopPropagation();selectDocText(el.dataset.docText)});
+ mount.querySelectorAll('[data-flow-head]').forEach(el=>el.onclick=ev=>{ev.stopPropagation();selectFlowHead(el.dataset.flowHead)});
+ mount.querySelectorAll('.flow-head .flow-head-cell').forEach(el=>{
+   if(state.selectedFlowHead && el.dataset.flowHead===state.selectedFlowHead) el.classList.add('selected');
+ });
 }
 function pageBase(idx){
  const page=document.createElement('div');
@@ -1782,7 +1798,13 @@ function pageBase(idx){
  page.innerHTML=`<div class="page-frame"></div><div class="header"><div class="logo-cell"><img src="${LOGO_DATA}"></div><div class="title-cell editable-doc-text" data-doc-text="title" style="font-size:${titleSize}px">${esc(state.doc.title)}</div><div class="meta-cell editable-doc-text" data-doc-text="meta" style="font-size:${metaSize}px"><div>${esc(state.doc.code)}</div><div>${esc(state.doc.version)}</div></div></div><div class="footer" style="font-size:${footerSize}px"><div>${esc(state.doc.date)}</div><div>Pág. ${idx+1} de ${totalPages()}</div></div>`;
  return page
 }
-function flowPageEl(pageData,idx){const page=pageBase(idx);page.innerHTML+=`<div class="flow-head"><div>RESPONSABLE</div><div>FLUJOGRAMA</div></div><div class="resp-col" data-resp="${idx}"></div><div class="flow-box ${state.grid?'grid-on':''}" data-flowbox="${idx}"><svg class="flow-canvas" data-canvas="${idx}" viewBox="0 0 850 580" preserveAspectRatio="none"></svg></div>`;return page}
+function flowPageEl(pageData,idx){
+ const page=pageBase(idx);
+ const leftText=esc(state.doc.flowHeadLeft||'RESPONSABLE'), rightText=esc(state.doc.flowHeadRight||'FLUJOGRAMA');
+ const leftSize=fontVal(state.doc.flowHeadLeftSize,12), rightSize=fontVal(state.doc.flowHeadRightSize,12);
+ page.innerHTML+=`<div class="flow-head"><div class="flow-head-cell" data-flow-head="left" style="font-size:${leftSize}px">${leftText}</div><div class="flow-head-cell" data-flow-head="right" style="font-size:${rightSize}px">${rightText}</div></div><div class="resp-col" data-resp="${idx}"></div><div class="flow-box ${state.grid?'grid-on':''}" data-flowbox="${idx}"><svg class="flow-canvas" data-canvas="${idx}" viewBox="0 0 850 580" preserveAspectRatio="none"></svg></div>`;
+ return page
+}
 function finalPageEl(finalIdx=0){
  const idx=state.flowPages.length+finalIdx, f=getFinalPage(finalIdx), page=pageBase(idx);
  page.classList.add('final-page');
@@ -1801,15 +1823,36 @@ function selectLane(idx,field='process'){
  state.selectedEdge=null;
  state.selectedPoint=null;
  state.selectedLane={index:idx,field};
+ state.selectedFlowHead=null;
  renderInspector();
  renderLanes();
  renderCanvases()
+}
+
+function selectFlowHead(side='left'){
+ state.selected=[];
+ state.selectedEdge=null;
+ state.selectedPoint=null;
+ state.selectedLane=null;
+ state.selectedFlowHead=side;
+ renderInspectorFlowHead(side);
+ renderCanvases();
+}
+function renderInspectorFlowHead(side='left'){
+ const box=$('inspector');
+ const isLeft=side==='left';
+ const textKey=isLeft?'flowHeadLeft':'flowHeadRight';
+ const sizeKey=isLeft?'flowHeadLeftSize':'flowHeadRightSize';
+ box.innerHTML=`<label>Texto del recuadro<input id="flowHeadTextEdit" value="${esc(state.doc[textKey]||'')}"></label><label>Tamaño<input id="flowHeadSizeEdit" type="number" min="8" max="22" step=".5" value="${fontVal(state.doc[sizeKey],12)}"></label><p class="hint">Edita el texto y tamaño del recuadro ${isLeft?'izquierdo':'derecho'} del encabezado del flujograma.</p>`;
+ $('flowHeadTextEdit').onchange=e=>{pushHistory();state.doc[textKey]=e.target.value;render()};
+ $('flowHeadSizeEdit').onchange=e=>{pushHistory();state.doc[sizeKey]=+e.target.value||12;render()};
 }
 function selectDocText(kind='title'){
  state.selected=[];
  state.selectedEdge=null;
  state.selectedPoint=null;
  state.selectedLane=null;
+ state.selectedFlowHead=null;
  renderInspectorDocText(kind)
 }
 function renderLaneForPage(page,idx){
@@ -1846,7 +1889,7 @@ function renderLaneEditor(){
  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(page.lanes.length<=1)return;pushHistory();page.lanes.splice(+b.dataset.del,1);page.shapes.forEach(s=>s.lane=clamp(s.lane,0,page.lanes.length-1));state.selectedLane=null;render()})
 }
 function defs(){return`<defs>
-  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#1D2939"/></marker>
+  <marker id="arrow" markerWidth="7" markerHeight="7" refX="2.2" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 z" fill="#1D2939"/></marker>
   <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F2F5FA"/></linearGradient>
   <linearGradient id="softBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FBFF"/><stop offset="1" stop-color="#EAF0FF"/></linearGradient>
   <linearGradient id="softYellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFBE8"/><stop offset="1" stop-color="#FFF1A6"/></linearGradient>
@@ -1869,6 +1912,7 @@ function svgDown(ev,svg,page,idx){
   state.selected=[];
   state.selectedEdge=null;
   state.selectedPoint=null;
+  state.selectedFlowHead=null;
   render()
  }
 }
@@ -1914,8 +1958,8 @@ function addDecisionArrow(label){
  const isNo=String(label).toUpperCase()==='NO';
  const side=isNo?'bottom':'right';
  const a={...anchor(s,side),side};
- const exit=nudgePoint(a,side,34);
- const end=isNo?{x:exit.x,y:exit.y+110}:{x:exit.x+130,y:exit.y};
+ const exit=nudgePoint(a,side,18);
+ const end=isNo?{x:exit.x,y:exit.y+100}:{x:exit.x+120,y:exit.y};
  const e=edge(cleanRoute([a,exit,end]),label);
  e.connStart={nodeId:s.id,side};
  e.routeMode='manual';
@@ -1923,6 +1967,7 @@ function addDecisionArrow(label){
  state.selected=[];
  state.selectedEdge=e.id;
  state.selectedPoint=null;
+ state.selectedFlowHead=null;
  render()
 }
 
@@ -1948,6 +1993,31 @@ function edgeLabelBox(svg,label,m){
  const w=Math.max(26,text.length*8+16),h=18;
  return el('rect',{x:m.x-w/2,y:m.y-18,width:w,height:h,rx:9,ry:9,class:'edge-label-bg'})
 }
+
+function edgeLabelPoint(e,label){
+ const pts=cleanPoints(e.points);
+ if(pts.length<2)return {x:0,y:0,anchor:'middle'};
+ let segIndex=0;
+ let bestLen=-1;
+ for(let i=0;i<pts.length-1;i++){
+  const a=pts[i], b=pts[i+1], len=Math.hypot(b.x-a.x,b.y-a.y);
+  if(len>bestLen){bestLen=len;segIndex=i}
+ }
+ const a=pts[segIndex], b=pts[segIndex+1];
+ const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+ const dx=b.x-a.x, dy=b.y-a.y;
+ const upper=String(label||'').trim().toUpperCase();
+ if(upper==='SI' || upper==='NO'){
+   if(Math.abs(dx)>=Math.abs(dy)){
+     const y = my + (upper==='SI' ? -12 : 14);
+     return {x:mx,y,anchor:'middle'};
+   }
+   const x = mx + (dx>=0 ? 14 : -14);
+   return {x,y:my,anchor:dx>=0?'start':'end'};
+ }
+ if(Math.abs(dx)>=Math.abs(dy)) return {x:mx,y:my-5,anchor:'middle'};
+ return {x:mx+14,y:my,anchor:'start'};
+}
 function drawEdge(svg,page,e,idx){
  updateConnected(page,e);
  e.points=cleanRoute(e.points);
@@ -1959,15 +2029,15 @@ function drawEdge(svg,page,e,idx){
  svg.appendChild(path);svg.appendChild(hit);
  const label=String(e.label||'').trim();
  if(label){
-  const m=pathMidPoint(e.points), upper=label.toUpperCase();
-  if(!['SI','NO'].includes(upper))svg.appendChild(edgeLabelBox(svg,label,m));
-  const t=el('text',{x:m.x,y:m.y-5,class:'edge-label '+(['SI','NO'].includes(upper)?'decision-edge-label':''),'text-anchor':'middle','font-size':fontVal(e.labelSize,12)});
+  const pos=edgeLabelPoint(e,label), upper=label.toUpperCase();
+  if(!['SI','NO'].includes(upper))svg.appendChild(edgeLabelBox(svg,label,{x:pos.x,y:pos.y+13}));
+  const t=el('text',{x:pos.x,y:pos.y,class:'edge-label '+(['SI','NO'].includes(upper)?'decision-edge-label':''),'text-anchor':pos.anchor,'font-size':fontVal(e.labelSize,12)});
   t.textContent=label;
   svg.appendChild(t)
  }
  if(state.selectedEdge===e.id&&state.activePage===idx)edgeControls(svg,e)
 }
-function edgeSelect(ev,e,idx){ev.stopPropagation();state.activePage=idx;state.selected=[];state.selectedEdge=e.id;state.selectedPoint=null;state.selectedLane=null;renderInspector();renderCanvases()}
+function edgeSelect(ev,e,idx){ev.stopPropagation();state.activePage=idx;state.selected=[];state.selectedEdge=e.id;state.selectedPoint=null;state.selectedLane=null;state.selectedFlowHead=null;renderInspector();renderCanvases()}
 function edgeControls(svg,e){
  e.points.forEach((p,i)=>{
   const c=el('circle',{cx:p.x,cy:p.y,r:7,class:i===0||i===e.points.length-1?'edge-end':'edge-point'});
@@ -2091,11 +2161,11 @@ function shapeDown(ev,svg,page,s,idx){
  state.activePage=idx;
  if(s.hidden)return;
  if(tool==='connect'){
-  if(!connectFrom){connectFrom=s.id;state.selected=[s.id];state.selectedEdge=null;render()}
+  if(!connectFrom){connectFrom=s.id;state.selected=[s.id];state.selectedEdge=null;state.selectedFlowHead=null;render()}
   else if(connectFrom!==s.id){pushHistory();page.edges.push(connect(page,connectFrom,s.id));connectFrom=null;state.selected=[];setTool('select');render()}
   return
  }
- if(s.locked){state.selected=[s.id];state.selectedEdge=null;state.selectedPoint=null;renderInspector();renderCanvases();return}
+ if(s.locked){state.selected=[s.id];state.selectedEdge=null;state.selectedFlowHead=null;state.selectedPoint=null;renderInspector();renderCanvases();return}
  const resizing=ev.target.classList&&ev.target.classList.contains('resize-handle');
  if(ev.shiftKey){if(!state.selected.includes(s.id))state.selected.push(s.id)}
  else if(s.groupId){state.selected=page.shapes.filter(x=>x.groupId===s.groupId).map(x=>x.id)}
@@ -2379,6 +2449,10 @@ function normalize(){
  if(state.doc.titleSize===undefined)state.doc.titleSize=12.5;
  if(state.doc.metaSize===undefined)state.doc.metaSize=13;
  if(state.doc.footerSize===undefined)state.doc.footerSize=12;
+ if(state.doc.flowHeadLeft===undefined)state.doc.flowHeadLeft='RESPONSABLE';
+ if(state.doc.flowHeadRight===undefined)state.doc.flowHeadRight='FLUJOGRAMA';
+ if(state.doc.flowHeadLeftSize===undefined)state.doc.flowHeadLeftSize=12;
+ if(state.doc.flowHeadRightSize===undefined)state.doc.flowHeadRightSize=12;
  if(!state.finalPages||!Array.isArray(state.finalPages)||!state.finalPages.length){
   if(!state.finalPage)state.finalPage=defaultFinalHtml();
   if(state.finalPage.left||state.finalPage.right)state.finalPage=defaultFinalHtml();
