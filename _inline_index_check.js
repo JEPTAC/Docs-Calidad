@@ -191,14 +191,37 @@ function cleanSectionNumber(n,fallback=''){
   const s=String(n??'').trim().replace(/\.+$/,'');
   return s || String(fallback||'');
 }
+
+function isControlChangesTitle(t){
+  return String(t||'')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .toUpperCase()
+    .includes('CONTROL DE CAMBIOS');
+}
+function controlChangeVersion(item){
+  return String(item?.changeVersion || doc.version || 'Versión 1');
+}
+function controlChangesTableHtml(item){
+  return `<table class="control-change-table">
+    <tr><th>Versión</th><th>Cambios</th></tr>
+    <tr><td>${esc(controlChangeVersion(item))}</td><td>${esc(item?.c||'')}</td></tr>
+  </table>`;
+}
+function sectionContentHtml(item, isSub=false){
+  if(isControlChangesTitle(item?.t)) return controlChangesTableHtml(item);
+  const cls=isSub?'sgc-subsection-content':'sgc-section-content';
+  return String(item?.c||'').trim()?`<div class="${cls}">${esc(item.c)}</div>`:'';
+}
 function ensureWordSubtitles(){
   doc.sections=doc.sections||[];
   doc.sections=doc.sections.map((s,i)=>{
-    const sec={n:String(s.n??(i+1)),t:s.t||'',c:s.c||'',sub:Array.isArray(s.sub)?s.sub:[]};
+    const sec={n:String(s.n??(i+1)),t:s.t||'',c:s.c||'',changeVersion:s.changeVersion||doc.version||'Versión 1',sub:Array.isArray(s.sub)?s.sub:[]};
     sec.sub=sec.sub.map((ss,j)=>({
       n:cleanSectionNumber(ss.n,`${cleanSectionNumber(sec.n,i+1)}.${j+1}`),
       t:ss.t||'',
-      c:ss.c||''
+      c:ss.c||'',
+      changeVersion:ss.changeVersion||doc.version||'Versión 1'
     }));
     return sec
   });
@@ -248,8 +271,8 @@ function sgcSectionsHtml(){
   ensureWordSubtitles();
   return doc.sections.map((s,i)=>{
     const secNo=cleanSectionNumber(s.n,i+1);
-    const subs=(s.sub||[]).map((ss,j)=>`<div class="sgc-subsection-block"><div class="sgc-subsection-title">${esc(cleanSectionNumber(ss.n,`${secNo}.${j+1}`))}&nbsp;&nbsp;${esc(ss.t)}</div>${String(ss.c||'').trim()?`<div class="sgc-subsection-content">${esc(ss.c)}</div>`:''}</div>`).join('');
-    return `<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(secNo)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${String(s.c||'').trim()?`<div class="sgc-section-content">${esc(s.c)}</div>`:''}${subs}</div>`;
+    const subs=(s.sub||[]).map((ss,j)=>`<div class="sgc-subsection-block"><div class="sgc-subsection-title">${esc(cleanSectionNumber(ss.n,`${secNo}.${j+1}`))}&nbsp;&nbsp;${esc(ss.t)}</div>${sectionContentHtml(ss,true)}</div>`).join('');
+    return `<div class="sgc-section-block"><div class="sgc-section-title"><span>${esc(secNo)}</span>&nbsp;&nbsp;${esc(s.t)}</div>${sectionContentHtml(s,false)}${subs}</div>`;
   }).join('');
 }
 function renderWordTypeTools(){
@@ -280,30 +303,42 @@ function renderWordSectionEditor(){
   ensureWordSubtitles();
   const sections=doc.sections||[];
   box.innerHTML=sections.map((s,i)=>{
-    const subHtml=(s.sub||[]).map((ss,j)=>`<div class="word-subsection-card">
-      <div class="word-subsection-card-title"><span>Subtítulo ${esc(ss.n)}</span><button class="danger" onclick="removeWordSubsection(${i},${j})">Eliminar subtítulo</button></div>
-      <div class="grid2">
-        <label>Número<input data-word-sub-n="${i}-${j}" value="${esc(ss.n)}"></label>
-        <label>Subtítulo<input data-word-sub-t="${i}-${j}" value="${esc(ss.t)}"></label>
-      </div>
-      <label>Contenido del subtítulo<textarea rows="3" data-word-sub-c="${i}-${j}">${esc(ss.c||'')}</textarea></label>
-    </div>`).join('');
+    const secControl=isControlChangesTitle(s.t);
+    const secVersion=secControl?`<label>Versión del cambio<input data-word-sec-v="${i}" value="${esc(controlChangeVersion(s))}"></label>`:'';
+    const secContentLabel=secControl?'Cambios':'Contenido desde panel';
+    const subHtml=(s.sub||[]).map((ss,j)=>{
+      const subControl=isControlChangesTitle(ss.t);
+      const subVersion=subControl?`<label>Versión del cambio<input data-word-sub-v="${i}-${j}" value="${esc(controlChangeVersion(ss))}"></label>`:'';
+      const subContentLabel=subControl?'Cambios':'Contenido del subtítulo';
+      return `<div class="word-subsection-card">
+        <div class="word-subsection-card-title"><span>Subtítulo ${esc(ss.n)}</span><button class="danger" onclick="removeWordSubsection(${i},${j})">Eliminar subtítulo</button></div>
+        <div class="grid2">
+          <label>Número<input data-word-sub-n="${i}-${j}" value="${esc(ss.n)}"></label>
+          <label>Subtítulo<input data-word-sub-t="${i}-${j}" value="${esc(ss.t)}"></label>
+        </div>
+        ${subVersion}
+        <label>${subContentLabel}<textarea rows="3" data-word-sub-c="${i}-${j}">${esc(ss.c||'')}</textarea></label>
+      </div>`;
+    }).join('');
     return `<div class="word-section-card">
       <div class="word-section-card-title"><span>${wordTypeLabel(doc.wordType)} · Sección ${i+1}</span><button class="danger" onclick="removeWordSection(${i})">Eliminar</button></div>
       <div class="grid2">
         <label>Número<input data-word-sec-n="${i}" value="${esc(s.n)}"></label>
         <label>Título<input data-word-sec-t="${i}" value="${esc(s.t)}"></label>
       </div>
-      <label>Contenido desde panel<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
+      ${secVersion}
+      <label>${secContentLabel}<textarea rows="3" data-word-sec-c="${i}">${esc(s.c||'')}</textarea></label>
       <div class="actions"><button onclick="addWordSubsection(${i})">+ Subtítulo ${esc(nextSubNumber(i))}</button></div>
       <div class="word-subsection-list">${subHtml}</div>
     </div>`;
   }).join('') || '<p class="hint">Agregue una sección permitida para este tipo documental.</p>';
   box.querySelectorAll('[data-word-sec-n]').forEach(el=>el.oninput=e=>{const i=+e.target.dataset.wordSecN;doc.sections[i].n=e.target.value;renumberSubsections(i);renderWordOnly();renderWordSectionEditor()});
-  box.querySelectorAll('[data-word-sec-t]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecT].t=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sec-t]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecT].t=e.target.value;renderWordOnly();renderWordSectionEditor()});
+  box.querySelectorAll('[data-word-sec-v]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecV].changeVersion=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sec-c]').forEach(el=>el.oninput=e=>{doc.sections[+e.target.dataset.wordSecC].c=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sub-n]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubN.split('-').map(Number);doc.sections[i].sub[j].n=e.target.value;renderWordOnly()});
-  box.querySelectorAll('[data-word-sub-t]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubT.split('-').map(Number);doc.sections[i].sub[j].t=e.target.value;renderWordOnly()});
+  box.querySelectorAll('[data-word-sub-t]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubT.split('-').map(Number);doc.sections[i].sub[j].t=e.target.value;renderWordOnly();renderWordSectionEditor()});
+  box.querySelectorAll('[data-word-sub-v]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubV.split('-').map(Number);doc.sections[i].sub[j].changeVersion=e.target.value;renderWordOnly()});
   box.querySelectorAll('[data-word-sub-c]').forEach(el=>el.oninput=e=>{const [i,j]=e.target.dataset.wordSubC.split('-').map(Number);doc.sections[i].sub[j].c=e.target.value;renderWordOnly()});
 }
 function renderWordOnly(){

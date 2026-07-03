@@ -1,4 +1,9 @@
 
+const LETTERHEAD='';
+const LOGO='';
+global.document={getElementById:()=>null,querySelectorAll:()=>[],body:{classList:{toggle:()=>{}}}};
+global.window={};
+
 const $=id=>document.getElementById(id);
 let mode='home';
 let zoom=.72;
@@ -1221,9 +1226,23 @@ function createFirstStep(){
 }
 function saveJson(){const a=document.createElement('a');const b=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='documento_ei.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 function openJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{doc={...doc,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)}
-bind(); setMode('home');
-
-loadFromBrowserCache();
-render();
-
-initIntroExperience();
+try {
+  render=()=>{};
+  mode='word';
+  doc.wordType='manual';
+  doc.version='Versión 2';
+  doc.sections=[
+    {n:'1',t:'OBJETIVO',c:'Contenido objetivo',sub:[]},
+    {n:'6',t:'CONTROL DE CAMBIOS',c:'Se ajusta control de cambios a tabla.',changeVersion:'Versión 2',sub:[]}
+  ];
+  ensureWordSubtitles();
+  const html=sgcPages();
+  if(!html.includes('control-change-table')) throw new Error('No renderizó tabla de control de cambios');
+  if(!html.includes('<th>Versión</th><th>Cambios</th>')) throw new Error('No tiene encabezados Versión/Cambios');
+  if(!html.includes('Versión 2')) throw new Error('No renderizó versión');
+  if(!html.includes('Se ajusta control de cambios a tabla.')) throw new Error('No renderizó cambios');
+  console.log('RUNTIME_OK_V63', html.includes('control-change-table'), html.includes('Versión 2'));
+} catch (err) {
+  console.error(err && err.stack ? err.stack : err);
+  process.exit(1);
+}

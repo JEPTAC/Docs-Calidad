@@ -1946,3 +1946,35 @@ body.word-type-formato [data-word-circular]{
   font-weight:900;
   margin-bottom:6px;
 }
+
+
+/* V63: control de cambios como tabla */
+.control-change-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:6px 0 12px;
+  font-family:"Century Gothic","Aptos","Montserrat",Arial,sans-serif;
+  font-size:10.2pt;
+  color:#111;
+}
+
+.control-change-table th,
+.control-change-table td{
+  border:1px solid #98A2B3;
+  padding:6px 8px;
+  vertical-align:top;
+}
+
+.control-change-table th{
+  background:#001F73;
+  color:#fff;
+  font-weight:900;
+  text-align:center;
+}
+
+.control-change-table td:first-child{
+  width:1.35in;
+  text-align:center;
+  font-weight:900;
+  color:#001F73;
+}
