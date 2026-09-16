@@ -1,9 +1,9 @@
-/* ===== V66 · Premium Rich Text Layer =======================================
+/* ===== V67 · Premium Rich Text Layer =======================================
    Capa estrictamente aditiva: no modifica la maqueta SGC original.
    Añade texto enriquecido, sanitización, formato parcial, duplicado de bloques,
    conteo de palabras y exportación DOCX con formato inline.
 ============================================================================= */
-const PREMIUM_BODY_SIZE_PT=9.2;
+const PREMIUM_BODY_SIZE_PT=10.5;
 const PREMIUM_RICH_TAGS=new Set(['B','STRONG','I','EM','U','S','STRIKE','SUP','SUB','MARK','BR','A','SPAN','FONT','DIV','P']);
 const premiumSavedRanges=new WeakMap();
 
@@ -176,7 +176,7 @@ function premiumCssToHex(color){
 }
 function premiumDocxRichParagraphs(html,d,opts={}){
   const {Paragraph,TextRun,AlignmentType}=d,safe=premiumSanitizeRichHtml(html),root=document.createElement('div');root.innerHTML=safe;const groups=[[]];
-  const pushRun=(text,style={})=>{if(!text)return;const runOpts={text,font:'Century Gothic',size:20,bold:!!style.bold,italics:!!style.italics,strike:!!style.strike,superScript:!!style.sup,subScript:!!style.sub};if(style.underline)runOpts.underline={type:d.UnderlineType?.SINGLE||'single'};if(style.color)runOpts.color=style.color;if(style.highlight)runOpts.highlight='yellow';groups[groups.length-1].push(new TextRun(runOpts))};
+  const pushRun=(text,style={})=>{if(!text)return;const runOpts={text,font:'Century Gothic',size:21,bold:!!style.bold,italics:!!style.italics,strike:!!style.strike,superScript:!!style.sup,subScript:!!style.sub};if(style.underline)runOpts.underline={type:d.UnderlineType?.SINGLE||'single'};if(style.color)runOpts.color=style.color;if(style.highlight)runOpts.highlight='yellow';groups[groups.length-1].push(new TextRun(runOpts))};
   const walk=(node,style={})=>{
     if(node.nodeType===Node.TEXT_NODE){pushRun(node.nodeValue||'',style);return}
     if(node.nodeType!==Node.ELEMENT_NODE)return;const tag=node.tagName.toUpperCase(),next={...style};
@@ -186,7 +186,7 @@ function premiumDocxRichParagraphs(html,d,opts={}){
     if(tag==='A'&&d.ExternalHyperlink){const before=groups[groups.length-1],tmp=[];const old=groups[groups.length-1];groups[groups.length-1]=tmp;[...node.childNodes].forEach(ch=>walk(ch,{...next,color:next.color||'0563C1',underline:true}));groups[groups.length-1]=old;const href=premiumSafeUrl(node.getAttribute('href'));if(href&&tmp.length)before.push(new d.ExternalHyperlink({children:tmp,link:href}));else before.push(...tmp);return}
     const block=['P','DIV'].includes(tag);if(block&&groups[groups.length-1].length)groups.push([]);[...node.childNodes].forEach(ch=>walk(ch,next));if(block&&groups[groups.length-1].length)groups.push([]);
   };
-  [...root.childNodes].forEach(n=>walk(n,{}));while(groups.length&&groups[groups.length-1].length===0)groups.pop();const alignment=opts.alignment||AlignmentType?.JUSTIFIED;return (groups.length?groups:[[]]).map(runs=>new Paragraph({alignment,spacing:{after:100,line:276},children:runs.length?runs:[new TextRun({text:'',font:'Century Gothic',size:20})]}));
+  [...root.childNodes].forEach(n=>walk(n,{}));while(groups.length&&groups[groups.length-1].length===0)groups.pop();const alignment=opts.alignment||AlignmentType?.JUSTIFIED;return (groups.length?groups:[[]]).map(runs=>new Paragraph({alignment,spacing:{after:100,line:276},children:runs.length?runs:[new TextRun({text:'',font:'Century Gothic',size:21})]}));
 }
 let premiumDocxRichQueue=null;
 const premiumBaseDocxParaLines=docxParaLines;
@@ -197,7 +197,7 @@ docxParaLines=function(text,Paragraph,TextRun,opts={}){
 const premiumBaseDocxBlockNodes=docxBlockNodes;
 docxBlockNodes=async function(block,d,ctx={}){
   if(block?.type==='text'){premiumEnsureRichBlock(block);const align={left:d.AlignmentType.LEFT,center:d.AlignmentType.CENTER,right:d.AlignmentType.RIGHT,justify:d.AlignmentType.JUSTIFIED}[block.align]||d.AlignmentType.LEFT;return premiumDocxRichParagraphs(block.richText,d,{alignment:align})}
-  if(block?.type==='callout'){premiumEnsureRichBlock(block);const primary=hexNoHash(doc.wordTheme.primary),fill={info:'EAF2FF',success:'ECFDF3',warning:'FFFAEB',risk:'FEF3F2',neutral:'F2F4F7'}[block.tone]||'EAF2FF';return [new d.Table({width:{size:100,type:d.WidthType.PERCENTAGE},rows:[new d.TableRow({children:[new d.TableCell({shading:{type:d.ShadingType.CLEAR,fill},children:[new d.Paragraph({children:[new d.TextRun({text:block.title||'Nota',bold:true,font:'Century Gothic',size:20,color:primary})]}),...premiumDocxRichParagraphs(block.richText,d,{alignment:d.AlignmentType.LEFT})]})]})]})]}
+  if(block?.type==='callout'){premiumEnsureRichBlock(block);const primary=hexNoHash(doc.wordTheme.primary),fill={info:'EAF2FF',success:'ECFDF3',warning:'FFFAEB',risk:'FEF3F2',neutral:'F2F4F7'}[block.tone]||'EAF2FF';return [new d.Table({width:{size:100,type:d.WidthType.PERCENTAGE},rows:[new d.TableRow({children:[new d.TableCell({shading:{type:d.ShadingType.CLEAR,fill},children:[new d.Paragraph({children:[new d.TextRun({text:block.title||'Nota',bold:true,font:'Century Gothic',size:21,color:primary})]}),...premiumDocxRichParagraphs(block.richText,d,{alignment:d.AlignmentType.LEFT})]})]})]})]}
   return premiumBaseDocxBlockNodes(block,d,ctx);
 };
 const premiumBaseExportWordDocx=exportWordDocx;
