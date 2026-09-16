@@ -1,0 +1,88 @@
+/* V75 · Experiencia inmersiva Word Studio. Capa aislada; no modifica SGC base. */
+:root{--v75-blue:#001F73;--v75-yellow:#EAC800;--v75-ink:#182230;--v75-muted:#667085;--v75-line:#D0D5DD;--v75-soft:#F8FAFC;--v75-shadow:0 18px 48px rgba(16,24,40,.18)}
+
+/* Más espacio útil para el documento sin perder el panel. */
+body.v75-word-active .app{grid-template-columns:370px minmax(0,1fr)}
+body.v75-word-active .side{scrollbar-width:thin;scrollbar-color:#98A2B3 transparent}
+body.v75-word-active .panel{padding:11px;border-radius:15px;margin:9px 0}
+body.v75-word-active .word-studio-settings{margin-bottom:8px}
+
+/* Barra superior ampliada. */
+.v75-toolbar-group{display:flex;align-items:center;gap:5px;padding-right:7px;margin-right:2px;border-right:1px solid #D7DDE7}
+.v75-toolbar-btn{background:#fff!important;color:var(--v75-blue)!important;border:1px solid #D0D5DD!important;box-shadow:0 3px 9px rgba(16,24,40,.08)!important;padding:8px 10px!important}
+.v75-toolbar-btn:hover,.v75-toolbar-btn.active{background:var(--v75-blue)!important;border-color:var(--v75-blue)!important;color:#fff!important}
+.v75-toolbar-btn.primary-tool{background:var(--v75-blue)!important;border-color:var(--v75-blue)!important;color:#fff!important}
+.v75-toolbar-btn.primary-tool:hover{filter:brightness(1.08)}
+.v75-active-target{display:none;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px;font-weight:900;color:var(--v75-muted);padding:0 4px}
+@media(min-width:1380px){.v75-active-target{display:block}}
+
+/* Paleta de inserción flotante. */
+.v75-insert-menu{position:fixed;z-index:160;width:340px;background:#fff;border:1px solid #D0D5DD;border-radius:15px;box-shadow:var(--v75-shadow);padding:10px;display:none}
+.v75-insert-menu.open{display:block;animation:v75Pop .14s ease-out}
+.v75-insert-menu-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 4px 8px;border-bottom:1px solid #E4E7EC;margin-bottom:8px}
+.v75-insert-menu-head strong{font-size:11px;color:var(--v75-blue)}.v75-insert-menu-head span{font-size:9px;color:var(--v75-muted)}
+.v75-insert-section{margin:7px 0}.v75-insert-section>span{display:block;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--v75-muted);margin:0 0 5px 2px}
+.v75-insert-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.v75-insert-grid button{justify-content:flex-start;background:#fff!important;border:1px solid #D0D5DD!important;color:var(--v75-blue)!important;box-shadow:none!important;padding:7px 8px!important;font-size:10px!important}
+.v75-insert-grid button:hover{background:#F8FAFC!important;border-color:var(--v75-blue)!important}
+.v75-insert-grid button b{display:inline-grid;place-items:center;min-width:23px;height:23px;border-radius:7px;background:#F2F4F7;color:var(--v75-blue);font-size:10px}
+
+/* Inserción compacta dentro de secciones/subsecciones. */
+.v75-compact-insert{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:7px 8px!important;margin:7px 0!important;background:#F8FAFC!important;border:1px dashed #B8C3D6!important;border-radius:10px!important}
+.v75-compact-insert span{font-size:9px!important;color:var(--v75-muted)!important;font-weight:700!important}
+.v75-compact-insert button{background:#fff!important;color:var(--v75-blue)!important;border:1px solid #D0D5DD!important;box-shadow:none!important;padding:6px 9px!important;font-size:9px!important}
+.v75-compact-insert button:hover{background:var(--v75-blue)!important;color:#fff!important;border-color:var(--v75-blue)!important}
+
+/* Editores de bloque tipo acordeón: una sola herramienta abierta a la vez. */
+.word-block-editor.v75-collapsible{padding:0!important;overflow:hidden;border-radius:12px!important;background:#fff!important;border:1px solid #D0D5DD!important;box-shadow:0 2px 8px rgba(16,24,40,.05)!important}
+.word-block-editor.v75-collapsible>.word-block-editor-head{margin:0!important;padding:8px 9px!important;background:#F8FAFC!important;border-bottom:0!important;cursor:pointer;position:relative}
+.word-block-editor.v75-collapsible>.word-block-editor-head:after{content:'⌄';display:grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--v75-blue);font-size:12px;margin-left:auto;order:2}
+.word-block-editor.v75-collapsible.v75-open>.word-block-editor-head{border-bottom:1px solid #E4E7EC!important}
+.word-block-editor.v75-collapsible.v75-open>.word-block-editor-head:after{content:'⌃'}
+.word-block-editor.v75-collapsible>.v75-editor-content{display:none;padding:8px 9px 10px}
+.word-block-editor.v75-collapsible.v75-open>.v75-editor-content{display:block;animation:v75Fade .14s ease-out}
+.word-block-editor.v75-collapsible>.word-block-editor-head>div{order:3}
+.word-block-editor.v75-collapsible>.word-block-editor-head>strong{order:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Resumen compacto de diagramas en el panel izquierdo. */
+.v75-diagram-summary{padding:0!important;overflow:hidden;border:1px solid #B8C3D6!important;background:#fff!important}
+.v75-diagram-summary .word-block-editor-head{margin:0!important;padding:8px 9px!important;background:#F8FAFC!important;border-bottom:1px solid #E4E7EC!important}
+.v75-diagram-summary-body{padding:9px}
+.v75-diagram-summary-top{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:7px}.v75-diagram-summary-top label{margin:0!important}
+.v75-diagram-summary-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:7px 0}
+.v75-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#F2F4F7;color:#475467;padding:4px 7px;font-size:8px;font-weight:900}
+.v75-chip.blue{background:#EEF2FA;color:var(--v75-blue)}
+.v75-open-diagram{width:100%;margin-top:5px;background:var(--v75-blue)!important;color:#fff!important;border:1px solid var(--v75-blue)!important;box-shadow:none!important;padding:8px!important}
+
+/* Inspector flotante contextual. */
+.v75-context-drawer{position:fixed;z-index:150;right:16px;top:76px;bottom:16px;width:min(500px,calc(100vw - 32px));background:#fff;border:1px solid #D0D5DD;border-radius:17px;box-shadow:var(--v75-shadow);display:none;overflow:hidden}
+.v75-context-drawer.open{display:grid;grid-template-rows:auto 1fr;animation:v75Slide .18s ease-out}
+.v75-context-drawer.minimized{bottom:auto;height:auto;width:330px}.v75-context-drawer.minimized .v75-context-body{display:none}
+.v75-context-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;background:linear-gradient(180deg,#fff,#F8FAFC);border-bottom:1px solid #E4E7EC}
+.v75-context-title{min-width:0}.v75-context-title small{display:block;font-size:8px;font-weight:900;letter-spacing:.08em;color:var(--v75-muted);text-transform:uppercase}.v75-context-title strong{display:block;color:var(--v75-blue);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.v75-context-actions{display:flex;gap:4px}.v75-context-actions button{width:30px;height:30px;padding:0!important;background:#fff!important;border:1px solid #D0D5DD!important;color:var(--v75-blue)!important;box-shadow:none!important}.v75-context-actions button:hover{background:var(--v75-blue)!important;color:#fff!important;border-color:var(--v75-blue)!important}
+.v75-context-body{overflow:auto;padding:11px;background:#F8FAFC;scrollbar-width:thin}
+.v75-context-body .word-diagram-builder{margin:0;border-radius:13px;background:#fff}
+.v75-context-body .word-diagram-builder-head{position:sticky;top:-11px;z-index:4}
+.v75-context-body .word-diagram-cards{padding:8px 8px 10px}
+.v75-context-body .word-diagram-card{grid-template-columns:26px 116px minmax(0,1fr) auto;padding:8px}
+.v75-context-body .word-concept-card{grid-template-columns:26px 150px minmax(0,1fr) auto}
+.v75-context-body .word-diagram-card-actions{opacity:.32;transition:opacity .15s}.v75-context-body .word-diagram-card:hover .word-diagram-card-actions,.v75-context-body .word-diagram-card.v75-selected .word-diagram-card-actions{opacity:1}
+.v75-context-body .word-diagram-card.v75-selected{border-color:var(--v75-blue);box-shadow:0 0 0 3px rgba(0,31,115,.10),0 5px 16px rgba(16,24,40,.08)}
+.v75-context-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px;padding:8px;border:1px solid #D0D5DD;border-radius:11px;background:#fff}
+.v75-context-toolbar label{margin:0!important;min-width:150px;flex:1}.v75-context-toolbar label span{display:block;font-size:8px;color:var(--v75-muted);font-weight:900;margin-bottom:3px}.v75-context-toolbar input,.v75-context-toolbar select{padding:7px!important}
+
+/* Panel ocultable y modo enfoque. */
+body.v75-panel-hidden .app,body.v75-focus-mode .app{grid-template-columns:1fr!important}
+body.v75-panel-hidden .side,body.v75-focus-mode .side{display:none!important}
+body.v75-focus-mode .topbar-title,body.v75-focus-mode .topbar-sub{display:none!important}
+body.v75-focus-mode .topbar{justify-content:flex-end!important;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(12px)}
+body.v75-focus-mode .work{padding-left:16px!important;padding-right:16px!important}
+
+/* Ajustes responsivos. */
+@media(max-width:1180px){body.v75-word-active .app{grid-template-columns:335px minmax(0,1fr)}.v75-context-drawer{width:min(460px,calc(100vw - 24px));right:12px}.v75-active-target{display:none}}
+@media(max-width:900px){body.v75-word-active .app{grid-template-columns:1fr}.side{max-height:none}.v75-context-drawer{top:62px;left:10px;right:10px;width:auto;bottom:10px}.v75-toolbar-group{border-right:0;padding-right:0}.v75-toolbar-btn{padding:7px 8px!important}.v75-insert-menu{left:10px!important;right:10px!important;width:auto!important}}
+
+@keyframes v75Pop{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes v75Fade{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:none}}
+@keyframes v75Slide{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
