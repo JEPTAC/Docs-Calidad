@@ -6,7 +6,7 @@ const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('dialog',
 function assert(ok,msg){if(!ok)throw new Error(msg)}
 try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>typeof setMode==='function'&&window.EI_AI_V84_READY===true,{timeout:15000});
+  await page.waitForFunction(()=>typeof setMode==='function'&&window.EI_AI_V84_READY===true&&window.EI_AI_V85_MESSAGE_ORDER_READY===true,{timeout:15000});
   const skip=page.locator('#introSkip');if(await skip.count()&&await skip.isVisible().catch(()=>false))await skip.click();
   await page.evaluate(()=>{if(typeof doc!=='undefined')doc.wordType='manual';setMode('word');render();eiAiEnsureUi()});
 
@@ -39,15 +39,38 @@ try{
   assert(heuristics.siblings[0]===3&&heuristics.siblings[1]===3&&!heuristics.visualAdvance&&heuristics.structural===2,'Los encabezados visuales hermanos alteraron incorrectamente el padre semántico');
   assert(heuristics.number==='3.1','No reconstruyó numeración OOXML multinivel');
 
+  // Reproduce la ruta exacta que antes lanzaba SystemMessageOrderError.
+  const messageOrder=await page.evaluate(async()=>{
+    const oldHistory=[...(EI_AI.history||[])],oldProvider=EI_AI.provider,oldVerified=EI_AI.verified,oldWorker=window.V84_AI.worker,oldRpc=v84Rpc;
+    let captured=null;
+    try{
+      EI_AI.history=[{role:'assistant',text:'Respuesta huérfana de una herramienta.'},{role:'user',text:'Pregunta anterior.'},{role:'assistant',text:'Respuesta anterior.'}];
+      const preview=v84Messages('Pregunta actual','Contexto documental de prueba.',true);
+      EI_AI.provider='transformers';EI_AI.verified=true;window.V84_AI.worker={};
+      v84Rpc=async payload=>{captured=payload.messages;return{text:'Respuesta válida de prueba.'}};
+      const answer=await eiAiGenerate('Pregunta actual',{context:'Contexto documental de prueba.',conversation:true,maxTokens:64});
+      return{preview,captured,answer,valid:v85ValidateMessageOrder(preview)};
+    }finally{
+      EI_AI.history=oldHistory;EI_AI.provider=oldProvider;EI_AI.verified=oldVerified;window.V84_AI.worker=oldWorker;v84Rpc=oldRpc;
+    }
+  });
+  const roles=messageOrder.preview.map(x=>x.role);
+  assert(messageOrder.valid,'V85 considera inválido su propio orden de mensajes');
+  assert(roles[0]==='system'&&roles.filter(x=>x==='system').length===1,'Debe existir exactamente un system y estar en la posición 0');
+  assert(roles.at(-1)==='user','La instrucción actual debe ser el último mensaje user');
+  assert(messageOrder.preview[0].content.includes('CONTEXTO DOCUMENTAL RELEVANTE'),'El contexto debe integrarse dentro del único system prompt');
+  assert(messageOrder.captured?.filter(x=>x.role==='system').length===1,'La ruta real de generación volvió a enviar más de un system');
+  assert(messageOrder.answer==='Respuesta válida de prueba.','La ruta Transformers simulada no terminó correctamente');
+
   await page.locator('[data-ei-ai-tab="model"]').click();
   const options=(await page.locator('#eiAiModel option').allTextContents()).join(' | ');
   assert(/Automática/i.test(options)&&/WASM/i.test(options),'Falta selector de IA automática con fallback WASM/CPU');
   const env=await page.evaluate(async()=>{
     const mod=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm');
-    return{wasm:typeof WebAssembly!=='undefined',ready:window.EI_AI_V84_READY===true,hierarchy:window.EI_AI_V84_HIERARCHY_READY===true,pipeline:typeof mod.pipeline==='function',streamer:typeof mod.TextStreamer==='function'};
+    return{wasm:typeof WebAssembly!=='undefined',ready:window.EI_AI_V84_READY===true,hierarchy:window.EI_AI_V84_HIERARCHY_READY===true,order:window.EI_AI_V85_MESSAGE_ORDER_READY===true,pipeline:typeof mod.pipeline==='function',streamer:typeof mod.TextStreamer==='function'};
   });
-  assert(env.wasm&&env.ready&&env.hierarchy,'El fallback compatible o la jerarquía V84 no están disponibles en el navegador');
+  assert(env.wasm&&env.ready&&env.hierarchy&&env.order,'El fallback compatible, la jerarquía o el corrector V85 no están disponibles en el navegador');
   assert(env.pipeline&&env.streamer,'Transformers.js no pudo importarse con pipeline/TextStreamer en el navegador');
   assert(errors.length===0,`Errores JS: ${errors.join(' | ')}`);
-  console.log('AI V84 PASS: CSV canónico, jerarquía DOCX visual/numerada y runtime Transformers.js WebGPU/WASM disponibles.');
+  console.log('AI V85 PASS: CSV, DOCX OOXML, fallback Transformers y orden system/user corregido sin SystemMessageOrderError.');
 }finally{await browser.close()}
