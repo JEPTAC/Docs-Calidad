@@ -1,16 +1,7 @@
-# Procedimientos EI
+# Editor de Procedimientos EI
 
-## Ajuste V32 · Barra ejecutiva minimalista
+Módulo especializado del Centro Documental EI para construir, editar y exportar procedimientos con flujogramas institucionales.
 
-Se ajustó únicamente la barra lateral y la zona de edición:
+En la reorganización V3 se retiraron del repositorio productivo todos los archivos históricos `_check*`, `_runtime*`, `_proc_*`, `_dbg*`, `_tmp*` y copias redundantes de `source/`. El módulo queda aislado en `procedimiento/index.html` para preservar su funcionalidad mientras Word Studio utiliza la nueva arquitectura modular.
 
-- Fondo principal de la barra en azul más oscuro: `#001F73`.
-- Fondo con textura sutil y elementos gráficos discretos.
-- Tarjetas/cuadros en gris institucional `#A4A8AB`.
-- Campos internos con fondo blanco.
-- Botones en azul oscuro.
-- Diseño más ejecutivo, minimalista y elegante.
-- La plantilla documental no se toca:
-  - hoja blanca,
-  - encabezado azul sólido,
-  - formato conservado.
+Funciones principales conservadas: páginas de flujograma, carriles por proceso/responsable, figuras, decisiones, documentos, conectores, edición de rutas, páginas de normas y políticas, historial, alineación/distribución, exportación SVG, impresión/PDF y proyecto JSON.

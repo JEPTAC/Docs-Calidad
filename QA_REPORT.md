@@ -1,57 +1,56 @@
-# QA V62
+# Informe QA — Centro Documental EI V3
 
-Solicitud:
-- En Word poder colocar subtítulos 3.1, 3.2, etc.
-- Poder agregar subtítulos.
-- Subtítulos en azul, Century Gothic, sin diseño adicional.
-- Que se agreguen solos a la tabla de contenido con su página.
+Fecha de revisión: 2026-09-16
 
-Correcciones:
-1. Modelo:
-   - Cada sección SGC ahora soporta `sub`.
-   - Los subtítulos tienen número, título y contenido.
-2. Panel:
-   - Cada sección tiene botón `+ Subtítulo`.
-   - Se puede editar número, subtítulo y contenido.
-   - Se puede eliminar subtítulo.
-3. Numeración:
-   - El subtítulo se genera con base en la sección: 3.1, 3.2, etc.
-   - Si cambia el número de la sección, los subtítulos se renumeran.
-4. Render Word:
-   - La tabla de contenido incluye secciones y subtítulos.
-   - Cada fila muestra página.
-   - El contenido muestra el subtítulo sin caja ni diseño adicional.
-5. Estilo:
-   - Subtítulo azul #001F73.
-   - Fuente Century Gothic.
-   - Sin fondo, sin borde, sin bloque adicional.
+## Resultado
 
-Resultados:
-{
-  "source_node_check": true,
-  "inline_script_check": true,
-  "runtime_subtitle_check": true,
-  "runtime_stdout": "RUNTIME_OK_V62 3.1 \u001b[33mtrue\u001b[39m",
-  "add_subtitle_function": true,
-  "remove_subtitle_function": true,
-  "toc_includes_subtitles": true,
-  "content_renders_subtitles": true,
-  "blue_century_subtitle_style": true,
-  "word_panel_subtitle_editor": true,
-  "word_intact": true,
-  "instructivo_intact": true,
-  "procedure_intact": true
-}
+**Estado técnico:** candidato de publicación estática validado estructuralmente antes de actualizar `main`.
 
-node source.js stderr:
+## Correcciones estructurales
 
+- Arquitectura principal: `index.html` + `app.css` + `src/core.js` + `src/editor.js` + `src/preview.js` + `src/export.js`.
+- Eliminados `_check*`, `_runtime*`, `_tmp*`, `_dbg*`, copias de `source/` y multimedia no utilizada.
+- Eliminada la dependencia de una vista fija de dos páginas para Word Studio.
+- Importación segura y migración de proyectos antiguos.
 
-node inline script stderr:
+## Word Studio V3
 
+- [x] Tipos documentales SGC y comunicaciones.
+- [x] Jerarquía Heading 1–6.
+- [x] Numeración automática de subtítulos y sub-subtítulos.
+- [x] Índice visual multinivel.
+- [x] TOC Word para niveles 1–6.
+- [x] Tablas con estilos y alineación.
+- [x] Gráficas de columnas, barras horizontales, línea y dona.
+- [x] Unidad, meta y fuente metodológica.
+- [x] KPI.
+- [x] Notas de información, recomendación, advertencia, cumplimiento y riesgo.
+- [x] Citas textuales, narrativas y parentéticas.
+- [x] APA 7, ISO 690 y numérico/IEEE.
+- [x] Bibliografía automática.
+- [x] Imágenes, listas, diagramas y saltos de página.
+- [x] Temas y paleta personalizada.
+- [x] Carta/A4 y márgenes 2,5/3 cm.
+- [x] PDF y DOCX.
 
-runtime stdout:
-RUNTIME_OK_V62 3.1 [33mtrue[39m
+## Seguridad
 
+- [x] JSON máximo 5 MB.
+- [x] Imágenes máximo 6 MB.
+- [x] Lista blanca de imágenes.
+- [x] Bloqueo de claves de contaminación de prototipo.
+- [x] Límites de profundidad y cantidad de bloques.
+- [x] Escape de texto antes de incorporarlo al DOM.
 
-runtime stderr:
+## Pruebas ejecutadas
 
+- Sintaxis de módulos JavaScript con `node --check`: **PASS**.
+- Referencias locales HTML/CSS/JS: **PASS**.
+- Assets requeridos: **PASS**.
+- Archivos históricos en el paquete limpio: **0**.
+- Niveles `heading2` a `heading6`: **PASS**.
+- TOC DOCX `headingStyleRange: 1-6`: **PASS**.
+
+## Verificación visual
+
+El Chromium disponible durante la auditoría bloqueó navegación local a `file://`/`localhost`. La validación visual integral debe ejecutarse sobre la URL HTTPS publicada; no se registra un PASS visual sin observación real.
