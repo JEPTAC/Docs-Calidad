@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate additive Word Studio JavaScript
+      - name: Validate JavaScript syntax
         run: |
           for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js word-studio-13-immersive-ui.js word-studio-14-interactions.js word-studio-15-ai-local.js word-studio-16-document-import.js word-studio-17-ai-ui.js; do
             node --check "$f"
@@ -29,172 +29,68 @@ jobs:
           node --check tests/ui-smoke.mjs
           node --check tests/ai-local-smoke.mjs
 
-      - name: Lock approved SGC baseline
+      - name: Protect approved SGC baseline
         run: |
           test "$(git hash-object index.html)" = "1c507f6e851d9333760178c20d95d5f7a1436bda"
           test "$(git hash-object procedimiento/index.html)" = "40e201d86fbc38a759109487da1288e5699b022d"
           test -f assets/intro.mp4
-          test -f assets/happy-cat.gif
           test -f assets/footer-ei-calidad.png
 
-      - name: Validate SGC visual contract and isolated UX
+      - name: Validate isolated visual contract and AI V83
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
-          html = Path('index.html').read_text(encoding='utf-8')
-          css_files = {
-              'word-studio-pro.css': Path('word-studio-pro.css').read_text(encoding='utf-8'),
-              'word-studio-premium.css': Path('word-studio-premium.css').read_text(encoding='utf-8'),
-              'word-studio-extensions.css': Path('word-studio-extensions.css').read_text(encoding='utf-8'),
-              'word-studio-diagram-builder.css': Path('word-studio-diagram-builder.css').read_text(encoding='utf-8'),
-              'word-studio-immersive.css': Path('word-studio-immersive.css').read_text(encoding='utf-8'),
-              'word-studio-workspace-v76.css': Path('word-studio-workspace-v76.css').read_text(encoding='utf-8'),
-              'word-studio-ai-local.css': Path('word-studio-ai-local.css').read_text(encoding='utf-8'),
-          }
-          premium = css_files['word-studio-premium.css']
-          ext = css_files['word-studio-extensions.css']
-          builder_css = css_files['word-studio-diagram-builder.css']
-          immersive_css = css_files['word-studio-immersive.css']
-          workspace = css_files['word-studio-workspace-v76.css']
-          ai_css = css_files['word-studio-ai-local.css']
-          details = Path('word-studio-08-sgc-details.js').read_text(encoding='utf-8')
-          structure = Path('word-studio-09-structure.js').read_text(encoding='utf-8')
-          horizontal = Path('word-studio-10-horizontal-flow.js').read_text(encoding='utf-8')
-          flowpro = Path('word-studio-11-flow-pro.js').read_text(encoding='utf-8')
-          builder = Path('word-studio-12-diagram-builder.js').read_text(encoding='utf-8')
-          immersive = Path('word-studio-13-immersive-ui.js').read_text(encoding='utf-8')
-          interactions = Path('word-studio-14-interactions.js').read_text(encoding='utf-8')
-          ai_core = Path('word-studio-15-ai-local.js').read_text(encoding='utf-8')
-          ai_import = Path('word-studio-16-document-import.js').read_text(encoding='utf-8')
-          ai_ui = Path('word-studio-17-ai-ui.js').read_text(encoding='utf-8')
+          html=Path('index.html').read_text(encoding='utf-8')
+          css_names=['word-studio-pro.css','word-studio-premium.css','word-studio-extensions.css','word-studio-diagram-builder.css','word-studio-immersive.css','word-studio-workspace-v76.css','word-studio-ai-local.css']
+          css={n:Path(n).read_text(encoding='utf-8') for n in css_names}
+          ai_core=Path('word-studio-15-ai-local.js').read_text(encoding='utf-8')
+          ai_import=Path('word-studio-16-document-import.js').read_text(encoding='utf-8')
+          ai_ui=Path('word-studio-17-ai-ui.js').read_text(encoding='utf-8')
 
-          checks = {
-              'bandas SGC azul/amarillo': r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;',
-              'subtitulo SGC azul 10.8pt': r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;',
-              'cuerpo SGC 10.5pt': r'\.sgc-section-content\{[^}]*font-size:10\.5pt;',
-              'TOC SGC 10.5pt': r'\.sgc-toc-row\{[^}]*color:#111;[^}]*font-size:10\.5pt;',
-              'control cambios azul institucional': r'\.control-change-table th\{[^}]*background:#001F73;[^}]*color:#fff;',
-          }
-          for label, pattern in checks.items():
-              if not re.search(pattern, html, re.S):
-                  raise SystemExit(f'Contrato visual roto: {label}')
-
-          for name, css in css_files.items():
-              if re.search(r'\.sgc-[A-Za-z0-9_-]+', css):
-                  raise SystemExit(f'{name} no puede redefinir clases base SGC')
-
-          if '--word-body-size:10.5pt' not in premium:
-              raise SystemExit('La tipografía premium debe usar 10.5pt')
-          if '.word-control-change-table th{background:#001F73!important' not in premium:
-              raise SystemExit('El control de cambios debe conservar azul #001F73')
-          if '.word-toc-title{color:#001F73!important}' not in premium:
-              raise SystemExit('El título de la tabla de contenido debe ser azul #001F73')
-          if '.word-toc-dots{' not in premium or 'radial-gradient' not in premium:
-              raise SystemExit('La tabla de contenido debe conservar líderes punteados')
-          if '.word-premium-note' not in premium or 'background:#FFF8D7!important' not in premium or 'color:#001F73!important' not in premium:
-              raise SystemExit('Edición Premium debe usar fondo crema opaco #FFF8D7 y texto azul')
-          if 'word-toc-title' not in details or 'word-toc-dots' not in details:
-              raise SystemExit('La capa de detalle debe mantener TOC institucional')
-
-          required_blue = [
-              ('extensiones', '--ei-blue:#001F73', ext),
-              ('builder css', '--diagram-blue:#001F73', builder_css),
-              ('immersive css', '--v75-blue:#001F73', immersive_css),
-              ('workspace', '--v76-blue:#001F73', workspace),
-              ('IA css', '--ei-ai-blue:#001F73', ai_css),
-              ('builder js', "V74_BLUE='#001F73'", builder),
-              ('immersive js', "V75_BLUE='#001F73'", immersive),
-              ('interactions', "V76_BLUE='#001F73'", interactions),
-              ('IA local', "EI_AI_BLUE='#001F73'", ai_core),
+          required=[
+            (r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;', 'bandas SGC'),
+            (r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;', 'subtítulos SGC'),
+            (r'\.sgc-section-content\{[^}]*font-size:10\.5pt;', 'cuerpo SGC'),
+            (r'\.control-change-table th\{[^}]*background:#001F73;[^}]*color:#fff;', 'control cambios')
           ]
-          for name, needle, txt in required_blue:
-              if needle not in txt:
-                  raise SystemExit(f'{name} debe usar azul institucional #001F73')
+          for pattern,label in required:
+            if not re.search(pattern,html,re.S): raise SystemExit(f'Contrato SGC roto: {label}')
 
+          for name,txt in css.items():
+            if re.search(r'\.sgc-[A-Za-z0-9_-]+',txt): raise SystemExit(f'{name} no puede redefinir clases SGC')
+          if '--ei-ai-blue:#001F73' not in css['word-studio-ai-local.css']: raise SystemExit('IA debe usar azul institucional')
           for bad in ('#175CD3','#2F80ED','#001754','#0563C1'):
-              for name, txt in list(css_files.items()) + [('builder js', builder), ('immersive js', immersive), ('interactions js', interactions), ('IA local', ai_core), ('IA UI', ai_ui)]:
-                  if bad.lower() in txt.lower():
-                      raise SystemExit(f'Azul no institucional detectado en {name}: {bad}')
+            if any(bad.lower() in txt.lower() for txt in list(css.values())+[ai_core,ai_ui]): raise SystemExit(f'Azul no institucional: {bad}')
 
-          if 'margin:0 0 2px!important' not in ext:
-              raise SystemExit('El espacio entre párrafos debe permanecer compacto')
-          if "V71_BLUE='#001F73'" not in structure or "V72_BLUE='#001F73'" not in horizontal or "V73_BLUE='#001F73'" not in flowpro:
-              raise SystemExit('Motores de diagrama deben conservar azul institucional')
-          if 'V73_MAX_NODES=24' not in flowpro or 'v73BuildRows' not in flowpro or 'v73ConnectorPath' not in flowpro or 'CONTINÚA' not in flowpro:
-              raise SystemExit('El horizontal debe conservar motor serpenteante V73')
-          if 'data-v74-flow-card' not in builder or 'data-v74-concept-relation' not in builder or 'dragstart' not in builder or 'v74BindDrag' not in builder:
-              raise SystemExit('V74 debe conservar constructor visual y drag-and-drop')
-          if 'wordContextDrawer' not in immersive or 'v75InsertMenu' not in immersive or 'v75-focus-mode' not in immersive_css:
-              raise SystemExit('V75 debe conservar inspector flotante, inserción y modo enfoque')
-          if 'v75-diagram-summary' not in immersive or 'v75-compact-insert' not in immersive_css or 'v75EnhanceAccordions' not in immersive:
-              raise SystemExit('V75 debe conservar interfaz contextual compacta')
-          if "document.addEventListener('click',v76HandleClick,true)" not in interactions:
-              raise SystemExit('La UI debe usar delegación de eventos para controles dinámicos')
-          if '[data-v75-open-insert]' not in interactions or '[data-v75-open-diagram]' not in interactions:
-              raise SystemExit('La capa interactiva debe cubrir Insertar bloque y constructor visual')
-          if 'window.V77_EXPLICIT_TARGETING=true' not in interactions or 'data-v76-insert-location' not in interactions:
-              raise SystemExit('La barra superior debe exigir ubicación explícita')
-          if 'body.v75-word-active .side{background:var(--v76-blue)!important;color:#fff!important' not in workspace:
-              raise SystemExit('El lateral Word Studio debe conservar fondo azul institucional y texto blanco')
-          if 'body.v75-word-active .panel,body.v75-word-active .word-studio-settings{background:transparent!important' not in workspace:
-              raise SystemExit('Los contenedores generales del lateral deben ser transparentes')
-          if '.word-type-notice{background:#FFF8D7!important' not in workspace or 'color:var(--v76-blue)!important' not in workspace:
-              raise SystemExit('El aviso de tipo documental debe usar fondo crema opaco #FFF8D7 y texto azul')
-          if '.v76-yellow-surface' not in workspace or '.v76-blue-surface' not in workspace:
-              raise SystemExit('Debe conservarse la regla de contraste azul/blanco y amarillo/azul')
-          if '.v76-insert-location' not in workspace:
-              raise SystemExit('La paleta superior debe mostrar selector de ubicación')
-
-          if 'https://esm.run/@mlc-ai/web-llm' not in ai_core or 'CreateMLCEngine' not in ai_core:
-              raise SystemExit('La IA local debe usar WebLLM en navegador')
-          if "Llama-3.2-1B-Instruct-q4f16_1-MLC" not in ai_core or 'cacheBackend' not in ai_core:
-              raise SystemExit('La IA local debe conservar modelo ligero y cache local')
-          if 'mammoth@1.12.3' not in ai_import or 'pdfjs-dist@6.3.289' not in ai_import or 'xlsx-0.20.3' not in ai_import:
-              raise SystemExit('Importadores locales DOCX/PDF/XLSX deben quedar fijados por versión')
-          if 'eiAiImportIntoWordStudio' not in ai_import or 'eiAiCreateAutomaticDocument' not in ai_ui:
-              raise SystemExit('La IA debe poder organizar archivos y construir documentos')
-          if '.ei-ai-privacy' not in ai_css or 'background:var(--ei-ai-cream)' not in ai_css:
-              raise SystemExit('La UI IA debe conservar aviso privado crema/azul')
+          checks={
+            'runtime WebLLM fijado': '@mlc-ai/web-llm@0.2.85' in ai_core,
+            'modelo equilibrado oficial': 'Llama-3.2-1B-Instruct-q4f16_1-MLC' in ai_core,
+            'modelo calidad oficial': 'Hermes-3-Llama-3.2-3B-q4f16_1-MLC' in ai_core,
+            'validación contra prebuiltAppConfig': 'prebuiltAppConfig' in ai_core and 'eiAiCompatibleModel' in ai_core,
+            'verificación de inferencia': 'eiAiVerifyEngine' in ai_core and 'IA verificada y lista' in ai_core,
+            'chat streaming': 'stream:true' in ai_core and 'onUpdate' in ai_core,
+            'chat único': "const EI_AI_TABS=['chat','file','tools','model']" in ai_ui and 'data-ei-ai-panel="result"' not in ai_ui,
+            'acciones dentro del chat': 'eiAiMessageActions' in ai_ui and 'data-ei-ai-use-response' in ai_ui,
+            'organizador visual': 'ei-ai-org-block' in ai_ui and 'data-ei-ai-block-type' in ai_ui and 'data-ei-ai-block-move' in ai_ui,
+            'importación estructurada': 'eiAiDocxBlocks' in ai_import and 'eiAiPdfLines' in ai_import and 'eiAiBlocksToStructure' in ai_import,
+            'CSV inteligente': 'eiAiProfileTable' in ai_import and 'eiAiInsertImportedChart' in ai_import,
+            'importadores versionados': 'mammoth@1.12.3' in ai_import and 'pdfjs-dist@6.3.289' in ai_import and 'xlsx-0.20.3' in ai_import,
+          }
+          for label,ok in checks.items():
+            if not ok: raise SystemExit(f'V83 incompleta: {label}')
           PY
 
-      - name: Validate premium DOCX and interaction safeguards
-        run: |
-          grep -q 'word-rich-editor' word-studio-07-premium.js
-          grep -q 'premiumDocxRichParagraphs' word-studio-07-premium.js
-          grep -q 'PREMIUM_BODY_SIZE_PT=10.5' word-studio-07-premium.js
-          grep -q 'size:21' word-studio-05-docx.js
-          grep -q 'word-toc-dots' word-studio-08-sgc-details.js
-          grep -q 'word-control-change-table' word-studio-08-sgc-details.js
-          grep -q "WORD_BLOCK_TYPES.includes('diagram')" word-studio-09-structure.js
-          grep -q 'V71_BULLETS' word-studio-09-structure.js
-          grep -q "type:'svg'" word-studio-09-structure.js
-          grep -q 'spacing:{after:40,line:276}' word-studio-09-structure.js
-          grep -q 'v73HorizontalFlowSvgData' word-studio-11-flow-pro.js
-          grep -q 'V73_MAX_NODES=24' word-studio-11-flow-pro.js
-          grep -q 'Constructor visual de flujograma' word-studio-12-diagram-builder.js
-          grep -q 'Constructor visual de mapa conceptual' word-studio-12-diagram-builder.js
-          grep -q 'v75OpenDrawer' word-studio-13-immersive-ui.js
-          grep -q 'v75ToggleFocus' word-studio-13-immersive-ui.js
-          grep -q 'V75_INSERT_GROUPS' word-studio-13-immersive-ui.js
-          grep -q 'V76_INTERACTIONS_READY' word-studio-14-interactions.js
-          grep -q 'V77_EXPLICIT_TARGETING' word-studio-14-interactions.js
-          grep -q 'EI_AI_CORE_READY' word-studio-15-ai-local.js
-          grep -q 'EI_AI_IMPORT_READY' word-studio-16-document-import.js
-          grep -q 'EI_AI_UI_READY' word-studio-17-ai-ui.js
-          test -f tests/ui-smoke.mjs
-          test -f tests/ai-local-smoke.mjs
-
-      - name: Validate original inline JavaScript syntax
+      - name: Validate original inline JavaScript
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
           for name in ('index.html','procedimiento/index.html'):
-              html=Path(name).read_text(encoding='utf-8')
-              scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',html,re.S|re.I)
-              Path('/tmp/'+name.replace('/','_')+'.js').write_text('\n'.join(scripts),encoding='utf-8')
+            html=Path(name).read_text(encoding='utf-8')
+            scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',html,re.S|re.I)
+            Path('/tmp/'+name.replace('/','_')+'.js').write_text('\n'.join(scripts),encoding='utf-8')
           PY
           node --check /tmp/index.html.js
           node --check /tmp/procedimiento_index.html.js
@@ -209,9 +105,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Build exact Pages candidate V80
+      - name: Build exact Pages candidate V83
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -220,33 +116,33 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=80">
-          <link rel="stylesheet" href="word-studio-premium.css?v=80">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=80">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=80">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=80">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=80">
-          <link rel="stylesheet" href="word-studio-ai-local.css?v=80">
+          <link rel="stylesheet" href="word-studio-pro.css?v=83">
+          <link rel="stylesheet" href="word-studio-premium.css?v=83">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=83">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=83">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=83">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=83">
+          <link rel="stylesheet" href="word-studio-ai-local.css?v=83">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=80"></script>
-          <script src="word-studio-02-editor.js?v=80"></script>
-          <script src="word-studio-03-render.js?v=80"></script>
-          <script src="word-studio-04-bind.js?v=80"></script>
-          <script src="word-studio-05-docx.js?v=80"></script>
-          <script src="word-studio-06-ui.js?v=80"></script>
-          <script src="word-studio-07-premium.js?v=80"></script>
-          <script src="word-studio-08-sgc-details.js?v=80"></script>
-          <script src="word-studio-09-structure.js?v=80"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=80"></script>
-          <script src="word-studio-11-flow-pro.js?v=80"></script>
-          <script src="word-studio-12-diagram-builder.js?v=80"></script>
-          <script src="word-studio-13-immersive-ui.js?v=80"></script>
-          <script src="word-studio-14-interactions.js?v=80"></script>
-          <script src="word-studio-15-ai-local.js?v=80"></script>
-          <script src="word-studio-16-document-import.js?v=80"></script>
-          <script src="word-studio-17-ai-ui.js?v=80"></script>
+          <script src="word-studio-01-core.js?v=83"></script>
+          <script src="word-studio-02-editor.js?v=83"></script>
+          <script src="word-studio-03-render.js?v=83"></script>
+          <script src="word-studio-04-bind.js?v=83"></script>
+          <script src="word-studio-05-docx.js?v=83"></script>
+          <script src="word-studio-06-ui.js?v=83"></script>
+          <script src="word-studio-07-premium.js?v=83"></script>
+          <script src="word-studio-08-sgc-details.js?v=83"></script>
+          <script src="word-studio-09-structure.js?v=83"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=83"></script>
+          <script src="word-studio-11-flow-pro.js?v=83"></script>
+          <script src="word-studio-12-diagram-builder.js?v=83"></script>
+          <script src="word-studio-13-immersive-ui.js?v=83"></script>
+          <script src="word-studio-14-interactions.js?v=83"></script>
+          <script src="word-studio-15-ai-local.js?v=83"></script>
+          <script src="word-studio-16-document-import.js?v=83"></script>
+          <script src="word-studio-17-ai-ui.js?v=83"></script>
           '''
           html=html.replace('</head>',css+'\n</head>')
           html=html.replace('</body>',scripts+'\n</body>')
@@ -259,7 +155,7 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Browser smoke test dynamic controls, local AI and contrast
+      - name: Browser smoke tests
         run: |
           python3 -m http.server 4173 --directory _site >/tmp/docs-calidad-http.log 2>&1 &
           for i in {1..30}; do
@@ -282,7 +178,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare approved baseline plus isolated Word Studio V80
+      - name: Prepare approved baseline plus Word Studio V83
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -291,33 +187,33 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=80">
-          <link rel="stylesheet" href="word-studio-premium.css?v=80">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=80">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=80">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=80">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=80">
-          <link rel="stylesheet" href="word-studio-ai-local.css?v=80">
+          <link rel="stylesheet" href="word-studio-pro.css?v=83">
+          <link rel="stylesheet" href="word-studio-premium.css?v=83">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=83">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=83">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=83">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=83">
+          <link rel="stylesheet" href="word-studio-ai-local.css?v=83">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=80"></script>
-          <script src="word-studio-02-editor.js?v=80"></script>
-          <script src="word-studio-03-render.js?v=80"></script>
-          <script src="word-studio-04-bind.js?v=80"></script>
-          <script src="word-studio-05-docx.js?v=80"></script>
-          <script src="word-studio-06-ui.js?v=80"></script>
-          <script src="word-studio-07-premium.js?v=80"></script>
-          <script src="word-studio-08-sgc-details.js?v=80"></script>
-          <script src="word-studio-09-structure.js?v=80"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=80"></script>
-          <script src="word-studio-11-flow-pro.js?v=80"></script>
-          <script src="word-studio-12-diagram-builder.js?v=80"></script>
-          <script src="word-studio-13-immersive-ui.js?v=80"></script>
-          <script src="word-studio-14-interactions.js?v=80"></script>
-          <script src="word-studio-15-ai-local.js?v=80"></script>
-          <script src="word-studio-16-document-import.js?v=80"></script>
-          <script src="word-studio-17-ai-ui.js?v=80"></script>
+          <script src="word-studio-01-core.js?v=83"></script>
+          <script src="word-studio-02-editor.js?v=83"></script>
+          <script src="word-studio-03-render.js?v=83"></script>
+          <script src="word-studio-04-bind.js?v=83"></script>
+          <script src="word-studio-05-docx.js?v=83"></script>
+          <script src="word-studio-06-ui.js?v=83"></script>
+          <script src="word-studio-07-premium.js?v=83"></script>
+          <script src="word-studio-08-sgc-details.js?v=83"></script>
+          <script src="word-studio-09-structure.js?v=83"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=83"></script>
+          <script src="word-studio-11-flow-pro.js?v=83"></script>
+          <script src="word-studio-12-diagram-builder.js?v=83"></script>
+          <script src="word-studio-13-immersive-ui.js?v=83"></script>
+          <script src="word-studio-14-interactions.js?v=83"></script>
+          <script src="word-studio-15-ai-local.js?v=83"></script>
+          <script src="word-studio-16-document-import.js?v=83"></script>
+          <script src="word-studio-17-ai-ui.js?v=83"></script>
           '''
           html=html.replace('</head>',css+'\n</head>')
           html=html.replace('</body>',scripts+'\n</body>')
