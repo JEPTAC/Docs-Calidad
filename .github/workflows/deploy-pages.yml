@@ -87,8 +87,8 @@ jobs:
               raise SystemExit('El título de la tabla de contenido debe ser azul #001F73')
           if '.word-toc-dots{' not in premium or 'radial-gradient' not in premium:
               raise SystemExit('La tabla de contenido debe conservar líderes punteados')
-          if '.word-premium-note' not in premium or 'color:#001F73!important' not in premium:
-              raise SystemExit('Edición Premium debe usar texto azul sobre amarillo claro')
+          if '.word-premium-note' not in premium or 'background:#FFF8D7!important' not in premium or 'color:#001F73!important' not in premium:
+              raise SystemExit('Edición Premium debe usar fondo crema opaco #FFF8D7 y texto azul')
           if 'word-toc-title' not in details or 'word-toc-dots' not in details:
               raise SystemExit('La capa de detalle debe mantener TOC institucional')
 
@@ -132,8 +132,8 @@ jobs:
               raise SystemExit('El lateral Word Studio debe conservar fondo azul institucional y texto blanco')
           if 'body.v75-word-active .panel,body.v75-word-active .word-studio-settings{background:transparent!important' not in workspace:
               raise SystemExit('Los contenedores generales del lateral deben ser transparentes')
-          if '.word-type-notice' not in workspace or 'color:var(--v76-blue)!important' not in workspace:
-              raise SystemExit('El aviso amarillo de tipo documental debe usar texto azul')
+          if '.word-type-notice{background:#FFF8D7!important' not in workspace or 'color:var(--v76-blue)!important' not in workspace:
+              raise SystemExit('El aviso de tipo documental debe usar fondo crema opaco #FFF8D7 y texto azul')
           if '.v76-yellow-surface' not in workspace or '.v76-blue-surface' not in workspace:
               raise SystemExit('Debe conservarse la regla de contraste azul/blanco y amarillo/azul')
           if '.v76-insert-location' not in workspace:
@@ -188,7 +188,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build exact Pages candidate V78
+      - name: Build exact Pages candidate V79
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -197,29 +197,29 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=78">
-          <link rel="stylesheet" href="word-studio-premium.css?v=78">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=78">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=78">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=78">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=78">
+          <link rel="stylesheet" href="word-studio-pro.css?v=79">
+          <link rel="stylesheet" href="word-studio-premium.css?v=79">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=79">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=79">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=79">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=79">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=78"></script>
-          <script src="word-studio-02-editor.js?v=78"></script>
-          <script src="word-studio-03-render.js?v=78"></script>
-          <script src="word-studio-04-bind.js?v=78"></script>
-          <script src="word-studio-05-docx.js?v=78"></script>
-          <script src="word-studio-06-ui.js?v=78"></script>
-          <script src="word-studio-07-premium.js?v=78"></script>
-          <script src="word-studio-08-sgc-details.js?v=78"></script>
-          <script src="word-studio-09-structure.js?v=78"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=78"></script>
-          <script src="word-studio-11-flow-pro.js?v=78"></script>
-          <script src="word-studio-12-diagram-builder.js?v=78"></script>
-          <script src="word-studio-13-immersive-ui.js?v=78"></script>
-          <script src="word-studio-14-interactions.js?v=78"></script>
+          <script src="word-studio-01-core.js?v=79"></script>
+          <script src="word-studio-02-editor.js?v=79"></script>
+          <script src="word-studio-03-render.js?v=79"></script>
+          <script src="word-studio-04-bind.js?v=79"></script>
+          <script src="word-studio-05-docx.js?v=79"></script>
+          <script src="word-studio-06-ui.js?v=79"></script>
+          <script src="word-studio-07-premium.js?v=79"></script>
+          <script src="word-studio-08-sgc-details.js?v=79"></script>
+          <script src="word-studio-09-structure.js?v=79"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=79"></script>
+          <script src="word-studio-11-flow-pro.js?v=79"></script>
+          <script src="word-studio-12-diagram-builder.js?v=79"></script>
+          <script src="word-studio-13-immersive-ui.js?v=79"></script>
+          <script src="word-studio-14-interactions.js?v=79"></script>
           '''
           html=html.replace('</head>',css+'\n</head>')
           html=html.replace('</body>',scripts+'\n</body>')
@@ -254,7 +254,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare approved baseline plus isolated Word Studio V78
+      - name: Prepare approved baseline plus isolated Word Studio V79
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -263,29 +263,29 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=78">
-          <link rel="stylesheet" href="word-studio-premium.css?v=78">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=78">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=78">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=78">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=78">
+          <link rel="stylesheet" href="word-studio-pro.css?v=79">
+          <link rel="stylesheet" href="word-studio-premium.css?v=79">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=79">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=79">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=79">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=79">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=78"></script>
-          <script src="word-studio-02-editor.js?v=78"></script>
-          <script src="word-studio-03-render.js?v=78"></script>
-          <script src="word-studio-04-bind.js?v=78"></script>
-          <script src="word-studio-05-docx.js?v=78"></script>
-          <script src="word-studio-06-ui.js?v=78"></script>
-          <script src="word-studio-07-premium.js?v=78"></script>
-          <script src="word-studio-08-sgc-details.js?v=78"></script>
-          <script src="word-studio-09-structure.js?v=78"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=78"></script>
-          <script src="word-studio-11-flow-pro.js?v=78"></script>
-          <script src="word-studio-12-diagram-builder.js?v=78"></script>
-          <script src="word-studio-13-immersive-ui.js?v=78"></script>
-          <script src="word-studio-14-interactions.js?v=78"></script>
+          <script src="word-studio-01-core.js?v=79"></script>
+          <script src="word-studio-02-editor.js?v=79"></script>
+          <script src="word-studio-03-render.js?v=79"></script>
+          <script src="word-studio-04-bind.js?v=79"></script>
+          <script src="word-studio-05-docx.js?v=79"></script>
+          <script src="word-studio-06-ui.js?v=79"></script>
+          <script src="word-studio-07-premium.js?v=79"></script>
+          <script src="word-studio-08-sgc-details.js?v=79"></script>
+          <script src="word-studio-09-structure.js?v=79"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=79"></script>
+          <script src="word-studio-11-flow-pro.js?v=79"></script>
+          <script src="word-studio-12-diagram-builder.js?v=79"></script>
+          <script src="word-studio-13-immersive-ui.js?v=79"></script>
+          <script src="word-studio-14-interactions.js?v=79"></script>
           '''
           html=html.replace('</head>',css+'\n</head>')
           html=html.replace('</body>',scripts+'\n</body>')
