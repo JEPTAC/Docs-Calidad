@@ -41,29 +41,22 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-
           html=Path('index.html').read_text(encoding='utf-8')
-          css_names=['word-studio-pro.css','word-studio-premium.css','word-studio-extensions.css','word-studio-diagram-builder.css','word-studio-immersive.css','word-studio-workspace-v76.css','word-studio-ai-local.css']
+          css_names=['word-studio-pro.css','word-studio-premium.css','word-studio-extensions.css','word-studio-diagram-builder.css','word-studio-immersive.css','word-studio-workspace-v76.css','word-studio-ai-local.css','word-studio-ai-v83-fix.css']
           css={n:Path(n).read_text(encoding='utf-8') for n in css_names}
           ai_core=Path('word-studio-15-ai-local.js').read_text(encoding='utf-8')
           ai_import=Path('word-studio-16-document-import.js').read_text(encoding='utf-8')
           ai_ui=Path('word-studio-17-ai-ui.js').read_text(encoding='utf-8')
-
-          required=[
-            (r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;', 'bandas SGC'),
-            (r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;', 'subtítulos SGC'),
-            (r'\.sgc-section-content\{[^}]*font-size:10\.5pt;', 'cuerpo SGC'),
-            (r'\.control-change-table th\{[^}]*background:#001F73;[^}]*color:#fff;', 'control cambios')
-          ]
+          required=[(r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;','bandas SGC'),(r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;','subtítulos SGC'),(r'\.sgc-section-content\{[^}]*font-size:10\.5pt;','cuerpo SGC'),(r'\.control-change-table th\{[^}]*background:#001F73;[^}]*color:#fff;','control cambios')]
           for pattern,label in required:
             if not re.search(pattern,html,re.S): raise SystemExit(f'Contrato SGC roto: {label}')
-
           for name,txt in css.items():
             if re.search(r'\.sgc-[A-Za-z0-9_-]+',txt): raise SystemExit(f'{name} no puede redefinir clases SGC')
           if '--ei-ai-blue:#001F73' not in css['word-studio-ai-local.css']: raise SystemExit('IA debe usar azul institucional')
+          if '.ei-ai-fab-host{pointer-events:none!important' not in css['word-studio-ai-v83-fix.css']: raise SystemExit('FAB no debe interceptar clics del chat')
+          if '.ei-ai-drawer{z-index:230!important' not in css['word-studio-ai-v83-fix.css']: raise SystemExit('Drawer IA debe quedar por encima del FAB')
           for bad in ('#175CD3','#2F80ED','#001754','#0563C1'):
             if any(bad.lower() in txt.lower() for txt in list(css.values())+[ai_core,ai_ui]): raise SystemExit(f'Azul no institucional: {bad}')
-
           checks={
             'runtime WebLLM fijado': '@mlc-ai/web-llm@0.2.85' in ai_core,
             'modelo equilibrado oficial': 'Llama-3.2-1B-Instruct-q4f16_1-MLC' in ai_core,
@@ -101,20 +94,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
       - name: Build exact Pages candidate V83
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
           python - <<'PY'
           from pathlib import Path
-          p=Path('_site/index.html')
-          html=p.read_text(encoding='utf-8')
+          p=Path('_site/index.html'); html=p.read_text(encoding='utf-8')
           css='''
           <link rel="stylesheet" href="word-studio-pro.css?v=83">
           <link rel="stylesheet" href="word-studio-premium.css?v=83">
@@ -123,45 +113,23 @@ jobs:
           <link rel="stylesheet" href="word-studio-immersive.css?v=83">
           <link rel="stylesheet" href="word-studio-workspace-v76.css?v=83">
           <link rel="stylesheet" href="word-studio-ai-local.css?v=83">
+          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=83">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=83"></script>
-          <script src="word-studio-02-editor.js?v=83"></script>
-          <script src="word-studio-03-render.js?v=83"></script>
-          <script src="word-studio-04-bind.js?v=83"></script>
-          <script src="word-studio-05-docx.js?v=83"></script>
-          <script src="word-studio-06-ui.js?v=83"></script>
-          <script src="word-studio-07-premium.js?v=83"></script>
-          <script src="word-studio-08-sgc-details.js?v=83"></script>
-          <script src="word-studio-09-structure.js?v=83"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=83"></script>
-          <script src="word-studio-11-flow-pro.js?v=83"></script>
-          <script src="word-studio-12-diagram-builder.js?v=83"></script>
-          <script src="word-studio-13-immersive-ui.js?v=83"></script>
-          <script src="word-studio-14-interactions.js?v=83"></script>
-          <script src="word-studio-15-ai-local.js?v=83"></script>
-          <script src="word-studio-16-document-import.js?v=83"></script>
-          <script src="word-studio-17-ai-ui.js?v=83"></script>
+          <script src="word-studio-01-core.js?v=83"></script><script src="word-studio-02-editor.js?v=83"></script><script src="word-studio-03-render.js?v=83"></script><script src="word-studio-04-bind.js?v=83"></script><script src="word-studio-05-docx.js?v=83"></script><script src="word-studio-06-ui.js?v=83"></script><script src="word-studio-07-premium.js?v=83"></script><script src="word-studio-08-sgc-details.js?v=83"></script><script src="word-studio-09-structure.js?v=83"></script><script src="word-studio-10-horizontal-flow.js?v=83"></script><script src="word-studio-11-flow-pro.js?v=83"></script><script src="word-studio-12-diagram-builder.js?v=83"></script><script src="word-studio-13-immersive-ui.js?v=83"></script><script src="word-studio-14-interactions.js?v=83"></script><script src="word-studio-15-ai-local.js?v=83"></script><script src="word-studio-16-document-import.js?v=83"></script><script src="word-studio-17-ai-ui.js?v=83"></script>
           '''
-          html=html.replace('</head>',css+'\n</head>')
-          html=html.replace('</body>',scripts+'\n</body>')
-          p.write_text(html,encoding='utf-8')
+          html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
           touch _site/.nojekyll
-
       - name: Install Chromium test runtime
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-
       - name: Browser smoke tests
         run: |
           python3 -m http.server 4173 --directory _site >/tmp/docs-calidad-http.log 2>&1 &
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
-            sleep 1
-          done
+          for i in {1..30}; do if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi; sleep 1; done
           TEST_URL=http://127.0.0.1:4173 node tests/ui-smoke.mjs
           TEST_URL=http://127.0.0.1:4173 node tests/ai-local-smoke.mjs
 
@@ -174,18 +142,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Prepare approved baseline plus Word Studio V83
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
           python - <<'PY'
           from pathlib import Path
-          p=Path('_site/index.html')
-          html=p.read_text(encoding='utf-8')
+          p=Path('_site/index.html'); html=p.read_text(encoding='utf-8')
           css='''
           <link rel="stylesheet" href="word-studio-pro.css?v=83">
           <link rel="stylesheet" href="word-studio-premium.css?v=83">
@@ -194,38 +159,19 @@ jobs:
           <link rel="stylesheet" href="word-studio-immersive.css?v=83">
           <link rel="stylesheet" href="word-studio-workspace-v76.css?v=83">
           <link rel="stylesheet" href="word-studio-ai-local.css?v=83">
+          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=83">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=83"></script>
-          <script src="word-studio-02-editor.js?v=83"></script>
-          <script src="word-studio-03-render.js?v=83"></script>
-          <script src="word-studio-04-bind.js?v=83"></script>
-          <script src="word-studio-05-docx.js?v=83"></script>
-          <script src="word-studio-06-ui.js?v=83"></script>
-          <script src="word-studio-07-premium.js?v=83"></script>
-          <script src="word-studio-08-sgc-details.js?v=83"></script>
-          <script src="word-studio-09-structure.js?v=83"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=83"></script>
-          <script src="word-studio-11-flow-pro.js?v=83"></script>
-          <script src="word-studio-12-diagram-builder.js?v=83"></script>
-          <script src="word-studio-13-immersive-ui.js?v=83"></script>
-          <script src="word-studio-14-interactions.js?v=83"></script>
-          <script src="word-studio-15-ai-local.js?v=83"></script>
-          <script src="word-studio-16-document-import.js?v=83"></script>
-          <script src="word-studio-17-ai-ui.js?v=83"></script>
+          <script src="word-studio-01-core.js?v=83"></script><script src="word-studio-02-editor.js?v=83"></script><script src="word-studio-03-render.js?v=83"></script><script src="word-studio-04-bind.js?v=83"></script><script src="word-studio-05-docx.js?v=83"></script><script src="word-studio-06-ui.js?v=83"></script><script src="word-studio-07-premium.js?v=83"></script><script src="word-studio-08-sgc-details.js?v=83"></script><script src="word-studio-09-structure.js?v=83"></script><script src="word-studio-10-horizontal-flow.js?v=83"></script><script src="word-studio-11-flow-pro.js?v=83"></script><script src="word-studio-12-diagram-builder.js?v=83"></script><script src="word-studio-13-immersive-ui.js?v=83"></script><script src="word-studio-14-interactions.js?v=83"></script><script src="word-studio-15-ai-local.js?v=83"></script><script src="word-studio-16-document-import.js?v=83"></script><script src="word-studio-17-ai-ui.js?v=83"></script>
           '''
-          html=html.replace('</head>',css+'\n</head>')
-          html=html.replace('</body>',scripts+'\n</body>')
-          p.write_text(html,encoding='utf-8')
+          html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
           touch _site/.nojekyll
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
