@@ -1,0 +1,28 @@
+/* V83 · Correcciones de interacción y legibilidad del Centro IA. Capa aislada. */
+:root{--ei-ai-v83-blue:#001F73;--ei-ai-v83-yellow:#EAC800;--ei-ai-v83-cream:#FFF8D7}
+.ei-ai-fab-host{pointer-events:none!important;z-index:210!important}
+.ei-ai-fab,.ei-ai-fab-menu,.ei-ai-fab-menu *{pointer-events:auto!important}
+.ei-ai-drawer{z-index:230!important;width:min(560px,calc(100vw - 44px))!important}
+.ei-ai-drawer.open{pointer-events:auto!important}
+.ei-ai-chat-shell{min-height:540px!important}
+.ei-ai-chat{padding:14px!important;gap:10px!important}
+.ei-ai-message{font-size:10px!important;line-height:1.58!important;padding:10px 12px!important;border-radius:13px!important}
+.ei-ai-message.assistant{max-width:94%!important}
+.ei-ai-message.user{max-width:88%!important}
+.ei-ai-message-actions{gap:6px!important;margin-top:2px!important}
+.ei-ai-message-actions button{font-size:8.4px!important;min-height:30px!important;padding:5px 8px!important}
+.ei-ai-compose{grid-template-columns:1fr 44px!important;gap:8px!important;padding:10px!important}
+.ei-ai-compose textarea{font-size:10.2px!important;line-height:1.45!important;min-height:64px!important}
+.ei-ai-send{min-height:64px!important}
+.ei-ai-chat-footer label{font-size:8px!important}
+.ei-ai-chat-footer select{font-size:8.8px!important}
+.ei-ai-tabs button{font-size:9px!important;min-height:34px!important}
+.ei-ai-card-head small{font-size:8px!important}.ei-ai-card-head strong{font-size:11.5px!important}
+.ei-ai-actions button{min-height:50px!important;font-size:9px!important}.ei-ai-actions button small{font-size:7.8px!important;line-height:1.35!important}
+.ei-ai-organizer{gap:7px!important}
+.ei-ai-org-block{border-radius:11px!important;box-shadow:0 2px 8px rgba(16,24,40,.04)!important}
+.ei-ai-org-block textarea,.ei-ai-org-block input,.ei-ai-org-block select{font-size:9px!important}
+.ei-ai-org-block[data-kind="heading"]{border-left:4px solid var(--ei-ai-v83-blue)!important}
+.ei-ai-org-block[data-kind="paragraph"]{border-left:4px solid #D8E0EC!important}
+.ei-ai-org-block[data-kind="table"]{border-left:4px solid var(--ei-ai-v83-yellow)!important}
+@media(max-width:650px){.ei-ai-drawer{inset:8px!important;width:auto!important;height:auto!important}.ei-ai-fab-host{right:12px!important;bottom:12px!important}}
