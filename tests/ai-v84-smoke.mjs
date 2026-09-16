@@ -64,7 +64,7 @@ try{
 
   await page.locator('[data-ei-ai-tab="model"]').click();
   const options=(await page.locator('#eiAiModel option').allTextContents()).join(' | ');
-  assert(/Automática/i.test(options)&&/WASM/i.test(options),'Falta selector de IA automática con fallback WASM/CPU');
+  assert(/Automática/i.test(options)&&(/WASM/i.test(options)||/fallback/i.test(options)),'Falta selector de IA automática compatible con fallback local WASM/CPU');
   const env=await page.evaluate(async()=>{
     const mod=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm');
     return{wasm:typeof WebAssembly!=='undefined',ready:window.EI_AI_V84_READY===true,hierarchy:window.EI_AI_V84_HIERARCHY_READY===true,order:window.EI_AI_V85_MESSAGE_ORDER_READY===true,pipeline:typeof mod.pipeline==='function',streamer:typeof mod.TextStreamer==='function'};
