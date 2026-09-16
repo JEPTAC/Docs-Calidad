@@ -42,7 +42,7 @@ function eiAiCurrentDocumentText(){
   const out=[];
   doc.sections.forEach((s,i)=>{
     const n=s.n||i+1;out.push(`${n} ${s.t||''}`.trim());if(s.c)out.push(String(s.c));
-    (s.sub||[]).forEach((ss,j)=>{out.push(`${ss.n||`${n}.${j+1}`} ${ss.t||''}`.trim());if(ss.c)out.push(String(ss.c));(ss.blocks||[]).forEach(b=>out.push(eiAiBlockText(b))});
+    (s.sub||[]).forEach((ss,j)=>{out.push(`${ss.n||`${n}.${j+1}`} ${ss.t||''}`.trim());if(ss.c)out.push(String(ss.c));(ss.blocks||[]).forEach(b=>out.push(eiAiBlockText(b)));});
     (s.blocks||[]).forEach(b=>out.push(eiAiBlockText(b)));
   });
   return eiAiNormalizeText(out.filter(Boolean).join('\n\n'));
