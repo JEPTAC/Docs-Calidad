@@ -1,4 +1,4 @@
-/* V67 · Premium UX aislado. NO modifica ninguna clase base SGC de la plantilla. */
+/* V69 · Premium UX aislado. NO modifica ninguna clase base SGC de la plantilla. */
 :root{--word-body-size:10.5pt;--word-body-line:1.38;--word-ui-size:11px}
 .word-studio-settings,.word-studio-settings input,.word-studio-settings select,.word-studio-settings textarea,.word-studio-settings button,.word-block-editor,.word-block-editor input,.word-block-editor select,.word-block-editor textarea,.word-block-editor button,.word-reference-manager,.word-reference-manager input,.word-reference-manager select,.word-reference-manager textarea,.word-reference-manager button{font-size:var(--word-ui-size)!important}
 .word-studio-settings{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-color:rgba(255,255,255,.42);box-shadow:0 10px 28px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.26)}
@@ -33,6 +33,18 @@
 .premium-rich-output p,.premium-rich-output div,.word-rich-text p,.word-rich-text div,.word-callout-rich p,.word-callout-rich div{margin:0 0 5px}.premium-rich-output p:last-child,.premium-rich-output div:last-child,.word-rich-text p:last-child,.word-rich-text div:last-child,.word-callout-rich p:last-child,.word-callout-rich div:last-child{margin-bottom:0}
 .word-pro-table th,.word-pro-table td{font:inherit!important;line-height:inherit!important}
 .word-kpi-card strong{font-size:15pt!important;line-height:1.2!important}
+
+/* V69 · detalles institucionales aislados: no redefinen ninguna clase SGC base. */
+.word-control-change-table th{background:#001F73!important;color:#fff!important}
+.word-toc-leader-row{display:grid!important;grid-template-columns:max-content minmax(24px,1fr) max-content!important;gap:8px!important;align-items:end!important;width:100%}
+.word-toc-label{white-space:nowrap}
+.word-toc-dots{height:1em;min-width:24px;background-image:radial-gradient(circle,#A4A8AB 1px,transparent 1.2px);background-size:5px 2px;background-repeat:repeat-x;background-position:left calc(100% - 3px)}
+.word-toc-page{min-width:18px;text-align:right;font-variant-numeric:tabular-nums}
+.word-toc-level-2{margin-left:.28in!important;width:calc(100% - .28in)!important}
+.word-toc-level-3{margin-left:.42in!important;width:calc(100% - .42in)!important}
+.word-toc-level-4{margin-left:.56in!important;width:calc(100% - .56in)!important}
+.word-toc-level-5{margin-left:.70in!important;width:calc(100% - .70in)!important}
+.word-toc-level-6{margin-left:.84in!important;width:calc(100% - .84in)!important}
 
 @media(max-width:900px){.word-premium-note{grid-template-columns:1fr}.word-rich-toolbar{gap:2px}.word-rich-toolbar button{min-width:27px;padding:3px 5px}}
 @media print{.word-rich-editor-wrap,.word-premium-note{box-shadow:none!important}.premium-rich-output a,.word-rich-text a,.word-callout-rich a{color:inherit}}
