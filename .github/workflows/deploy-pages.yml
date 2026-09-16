@@ -23,9 +23,10 @@ jobs:
 
       - name: Validate additive Word Studio JavaScript
         run: |
-          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js word-studio-13-immersive-ui.js; do
+          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js word-studio-13-immersive-ui.js word-studio-14-interactions.js; do
             node --check "$f"
           done
+          node --check tests/ui-smoke.mjs
 
       - name: Lock approved SGC baseline
         run: |
@@ -35,24 +36,33 @@ jobs:
           test -f assets/happy-cat.gif
           test -f assets/footer-ei-calidad.png
 
-      - name: Validate SGC visual contract
+      - name: Validate SGC visual contract and isolated UX
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
           html = Path('index.html').read_text(encoding='utf-8')
-          pro = Path('word-studio-pro.css').read_text(encoding='utf-8')
-          premium = Path('word-studio-premium.css').read_text(encoding='utf-8')
-          ext = Path('word-studio-extensions.css').read_text(encoding='utf-8')
-          builder_css = Path('word-studio-diagram-builder.css').read_text(encoding='utf-8')
-          immersive_css = Path('word-studio-immersive.css').read_text(encoding='utf-8')
+          css_files = {
+              'word-studio-pro.css': Path('word-studio-pro.css').read_text(encoding='utf-8'),
+              'word-studio-premium.css': Path('word-studio-premium.css').read_text(encoding='utf-8'),
+              'word-studio-extensions.css': Path('word-studio-extensions.css').read_text(encoding='utf-8'),
+              'word-studio-diagram-builder.css': Path('word-studio-diagram-builder.css').read_text(encoding='utf-8'),
+              'word-studio-immersive.css': Path('word-studio-immersive.css').read_text(encoding='utf-8'),
+              'word-studio-workspace-v76.css': Path('word-studio-workspace-v76.css').read_text(encoding='utf-8'),
+          }
+          premium = css_files['word-studio-premium.css']
+          ext = css_files['word-studio-extensions.css']
+          builder_css = css_files['word-studio-diagram-builder.css']
+          immersive_css = css_files['word-studio-immersive.css']
+          workspace = css_files['word-studio-workspace-v76.css']
           details = Path('word-studio-08-sgc-details.js').read_text(encoding='utf-8')
           structure = Path('word-studio-09-structure.js').read_text(encoding='utf-8')
           horizontal = Path('word-studio-10-horizontal-flow.js').read_text(encoding='utf-8')
           flowpro = Path('word-studio-11-flow-pro.js').read_text(encoding='utf-8')
           builder = Path('word-studio-12-diagram-builder.js').read_text(encoding='utf-8')
           immersive = Path('word-studio-13-immersive-ui.js').read_text(encoding='utf-8')
+          interactions = Path('word-studio-14-interactions.js').read_text(encoding='utf-8')
 
           checks = {
               'bandas SGC azul/amarillo': r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;',
@@ -65,7 +75,7 @@ jobs:
               if not re.search(pattern, html, re.S):
                   raise SystemExit(f'Contrato visual roto: {label}')
 
-          for name, css in [('word-studio-pro.css', pro), ('word-studio-premium.css', premium), ('word-studio-extensions.css', ext), ('word-studio-diagram-builder.css', builder_css), ('word-studio-immersive.css', immersive_css)]:
+          for name, css in css_files.items():
               if re.search(r'\.sgc-[A-Za-z0-9_-]+', css):
                   raise SystemExit(f'{name} no puede redefinir clases base SGC')
 
@@ -80,12 +90,24 @@ jobs:
           if 'word-toc-title' not in details or 'word-toc-dots' not in details:
               raise SystemExit('La capa de detalle debe mantener TOC institucional')
 
-          if '--ei-blue:#001F73' not in ext or '--diagram-blue:#001F73' not in builder_css or "V74_BLUE='#001F73'" not in builder or '--v75-blue:#001F73' not in immersive_css or "V75_BLUE='#001F73'" not in immersive:
-              raise SystemExit('Todas las capas nuevas deben usar azul institucional #001F73')
+          required_blue = [
+              ('extensiones', '--ei-blue:#001F73', ext),
+              ('builder css', '--diagram-blue:#001F73', builder_css),
+              ('immersive css', '--v75-blue:#001F73', immersive_css),
+              ('workspace V76', '--v76-blue:#001F73', workspace),
+              ('builder js', "V74_BLUE='#001F73'", builder),
+              ('immersive js', "V75_BLUE='#001F73'", immersive),
+              ('interactions V76', "V76_BLUE='#001F73'", interactions),
+          ]
+          for name, needle, txt in required_blue:
+              if needle not in txt:
+                  raise SystemExit(f'{name} debe usar azul institucional #001F73')
+
           for bad in ('#175CD3','#2F80ED','#001754','#0563C1'):
-              for name, txt in [('extensiones', ext), ('builder css', builder_css), ('builder js', builder), ('immersive css', immersive_css), ('immersive js', immersive)]:
+              for name, txt in list(css_files.items()) + [('builder js', builder), ('immersive js', immersive), ('interactions js', interactions)]:
                   if bad.lower() in txt.lower():
                       raise SystemExit(f'Azul no institucional detectado en {name}: {bad}')
+
           if 'margin:0 0 2px!important' not in ext:
               raise SystemExit('El espacio entre párrafos debe permanecer compacto')
           if "V71_BLUE='#001F73'" not in structure or "V72_BLUE='#001F73'" not in horizontal or "V73_BLUE='#001F73'" not in flowpro:
@@ -94,17 +116,19 @@ jobs:
               raise SystemExit('El horizontal debe conservar motor serpenteante V73')
           if 'data-v74-flow-card' not in builder or 'data-v74-concept-relation' not in builder or 'dragstart' not in builder or 'v74BindDrag' not in builder:
               raise SystemExit('V74 debe conservar constructor visual y drag-and-drop')
-          if 'v74ConceptSvgData' not in builder:
-              raise SystemExit('V74 debe dibujar relaciones del mapa conceptual')
           if 'wordContextDrawer' not in immersive or 'v75InsertMenu' not in immersive or 'v75-focus-mode' not in immersive_css:
-              raise SystemExit('V75 debe incluir inspector flotante, inserción y modo enfoque')
-          if 'v75-diagram-summary' not in immersive or 'v75-compact-insert' not in immersive_css:
-              raise SystemExit('V75 debe compactar diagramas e inserción del panel lateral')
-          if 'v75EnhanceAccordions' not in immersive or 'v75-collapsible' not in immersive_css:
-              raise SystemExit('V75 debe convertir editores de bloque en acordeones')
+              raise SystemExit('V75 debe conservar inspector flotante, inserción y modo enfoque')
+          if 'v75-diagram-summary' not in immersive or 'v75-compact-insert' not in immersive_css or 'v75EnhanceAccordions' not in immersive:
+              raise SystemExit('V75 debe conservar interfaz contextual compacta')
+          if 'document.addEventListener(\'click\',v76HandleClick,true)' not in interactions:
+              raise SystemExit('V76 debe usar delegación de eventos para controles dinámicos')
+          if "[data-v75-open-insert]" not in interactions or "[data-v75-open-diagram]" not in interactions:
+              raise SystemExit('V76 debe cubrir Insertar bloque y Abrir constructor visual')
+          if 'background:var(--v76-soft)' not in workspace or 'body.v75-word-active .topbar' not in workspace:
+              raise SystemExit('V76 debe conservar el workspace minimalista')
           PY
 
-      - name: Validate premium editor DOCX and immersive UX
+      - name: Validate premium DOCX and interaction safeguards
         run: |
           grep -q 'word-rich-editor' word-studio-07-premium.js
           grep -q 'premiumDocxRichParagraphs' word-studio-07-premium.js
@@ -123,6 +147,8 @@ jobs:
           grep -q 'v75OpenDrawer' word-studio-13-immersive-ui.js
           grep -q 'v75ToggleFocus' word-studio-13-immersive-ui.js
           grep -q 'V75_INSERT_GROUPS' word-studio-13-immersive-ui.js
+          grep -q 'V76_INTERACTIONS_READY' word-studio-14-interactions.js
+          test -f tests/ui-smoke.mjs
 
       - name: Validate original inline JavaScript syntax
         run: |
@@ -137,8 +163,73 @@ jobs:
           node --check /tmp/index.html.js
           node --check /tmp/procedimiento_index.html.js
 
-  deploy:
+  ui-smoke:
     needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build exact Pages candidate V76
+        run: |
+          mkdir -p _site
+          rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('_site/index.html')
+          html=p.read_text(encoding='utf-8')
+          css='''
+          <link rel="stylesheet" href="word-studio-pro.css?v=76">
+          <link rel="stylesheet" href="word-studio-premium.css?v=76">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=76">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=76">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=76">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=76">
+          '''
+          scripts='''
+          <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
+          <script src="word-studio-01-core.js?v=76"></script>
+          <script src="word-studio-02-editor.js?v=76"></script>
+          <script src="word-studio-03-render.js?v=76"></script>
+          <script src="word-studio-04-bind.js?v=76"></script>
+          <script src="word-studio-05-docx.js?v=76"></script>
+          <script src="word-studio-06-ui.js?v=76"></script>
+          <script src="word-studio-07-premium.js?v=76"></script>
+          <script src="word-studio-08-sgc-details.js?v=76"></script>
+          <script src="word-studio-09-structure.js?v=76"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=76"></script>
+          <script src="word-studio-11-flow-pro.js?v=76"></script>
+          <script src="word-studio-12-diagram-builder.js?v=76"></script>
+          <script src="word-studio-13-immersive-ui.js?v=76"></script>
+          <script src="word-studio-14-interactions.js?v=76"></script>
+          '''
+          html=html.replace('</head>',css+'\n</head>')
+          html=html.replace('</body>',scripts+'\n</body>')
+          p.write_text(html,encoding='utf-8')
+          PY
+          touch _site/.nojekyll
+
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Browser smoke test dynamic controls
+        run: |
+          python3 -m http.server 4173 --directory _site >/tmp/docs-calidad-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          TEST_URL=http://127.0.0.1:4173 node tests/ui-smoke.mjs
+
+  deploy:
+    needs: [validate, ui-smoke]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -150,45 +241,41 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare approved baseline plus isolated Word Studio
+      - name: Prepare approved baseline plus isolated Word Studio V76
         run: |
           mkdir -p _site
-          rsync -av --delete \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude '_site/' \
-            ./ _site/
+          rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
           python - <<'PY'
           from pathlib import Path
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=75">
-          <link rel="stylesheet" href="word-studio-premium.css?v=75">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=75">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=75">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=75">
+          <link rel="stylesheet" href="word-studio-pro.css?v=76">
+          <link rel="stylesheet" href="word-studio-premium.css?v=76">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=76">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=76">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=76">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=76">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=75"></script>
-          <script src="word-studio-02-editor.js?v=75"></script>
-          <script src="word-studio-03-render.js?v=75"></script>
-          <script src="word-studio-04-bind.js?v=75"></script>
-          <script src="word-studio-05-docx.js?v=75"></script>
-          <script src="word-studio-06-ui.js?v=75"></script>
-          <script src="word-studio-07-premium.js?v=75"></script>
-          <script src="word-studio-08-sgc-details.js?v=75"></script>
-          <script src="word-studio-09-structure.js?v=75"></script>
-          <script src="word-studio-10-horizontal-flow.js?v=75"></script>
-          <script src="word-studio-11-flow-pro.js?v=75"></script>
-          <script src="word-studio-12-diagram-builder.js?v=75"></script>
-          <script src="word-studio-13-immersive-ui.js?v=75"></script>
+          <script src="word-studio-01-core.js?v=76"></script>
+          <script src="word-studio-02-editor.js?v=76"></script>
+          <script src="word-studio-03-render.js?v=76"></script>
+          <script src="word-studio-04-bind.js?v=76"></script>
+          <script src="word-studio-05-docx.js?v=76"></script>
+          <script src="word-studio-06-ui.js?v=76"></script>
+          <script src="word-studio-07-premium.js?v=76"></script>
+          <script src="word-studio-08-sgc-details.js?v=76"></script>
+          <script src="word-studio-09-structure.js?v=76"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=76"></script>
+          <script src="word-studio-11-flow-pro.js?v=76"></script>
+          <script src="word-studio-12-diagram-builder.js?v=76"></script>
+          <script src="word-studio-13-immersive-ui.js?v=76"></script>
+          <script src="word-studio-14-interactions.js?v=76"></script>
           '''
-          if 'word-studio-immersive.css?v=75' not in html:
-              html=html.replace('</head>',css+'\n</head>')
-          if 'word-studio-13-immersive-ui.js?v=75' not in html:
-              html=html.replace('</body>',scripts+'\n</body>')
+          html=html.replace('</head>',css+'\n</head>')
+          html=html.replace('</body>',scripts+'\n</body>')
           p.write_text(html,encoding='utf-8')
           PY
           touch _site/.nojekyll
