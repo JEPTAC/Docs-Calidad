@@ -1,24 +1,33 @@
-/* V77 · Workspace institucional: lateral azul, jerarquía limpia y contraste fijo. No modifica SGC base. */
+/* V78 · Workspace institucional: lateral azul continuo, contraste fijo y contenedores transparentes. No modifica SGC base. */
 :root{--v76-blue:#001F73;--v76-yellow:#EAC800;--v76-ink:#182230;--v76-muted:#667085;--v76-line:#D9E0EA;--v76-soft:#F4F7FB;--v76-card:#FFFFFF}
 
-/* Lateral: azul institucional como superficie principal. */
+/* Lateral: azul institucional como superficie principal continua. */
 body.v75-word-active .side{background:var(--v76-blue)!important;color:#fff!important;padding:12px!important;border-right:1px solid var(--v76-blue)!important;box-shadow:8px 0 24px rgba(0,31,115,.18)!important}
 body.v75-word-active .side::before{display:none!important}
 body.v75-word-active .brand{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.20)!important;border-radius:14px!important;padding:10px!important;margin-bottom:10px!important;box-shadow:none!important;color:#fff!important}
 body.v75-word-active .brand img{width:96px!important;border-radius:7px!important;background:#fff!important}
 body.v75-word-active .brand strong,body.v75-word-active .brand span,body.v75-word-active .brand small{color:#fff!important}
 
-/* Tarjetas blancas dentro del lateral azul: contraste y lectura sin saturación. */
-body.v75-word-active .panel,body.v75-word-active .word-studio-settings{background:var(--v76-card)!important;border:1px solid rgba(255,255,255,.30)!important;border-radius:14px!important;box-shadow:0 5px 16px rgba(0,0,0,.10)!important;color:var(--v76-ink)!important}
+/* Los contenedores generales ya NO crean placas blancas: dejan ver el azul del lateral. */
+body.v75-word-active .panel,body.v75-word-active .word-studio-settings{background:transparent!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:14px!important;box-shadow:none!important;color:#fff!important}
 body.v75-word-active .panel{padding:10px!important;margin:8px 0!important}
-body.v75-word-active .panel h2,body.v75-word-active .word-studio-settings h3{color:var(--v76-blue)!important;font-size:11px!important;letter-spacing:.02em!important;margin-bottom:8px!important}
-body.v75-word-active .side label{color:#344054!important;font-size:10px!important;margin-top:7px!important}
-body.v75-word-active .side .hint,body.v75-word-active .side .microcopy{color:var(--v76-muted)!important}
+body.v75-word-active .panel h2,body.v75-word-active .word-studio-settings h3{color:#fff!important;font-size:11px!important;letter-spacing:.02em!important;margin-bottom:8px!important}
+body.v75-word-active .word-ref-head strong,body.v75-word-active .word-ref-empty{color:#fff!important}
+
+/* Texto sobre azul = blanco. Las superficies blancas internas recuperan texto oscuro/azul. */
+body.v75-word-active .side label{color:#fff!important;font-size:10px!important;margin-top:7px!important}
+body.v75-word-active .side .hint,body.v75-word-active .side .microcopy{color:rgba(255,255,255,.82)!important}
+body.v75-word-active .side .word-block-editor label,body.v75-word-active .side .v75-diagram-summary label,body.v75-word-active .side .word-diagram-builder label{color:var(--v76-blue)!important}
 body.v75-word-active .side input,body.v75-word-active .side textarea,body.v75-word-active .side select{background:#fff!important;color:var(--v76-ink)!important;border:1px solid #C7D0DD!important;border-radius:9px!important;box-shadow:none!important;padding:7px 8px!important}
-body.v75-word-active .side input:focus,body.v75-word-active .side textarea:focus,body.v75-word-active .side select:focus{border-color:var(--v76-blue)!important;box-shadow:0 0 0 3px rgba(0,31,115,.09)!important}
-body.v75-word-active .side button:not(.danger):not(.primary),body.v75-word-active .side .file-btn{background:#fff!important;color:var(--v76-blue)!important;border:1px solid #C7D0DD!important;box-shadow:none!important}
-body.v75-word-active .side button:not(.danger):not(.primary):hover{background:#F7F9FC!important;border-color:var(--v76-blue)!important;color:var(--v76-blue)!important}
-body.v75-word-active .side button.primary{background:var(--v76-blue)!important;color:#fff!important;border:1px solid var(--v76-blue)!important;box-shadow:none!important}
+body.v75-word-active .side input:focus,body.v75-word-active .side textarea:focus,body.v75-word-active .side select:focus{border-color:var(--v76-blue)!important;box-shadow:0 0 0 3px rgba(234,200,0,.22)!important}
+body.v75-word-active .side button:not(.danger):not(.primary),body.v75-word-active .side .file-btn{background:#fff!important;color:var(--v76-blue)!important;border:1px solid rgba(255,255,255,.78)!important;box-shadow:none!important}
+body.v75-word-active .side button:not(.danger):not(.primary):hover{background:#F7F9FC!important;border-color:var(--v76-yellow)!important;color:var(--v76-blue)!important}
+body.v75-word-active .side button.primary{background:var(--v76-blue)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important;box-shadow:none!important}
+
+/* Avisos amarillos claros: SIEMPRE texto azul institucional. */
+body.v75-word-active .word-type-notice{background:linear-gradient(135deg,rgba(234,200,0,.28),rgba(234,200,0,.12))!important;border:1px solid rgba(234,200,0,.72)!important;color:var(--v76-blue)!important;opacity:1!important}
+body.v75-word-active .word-type-notice *{color:var(--v76-blue)!important}
+body.v75-word-active .word-premium-note,body.v75-word-active .word-premium-note strong,body.v75-word-active .word-premium-note span{color:var(--v76-blue)!important}
 
 /* Regla visual institucional de contraste para la UI nueva. */
 .v76-blue-surface,.v75-open-diagram,.v75-toolbar-group .v75-toolbar-btn.primary-tool{background:var(--v76-blue)!important;color:#fff!important;border-color:var(--v76-blue)!important}
@@ -26,13 +35,14 @@ body.v75-word-active .side button.primary{background:var(--v76-blue)!important;c
 .v76-blue-surface *, .v75-open-diagram *,.v75-toolbar-group .v75-toolbar-btn.primary-tool *{color:#fff!important}
 .v76-yellow-surface *,body.v75-word-active #exportDocx *,body.v75-word-active #printPdf *{color:var(--v76-blue)!important}
 
-/* Inserción local compacta. */
-.v75-compact-insert{background:#fff!important;border:1px solid var(--v76-line)!important;border-radius:10px!important;padding:5px 6px!important;margin:5px 0!important;min-height:36px!important}
+/* Inserción local compacta: tarjeta funcional blanca sobre lateral azul. */
+.v75-compact-insert{background:rgba(255,255,255,.96)!important;border:1px solid rgba(255,255,255,.58)!important;border-radius:10px!important;padding:5px 6px!important;margin:5px 0!important;min-height:36px!important}
 .v75-compact-insert span{color:var(--v76-muted)!important;font-size:8.5px!important;font-weight:700!important}
 .v75-compact-insert button{background:#EEF2FA!important;color:var(--v76-blue)!important;border:1px solid transparent!important;border-radius:8px!important;padding:6px 9px!important;font-size:9px!important;box-shadow:none!important}
 .v75-compact-insert button:hover{background:var(--v76-blue)!important;color:#fff!important}
 
-.word-block-editor.v75-collapsible,.v75-diagram-summary{border:1px solid var(--v76-line)!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important}
+/* Tarjetas que sí requieren superficie propia. */
+.word-block-editor.v75-collapsible,.v75-diagram-summary{border:1px solid var(--v76-line)!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important;color:var(--v76-ink)!important}
 .word-block-editor.v75-collapsible>.word-block-editor-head,.v75-diagram-summary .word-block-editor-head{background:#F8FAFC!important;border-color:#E4E7EC!important;padding:7px 8px!important}
 .word-block-editor-head strong{color:var(--v76-blue)!important;font-size:10px!important}
 .v75-diagram-summary-body{padding:8px!important}.v75-diagram-summary-meta{margin:6px 0!important;gap:4px!important}.v75-chip{padding:3px 6px!important;font-size:7.5px!important}.v75-chip.blue{background:#EEF2FA!important;color:var(--v76-blue)!important}
@@ -73,10 +83,10 @@ body.v75-word-active .toolbar>button,body.v75-word-active .toolbar .v75-toolbar-
 .v76-insert-groups button:disabled{opacity:.42;cursor:not-allowed;background:#F2F4F7;color:#98A2B3}
 .v76-insert-popover.has-target .v76-insert-location{background:#F8FAFC}
 
-body.v75-word-active .side,.v75-context-body{scrollbar-width:thin;scrollbar-color:#B8C3D6 transparent}
+body.v75-word-active .side,.v75-context-body{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.34) transparent}
 body.v75-word-active .side::-webkit-scrollbar,.v75-context-body::-webkit-scrollbar{width:7px}
-body.v75-word-active .side::-webkit-scrollbar-thumb,.v75-context-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.34);border-radius:999px}
-.v75-context-body::-webkit-scrollbar-thumb{background:#B8C3D6}
+body.v75-word-active .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.34);border-radius:999px}
+.v75-context-body::-webkit-scrollbar-thumb{background:#B8C3D6;border-radius:999px}
 
 @media(max-width:1180px){body.v75-word-active .app{grid-template-columns:350px minmax(0,1fr)!important}}
 @media(max-width:900px){body.v75-word-active .app{grid-template-columns:1fr!important}.v75-toolbar-group{max-width:100%;overflow:auto}.v75-compact-insert span{display:none}.v76-insert-popover{width:calc(100vw - 20px)!important;left:10px!important}.v76-insert-groups section>div{grid-template-columns:1fr}}
