@@ -27,15 +27,34 @@ try{
   await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true&&window.V77_EXPLICIT_TARGETING===true,{timeout:10000});
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
 
-  /* Contraste institucional de la interfaz. */
+  /* Contraste institucional y transparencia real del lateral. */
   const visual=await page.evaluate(()=>{
     const side=getComputedStyle(document.querySelector('.side'));
+    const panelEl=document.querySelector('[data-panel="word"]');
+    const panel=panelEl?getComputedStyle(panelEl):null;
+    const studioEl=document.querySelector('.word-studio-settings');
+    const studio=studioEl?getComputedStyle(studioEl):null;
+    const noticeEl=document.querySelector('#wordTypeNotice');
+    const notice=noticeEl?getComputedStyle(noticeEl):null;
+    const premiumEl=document.querySelector('.word-premium-note');
+    const premium=premiumEl?getComputedStyle(premiumEl):null;
     const primary=getComputedStyle(document.querySelector('#v75InsertBtn'));
     const exportBtn=document.querySelector('#exportDocx');
     const exp=exportBtn?getComputedStyle(exportBtn):null;
-    return {sideBg:side.backgroundColor,sideColor:side.color,primaryBg:primary.backgroundColor,primaryColor:primary.color,exportBg:exp?.backgroundColor||null,exportColor:exp?.color||null};
+    return {
+      sideBg:side.backgroundColor,sideColor:side.color,
+      panelBg:panel?.backgroundColor||null,panelImage:panel?.backgroundImage||null,
+      studioBg:studio?.backgroundColor||null,studioImage:studio?.backgroundImage||null,
+      noticeColor:notice?.color||null,premiumColor:premium?.color||null,
+      primaryBg:primary.backgroundColor,primaryColor:primary.color,
+      exportBg:exp?.backgroundColor||null,exportColor:exp?.color||null
+    };
   });
   assert(visual.sideBg==='rgb(0, 31, 115)',`El lateral debe ser #001F73, no ${visual.sideBg}`);
+  assert(visual.panelBg==='rgba(0, 0, 0, 0)'&&visual.panelImage==='none',`El panel general debe ser transparente: ${JSON.stringify(visual)}`);
+  if(visual.studioBg)assert(visual.studioBg==='rgba(0, 0, 0, 0)'&&visual.studioImage==='none',`Word Studio general debe ser transparente: ${JSON.stringify(visual)}`);
+  assert(visual.noticeColor==='rgb(0, 31, 115)',`El aviso amarillo de tipo documental debe usar texto azul: ${JSON.stringify(visual)}`);
+  if(visual.premiumColor)assert(visual.premiumColor==='rgb(0, 31, 115)',`Edición Premium debe usar texto azul: ${JSON.stringify(visual)}`);
   assert(visual.primaryBg==='rgb(0, 31, 115)'&&visual.primaryColor==='rgb(255, 255, 255)',`Botón azul debe llevar texto blanco: ${JSON.stringify(visual)}`);
   if(visual.exportBg)assert(visual.exportBg==='rgb(234, 200, 0)'&&visual.exportColor==='rgb(0, 31, 115)',`Botón amarillo debe llevar texto azul: ${JSON.stringify(visual)}`);
 
@@ -80,5 +99,5 @@ try{
   assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
 
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS V77: lateral azul, contraste institucional, ubicación explícita, inserción local, constructor visual, Panel y Enfoque.');
+  console.log('UI smoke PASS V78: lateral azul continuo, contenedores transparentes, avisos amarillos con texto azul, ubicación explícita, constructor visual, Panel y Enfoque.');
 } finally {await browser.close()}
