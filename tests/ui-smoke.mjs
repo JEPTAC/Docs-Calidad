@@ -15,7 +15,6 @@ try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForFunction(()=>typeof setMode==='function'&&typeof render==='function',{timeout:10000});
 
-  /* Primera visita real: cerrar la bienvenida con el control visible del aplicativo. */
   const introSkip=page.locator('#introSkip');
   if(await introSkip.count()){
     const visible=await introSkip.isVisible().catch(()=>false);
@@ -25,16 +24,41 @@ try{
 
   await page.evaluate(()=>{if(typeof doc!=='undefined')doc.wordType='manual';setMode('word');render()});
   await page.waitForFunction(()=>{const panel=document.querySelector('[data-panel="word"]');return panel&&!panel.classList.contains('hidden')},{timeout:10000});
-  await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true,{timeout:10000});
+  await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true&&window.V77_EXPLICIT_TARGETING===true,{timeout:10000});
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
 
+  /* Contraste institucional de la interfaz. */
+  const visual=await page.evaluate(()=>{
+    const side=getComputedStyle(document.querySelector('.side'));
+    const primary=getComputedStyle(document.querySelector('#v75InsertBtn'));
+    const exportBtn=document.querySelector('#exportDocx');
+    const exp=exportBtn?getComputedStyle(exportBtn):null;
+    return {sideBg:side.backgroundColor,sideColor:side.color,primaryBg:primary.backgroundColor,primaryColor:primary.color,exportBg:exp?.backgroundColor||null,exportColor:exp?.color||null};
+  });
+  assert(visual.sideBg==='rgb(0, 31, 115)',`El lateral debe ser #001F73, no ${visual.sideBg}`);
+  assert(visual.primaryBg==='rgb(0, 31, 115)'&&visual.primaryColor==='rgb(255, 255, 255)',`Botón azul debe llevar texto blanco: ${JSON.stringify(visual)}`);
+  if(visual.exportBg)assert(visual.exportBg==='rgb(234, 200, 0)'&&visual.exportColor==='rgb(0, 31, 115)',`Botón amarillo debe llevar texto azul: ${JSON.stringify(visual)}`);
+
+  /* Barra superior: debe exigir ubicación explícita antes de insertar. */
   const before=await page.evaluate(()=>getWordItem(0,-1)?.blocks?.length||0);
-  const insertButton=page.locator('[data-v75-open-insert]').first();
-  await realClick(insertButton,'Insertar bloque','[data-v75-open-insert]');
-  try{await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000})}catch(e){throw new Error(`Insertar bloque no abrió V76. ${JSON.stringify(await diagnostic('[data-v75-open-insert]'))}. Consola: ${consoleErrors.join(' | ')}`)}
-  await realClick(page.locator('#v76InsertPopover [data-v76-insert-type="text"]'),'Texto premium','#v76InsertPopover [data-v76-insert-type="text"]');
+  await realClick(page.locator('#v75InsertBtn'),'Insertar superior','#v75InsertBtn');
+  await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000});
+  const topTextBtn=page.locator('#v76InsertPopover [data-v76-insert-type="text"]');
+  assert(await topTextBtn.isDisabled(),'La barra superior debe bloquear los tipos hasta elegir ubicación');
+  const location=page.locator('#v76InsertLocation');
+  await location.selectOption('0:-1');
+  assert(!(await topTextBtn.isDisabled()),'Elegir OBJETIVO debe habilitar la inserción');
+  await realClick(topTextBtn,'Texto premium','#v76InsertPopover [data-v76-insert-type="text"]');
   await page.waitForFunction(n=>(getWordItem(0,-1)?.blocks?.length||0)>n,before,{timeout:5000});
-  assert((await page.evaluate(()=>getWordItem(0,-1)?.blocks?.length||0))>before,'La paleta V76 abrió, pero no insertó el bloque');
+  assert((await page.evaluate(()=>getWordItem(0,-1)?.blocks?.length||0))>before,'La barra superior no insertó en la ubicación elegida');
+
+  /* El botón local conserva su destino conocido. */
+  await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
+  const localInsert=page.locator('[data-v75-open-insert]').first();
+  await realClick(localInsert,'Insertar bloque local','[data-v75-open-insert]');
+  await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000});
+  assert(!(await page.locator('#v76InsertPopover [data-v76-insert-type="text"]').isDisabled()),'La inserción local debe abrir con su ubicación preseleccionada');
+  await page.locator('[data-v76-close-insert]').click();
 
   await page.evaluate(()=>addWordBlock(0,-1,'diagram'));
   await page.waitForSelector('[data-v75-open-diagram]',{state:'visible',timeout:10000});
@@ -56,5 +80,5 @@ try{
   assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
 
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS: bienvenida, clic real en Insertar bloque V76, constructor visual, Panel y Enfoque.');
+  console.log('UI smoke PASS V77: lateral azul, contraste institucional, ubicación explícita, inserción local, constructor visual, Panel y Enfoque.');
 } finally {await browser.close()}
