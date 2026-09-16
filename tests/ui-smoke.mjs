@@ -8,13 +8,22 @@ const consoleErrors=[];
 page.on('pageerror',err=>pageErrors.push(String(err)));
 page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text())});
 function assert(ok,message){if(!ok)throw new Error(message)}
-async function diagnostic(selector){return page.evaluate(sel=>{const el=sel?document.querySelector(sel):null,r=el?.getBoundingClientRect?.();const top=r?document.elementFromPoint(r.left+r.width/2,r.top+r.height/2):null;return{lastAction:window.V76_LAST_ACTION,lastError:window.V76_LAST_ERROR,modeWord:document.body.classList.contains('mode-word'),palette:document.getElementById('v76InsertPopover')?.className,drawer:document.getElementById('wordContextDrawer')?.className,target:el?.outerHTML?.slice(0,220),elementAtCenter:top?.outerHTML?.slice(0,220)}} ,selector)}
+async function diagnostic(selector){return page.evaluate(sel=>{const el=sel?document.querySelector(sel):null,r=el?.getBoundingClientRect?.();const top=r?document.elementFromPoint(r.left+r.width/2,r.top+r.height/2):null;return{lastAction:window.V76_LAST_ACTION,lastError:window.V76_LAST_ERROR,modeWord:document.body.classList.contains('mode-word'),palette:document.getElementById('v76InsertPopover')?.className,drawer:document.getElementById('wordContextDrawer')?.className,intro:document.getElementById('introOverlay')?.className,target:el?.outerHTML?.slice(0,220),elementAtCenter:top?.outerHTML?.slice(0,220)}} ,selector)}
 async function realClick(locator,label,selector){try{await locator.scrollIntoViewIfNeeded();await locator.click({timeout:5000})}catch(e){throw new Error(`${label} no pudo recibir un clic real. ${JSON.stringify(await diagnostic(selector))}. ${e.message}`)}}
 
 try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForFunction(()=>typeof setMode==='function'&&typeof render==='function',{timeout:10000});
-  await page.evaluate(()=>{try{localStorage.setItem('eiIntroSeen','1')}catch{};if(typeof doc!=='undefined')doc.wordType='manual';setMode('word');render()});
+
+  /* Primera visita real: cerrar la bienvenida con el control visible del aplicativo. */
+  const introSkip=page.locator('#introSkip');
+  if(await introSkip.count()){
+    const visible=await introSkip.isVisible().catch(()=>false);
+    if(visible)await realClick(introSkip,'Entrar directo','#introSkip');
+  }
+  await page.waitForFunction(()=>{const o=document.getElementById('introOverlay');if(!o)return true;const s=getComputedStyle(o);return s.display==='none'||s.visibility==='hidden'||s.pointerEvents==='none'||o.classList.contains('hidden')||o.classList.contains('is-hidden')},{timeout:10000}).catch(async()=>{throw new Error(`La bienvenida no liberó la interfaz. ${JSON.stringify(await diagnostic('#introSkip'))}`)});
+
+  await page.evaluate(()=>{if(typeof doc!=='undefined')doc.wordType='manual';setMode('word');render()});
   await page.waitForFunction(()=>{const panel=document.querySelector('[data-panel="word"]');return panel&&!panel.classList.contains('hidden')},{timeout:10000});
   await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true,{timeout:10000});
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
@@ -47,5 +56,5 @@ try{
   assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
 
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS: clic real en Insertar bloque V76, constructor visual, Panel y Enfoque.');
+  console.log('UI smoke PASS: bienvenida, clic real en Insertar bloque V76, constructor visual, Panel y Enfoque.');
 } finally {await browser.close()}
