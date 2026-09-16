@@ -18,16 +18,26 @@ function v76EnsureReady(){
   const panel=document.getElementById('v75PanelBtn');if(panel)panel.title='Mostrar u ocultar el panel lateral';
   const focus=document.getElementById('v75FocusBtn');if(focus)focus.title='Modo enfoque para trabajar sobre el documento';
 }
+function v76OpenInsertStable(target=null){
+  v76EnsureReady();
+  if(target&&typeof v75PathTarget==='function')v75PathTarget(target);
+  const open=()=>{
+    const menu=document.getElementById('v75InsertMenu');if(!menu)return;
+    const lab=document.getElementById('v75InsertTargetLabel');
+    if(lab&&typeof v75TargetLabel==='function')lab.textContent=v75TargetLabel();
+    if(typeof v75PositionInsertMenu==='function')v75PositionInsertMenu();
+    menu.classList.add('open');
+  };
+  /* Se abre al finalizar el clic actual para no competir con el listener heredado
+     que cierra la paleta cuando detecta un clic fuera de ella. */
+  setTimeout(open,0);
+}
 
 function v76HandleClick(e){
   const t=e.target instanceof Element?e.target:null;if(!t)return;
 
   const localInsert=t.closest('[data-v75-open-insert]');
-  if(localInsert)return v76OwnEvent(e,()=>{
-    v76EnsureReady();
-    const target=localInsert.dataset.v75OpenInsert;
-    if(typeof v75OpenInsertMenu==='function')v75OpenInsertMenu(target);
-  });
+  if(localInsert)return v76OwnEvent(e,()=>v76OpenInsertStable(localInsert.dataset.v75OpenInsert));
 
   const openDiagram=t.closest('[data-v75-open-diagram]');
   if(openDiagram)return v76OwnEvent(e,()=>{
@@ -41,7 +51,7 @@ function v76HandleClick(e){
     v76EnsureReady();
     const menu=document.getElementById('v75InsertMenu');
     if(menu?.classList.contains('open'))menu.classList.remove('open');
-    else if(typeof v75OpenInsertMenu==='function')v75OpenInsertMenu();
+    else v76OpenInsertStable();
   });
 
   const insertType=t.closest('[data-v75-insert-type]');
