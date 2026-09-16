@@ -23,7 +23,7 @@ jobs:
 
       - name: Validate additive Word Studio JavaScript
         run: |
-          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js; do
+          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js; do
             node --check "$f"
           done
 
@@ -47,6 +47,7 @@ jobs:
           ext = Path('word-studio-extensions.css').read_text(encoding='utf-8')
           details = Path('word-studio-08-sgc-details.js').read_text(encoding='utf-8')
           structure = Path('word-studio-09-structure.js').read_text(encoding='utf-8')
+          horizontal = Path('word-studio-10-horizontal-flow.js').read_text(encoding='utf-8')
 
           checks = {
               'bandas SGC azul/amarillo': r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;',
@@ -83,6 +84,15 @@ jobs:
               raise SystemExit('El espacio entre párrafos debe permanecer compacto')
           if "V71_BLUE='#001F73'" not in structure:
               raise SystemExit('Diagramas V71 deben usar azul institucional #001F73')
+          if "V72_BLUE='#001F73'" not in horizontal:
+              raise SystemExit('Flujograma horizontal V72 debe usar azul institucional #001F73')
+          for bad in ('#175CD3','#2F80ED','#001754','#0563C1'):
+              if bad.lower() in horizontal.lower():
+                  raise SystemExit(f'Azul no institucional detectado en flujograma V72: {bad}')
+          if 'const gap=38' not in horizontal or 'v72NodeMetrics' not in horizontal:
+              raise SystemExit('El layout horizontal V72 debe calcular tamaños y separaciones reales')
+          if 'vector-effect="non-scaling-stroke"' not in horizontal:
+              raise SystemExit('Los conectores V72 deben conservar grosor profesional al escalar')
           PY
 
       - name: Validate premium editor DOCX lists and diagrams
@@ -101,6 +111,8 @@ jobs:
           grep -q 'v71FlowSvgData' word-studio-09-structure.js
           grep -q "type:'svg'" word-studio-09-structure.js
           grep -q 'spacing:{after:40,line:276}' word-studio-09-structure.js
+          grep -q 'v72HorizontalFlowSvgData' word-studio-10-horizontal-flow.js
+          grep -q 'v72HorizontalNodeShape' word-studio-10-horizontal-flow.js
 
       - name: Validate original inline JavaScript syntax
         run: |
@@ -141,25 +153,26 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=71">
-          <link rel="stylesheet" href="word-studio-premium.css?v=71">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=71">
+          <link rel="stylesheet" href="word-studio-pro.css?v=72">
+          <link rel="stylesheet" href="word-studio-premium.css?v=72">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=72">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=71"></script>
-          <script src="word-studio-02-editor.js?v=71"></script>
-          <script src="word-studio-03-render.js?v=71"></script>
-          <script src="word-studio-04-bind.js?v=71"></script>
-          <script src="word-studio-05-docx.js?v=71"></script>
-          <script src="word-studio-06-ui.js?v=71"></script>
-          <script src="word-studio-07-premium.js?v=71"></script>
-          <script src="word-studio-08-sgc-details.js?v=71"></script>
-          <script src="word-studio-09-structure.js?v=71"></script>
+          <script src="word-studio-01-core.js?v=72"></script>
+          <script src="word-studio-02-editor.js?v=72"></script>
+          <script src="word-studio-03-render.js?v=72"></script>
+          <script src="word-studio-04-bind.js?v=72"></script>
+          <script src="word-studio-05-docx.js?v=72"></script>
+          <script src="word-studio-06-ui.js?v=72"></script>
+          <script src="word-studio-07-premium.js?v=72"></script>
+          <script src="word-studio-08-sgc-details.js?v=72"></script>
+          <script src="word-studio-09-structure.js?v=72"></script>
+          <script src="word-studio-10-horizontal-flow.js?v=72"></script>
           '''
-          if 'word-studio-extensions.css?v=71' not in html:
+          if 'word-studio-extensions.css?v=72' not in html:
               html=html.replace('</head>',css+'\n</head>')
-          if 'word-studio-09-structure.js?v=71' not in html:
+          if 'word-studio-10-horizontal-flow.js?v=72' not in html:
               html=html.replace('</body>',scripts+'\n</body>')
           p.write_text(html,encoding='utf-8')
           PY
