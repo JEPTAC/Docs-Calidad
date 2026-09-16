@@ -23,7 +23,7 @@ jobs:
 
       - name: Validate JavaScript syntax
         run: |
-          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js word-studio-13-immersive-ui.js word-studio-14-interactions.js word-studio-15-ai-local.js word-studio-16-document-import.js word-studio-17-ai-ui.js word-studio-18-ai-v84.js; do
+          for f in word-studio-01-core.js word-studio-02-editor.js word-studio-03-render.js word-studio-04-bind.js word-studio-05-docx.js word-studio-06-ui.js word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js word-studio-13-immersive-ui.js word-studio-14-interactions.js word-studio-15-ai-local.js word-studio-16-document-import.js word-studio-17-ai-ui.js word-studio-18-ai-v84.js word-studio-19-ai-v84-numbering.js; do
             node --check "$f"
           done
           node --check tests/ui-smoke.mjs
@@ -49,6 +49,7 @@ jobs:
           ai_import=Path('word-studio-16-document-import.js').read_text(encoding='utf-8')
           ai_ui=Path('word-studio-17-ai-ui.js').read_text(encoding='utf-8')
           ai_v84=Path('word-studio-18-ai-v84.js').read_text(encoding='utf-8')
+          ai_num=Path('word-studio-19-ai-v84-numbering.js').read_text(encoding='utf-8')
           required=[(r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;','bandas SGC'),(r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;','subtítulos SGC'),(r'\.sgc-section-content\{[^}]*font-size:10\.5pt;','cuerpo SGC'),(r'\.control-change-table th\{[^}]*background:#001F73;[^}]*color:#fff;','control cambios')]
           for pattern,label in required:
             if not re.search(pattern,html,re.S): raise SystemExit(f'Contrato SGC roto: {label}')
@@ -59,7 +60,7 @@ jobs:
           if '.ei-ai-fab-host{pointer-events:none!important' not in css['word-studio-ai-v83-fix.css']: raise SystemExit('FAB no debe interceptar clics del chat')
           if '.ei-ai-drawer{z-index:230!important' not in css['word-studio-ai-v83-fix.css']: raise SystemExit('Drawer IA debe quedar por encima del FAB')
           for bad in ('#175CD3','#2F80ED','#001754','#0563C1'):
-            if any(bad.lower() in txt.lower() for txt in list(css.values())+[ai_core,ai_ui,ai_v84]): raise SystemExit(f'Azul no institucional: {bad}')
+            if any(bad.lower() in txt.lower() for txt in list(css.values())+[ai_core,ai_ui,ai_v84,ai_num]): raise SystemExit(f'Azul no institucional: {bad}')
           checks={
             'runtime WebLLM fijado': '@mlc-ai/web-llm@0.2.85' in ai_core,
             'modelo equilibrado WebLLM': 'Llama-3.2-1B-Instruct-q4f16_1-MLC' in ai_core,
@@ -79,6 +80,7 @@ jobs:
             'V84 fallback WASM CPU': 'WASM/CPU' in ai_v84 and "device=navigator.gpu?'webgpu':'wasm'" in ai_v84,
             'V84 OOXML directo': 'v84ReadDocxOoxml' in ai_v84 and 'word/document.xml' in ai_v84 and 'word/numbering.xml' in ai_v84 and 'word/styles.xml' in ai_v84,
             'V84 numeración Word': 'v84NumberingMap' in ai_v84 and 'v84NumberLabel' in ai_v84,
+            'V84 numeración start corregida': 'start||1)-1' in ai_num and 'EI_AI_V84_NUMBERING_READY' in ai_num,
             'V84 encabezado visual': 'boldRatio' in ai_v84 and 'v84AllCaps' in ai_v84,
             'V84 CSV canónico': "['orden','tipo','nivel','texto','lista_ordenada','incluir','pagina','origen']" in ai_v84 and 'eiAiDownloadCsvTemplate' in ai_v84 and 'eiAiDownloadImportedCsv' in ai_v84 and 'v84BlocksFromCanonical' in ai_v84,
             'V84 bandera lista': 'window.EI_AI_V84_READY=true' in ai_v84,
@@ -130,7 +132,7 @@ jobs:
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=84"></script><script src="word-studio-02-editor.js?v=84"></script><script src="word-studio-03-render.js?v=84"></script><script src="word-studio-04-bind.js?v=84"></script><script src="word-studio-05-docx.js?v=84"></script><script src="word-studio-06-ui.js?v=84"></script><script src="word-studio-07-premium.js?v=84"></script><script src="word-studio-08-sgc-details.js?v=84"></script><script src="word-studio-09-structure.js?v=84"></script><script src="word-studio-10-horizontal-flow.js?v=84"></script><script src="word-studio-11-flow-pro.js?v=84"></script><script src="word-studio-12-diagram-builder.js?v=84"></script><script src="word-studio-13-immersive-ui.js?v=84"></script><script src="word-studio-14-interactions.js?v=84"></script><script src="word-studio-15-ai-local.js?v=84"></script><script src="word-studio-16-document-import.js?v=84"></script><script src="word-studio-17-ai-ui.js?v=84"></script><script src="word-studio-18-ai-v84.js?v=84"></script>
+          <script src="word-studio-01-core.js?v=84"></script><script src="word-studio-02-editor.js?v=84"></script><script src="word-studio-03-render.js?v=84"></script><script src="word-studio-04-bind.js?v=84"></script><script src="word-studio-05-docx.js?v=84"></script><script src="word-studio-06-ui.js?v=84"></script><script src="word-studio-07-premium.js?v=84"></script><script src="word-studio-08-sgc-details.js?v=84"></script><script src="word-studio-09-structure.js?v=84"></script><script src="word-studio-10-horizontal-flow.js?v=84"></script><script src="word-studio-11-flow-pro.js?v=84"></script><script src="word-studio-12-diagram-builder.js?v=84"></script><script src="word-studio-13-immersive-ui.js?v=84"></script><script src="word-studio-14-interactions.js?v=84"></script><script src="word-studio-15-ai-local.js?v=84"></script><script src="word-studio-16-document-import.js?v=84"></script><script src="word-studio-17-ai-ui.js?v=84"></script><script src="word-studio-18-ai-v84.js?v=84"></script><script src="word-studio-19-ai-v84-numbering.js?v=84"></script>
           '''
           html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
@@ -178,7 +180,7 @@ jobs:
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=84"></script><script src="word-studio-02-editor.js?v=84"></script><script src="word-studio-03-render.js?v=84"></script><script src="word-studio-04-bind.js?v=84"></script><script src="word-studio-05-docx.js?v=84"></script><script src="word-studio-06-ui.js?v=84"></script><script src="word-studio-07-premium.js?v=84"></script><script src="word-studio-08-sgc-details.js?v=84"></script><script src="word-studio-09-structure.js?v=84"></script><script src="word-studio-10-horizontal-flow.js?v=84"></script><script src="word-studio-11-flow-pro.js?v=84"></script><script src="word-studio-12-diagram-builder.js?v=84"></script><script src="word-studio-13-immersive-ui.js?v=84"></script><script src="word-studio-14-interactions.js?v=84"></script><script src="word-studio-15-ai-local.js?v=84"></script><script src="word-studio-16-document-import.js?v=84"></script><script src="word-studio-17-ai-ui.js?v=84"></script><script src="word-studio-18-ai-v84.js?v=84"></script>
+          <script src="word-studio-01-core.js?v=84"></script><script src="word-studio-02-editor.js?v=84"></script><script src="word-studio-03-render.js?v=84"></script><script src="word-studio-04-bind.js?v=84"></script><script src="word-studio-05-docx.js?v=84"></script><script src="word-studio-06-ui.js?v=84"></script><script src="word-studio-07-premium.js?v=84"></script><script src="word-studio-08-sgc-details.js?v=84"></script><script src="word-studio-09-structure.js?v=84"></script><script src="word-studio-10-horizontal-flow.js?v=84"></script><script src="word-studio-11-flow-pro.js?v=84"></script><script src="word-studio-12-diagram-builder.js?v=84"></script><script src="word-studio-13-immersive-ui.js?v=84"></script><script src="word-studio-14-interactions.js?v=84"></script><script src="word-studio-15-ai-local.js?v=84"></script><script src="word-studio-16-document-import.js?v=84"></script><script src="word-studio-17-ai-ui.js?v=84"></script><script src="word-studio-18-ai-v84.js?v=84"></script><script src="word-studio-19-ai-v84-numbering.js?v=84"></script>
           '''
           html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
