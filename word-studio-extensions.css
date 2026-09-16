@@ -1,0 +1,32 @@
+/* V71 · Extensiones documentales aisladas. No modifica clases base SGC. */
+:root{--ei-blue:#001F73;--ei-yellow:#EAC800}
+
+/* Punto y aparte compacto: conserva interlineado, reduce solo espacio entre párrafos. */
+.word-rich-editor p,.word-rich-editor div{margin:0 0 2px!important}
+.premium-rich-output p,.premium-rich-output div,.word-rich-text p,.word-rich-text div,.word-callout-rich p,.word-callout-rich div{margin:0 0 2px!important}
+.word-rich-editor p:last-child,.word-rich-editor div:last-child,.premium-rich-output p:last-child,.premium-rich-output div:last-child,.word-rich-text p:last-child,.word-rich-text div:last-child,.word-callout-rich p:last-child,.word-callout-rich div:last-child{margin-bottom:0!important}
+
+/* Todo azul funcional de la capa premium usa el azul institucional único. */
+.word-rich-editor-wrap:focus-within{border-color:var(--ei-blue)!important;box-shadow:0 0 0 3px rgba(0,31,115,.13)!important}
+.word-rich-field-label,.word-block-editor label,.word-block-toolbar span,.word-block-editor-head,.word-rich-toolbar button:hover,.word-rich-editor a,.premium-rich-output a,.word-rich-text a,.word-callout-rich a{color:var(--ei-blue)!important}
+.word-block-editor-head button:hover,.word-block-toolbar button:hover{background:var(--ei-blue)!important;border-color:var(--ei-blue)!important;color:#fff!important}
+
+/* Viñetas profesionales. */
+.word-list-block.word-list-premium{margin:6px 0;font-size:10.5pt;line-height:1.38}
+.word-list-premium .word-list-title{display:block;margin-bottom:3px;color:var(--ei-blue);font-weight:900}
+.word-bullet-list{list-style:none!important;margin:2px 0!important;padding-left:0!important}
+.word-bullet-list li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:5px;align-items:start;margin:1px 0!important;line-height:1.38}
+.word-bullet-symbol{color:var(--ei-blue);font-weight:900;text-align:center;line-height:1.38}
+.word-number-list{margin:2px 0!important;padding-left:23px!important}
+.word-number-list li{margin:1px 0!important;line-height:1.38}
+
+/* Flujogramas y mapas conceptuales. */
+.word-diagram-figure{margin:9px 0 11px;break-inside:avoid;page-break-inside:avoid}
+.word-diagram-figure>figcaption{margin:0 0 6px;color:var(--ei-blue);font-size:10.5pt;font-weight:900;line-height:1.38}
+.word-diagram-shell{width:100%;overflow:hidden;border:1px solid #D0D5DD;border-radius:10px;background:#fff;padding:6px}
+.word-diagram-shell svg{display:block;width:100%;height:auto;max-height:460px}
+.word-diagram-caption{display:block;margin-top:4px;color:#667085;font-size:10.5pt;line-height:1.38;font-style:italic;text-align:center}
+.word-diagram-help{margin:5px 0 0;padding:7px 8px;border-left:3px solid var(--ei-yellow);background:#FFFCED;color:#475467;font-size:10px;line-height:1.4}
+.word-diagram-help code{color:var(--ei-blue);font-weight:900}
+
+@media print{.word-diagram-shell{border-color:#D0D5DD;padding:4px}.word-diagram-shell svg{max-height:none}}
