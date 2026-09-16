@@ -1,7 +1,7 @@
-/* ===== V64 · Word Studio Pro =================================================
-   Editor modular para documentos SGC: temas, tablas, gráficas SVG animadas,
-   indicadores, listas, imágenes, citas, referencias, saltos y exportación DOCX.
-   Mantiene compatibilidad con los JSON y módulos existentes.
+/* ===== V90 · Word Studio Pro · núcleo editorial inteligente ==================
+   Modelo documental estable para SGC: contenido, tablas, notas, referencias,
+   jerarquía y reglas de maquetación. Mantiene compatibilidad con documentos
+   existentes y conserva la identidad institucional aprobada.
 ============================================================================= */
 const WORD_THEME_PRESETS={
   institucional:{label:'Institucional EI',primary:'#001F73',accent:'#EAC800',secondary:'#A4A8AB',surface:'#F7F9FC'},
@@ -11,6 +11,16 @@ const WORD_THEME_PRESETS={
   neutral:{label:'Neutral',primary:'#344054',accent:'#98A2B3',secondary:'#667085',surface:'#F9FAFB'}
 };
 const WORD_BLOCK_TYPES=['text','heading','table','chart','kpi','callout','citation','references','image','list','pagebreak'];
+const WORD_LAYOUT_DEFAULTS={
+  pageContentPx:760,
+  tableChunkPx:555,
+  minHeadingTailPx:92,
+  smartNotes:true,
+  repeatTableHeaders:true,
+  preventRowSplit:true,
+  keepHeadingsWithNext:true,
+  widowOrphan:true
+};
 
 function wordUid(prefix='wb'){
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
@@ -27,6 +37,16 @@ function safeImageSrc(src){
   if(/^assets\/[A-Za-z0-9_./-]+$/i.test(s))return s;
   return '';
 }
+function detectWordNote(text){
+  const raw=String(text||'').replace(/\r/g,'').trim();
+  if(!raw)return null;
+  const m=raw.match(/^(nota(?:\s+t[eé]cnica)?|observaci[oó]n|importante|advertencia|precauci[oó]n|riesgo|fuente)\s*[:.\-–—]\s*([\s\S]+)$/i);
+  if(!m)return null;
+  const key=m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const tone=/advertencia|precaucion/.test(key)?'warning':/riesgo/.test(key)?'risk':/fuente|observacion/.test(key)?'neutral':'info';
+  const title=/nota tecnica/.test(key)?'Nota técnica':/observacion/.test(key)?'Observación':/importante/.test(key)?'Importante':/advertencia/.test(key)?'Advertencia':/precaucion/.test(key)?'Precaución':/riesgo/.test(key)?'Riesgo':/fuente/.test(key)?'Fuente':'Nota';
+  return {tone,title,text:m[2].trim(),raw};
+}
 function normalizeWordBlock(raw){
   const b=raw&&typeof raw==='object'?{...raw}:{};
   b.id=String(b.id||wordUid());
@@ -36,9 +56,10 @@ function normalizeWordBlock(raw){
   if(b.type==='table'){
     let rows=Array.isArray(b.rows)?b.rows.map(r=>Array.isArray(r)?r.map(c=>String(c??'')):[]):[];
     if(!rows.length)rows=[['Encabezado 1','Encabezado 2','Encabezado 3'],['Dato 1','Dato 2','Dato 3']];
-    const cols=Math.max(2,Math.min(8,Math.max(...rows.map(r=>r.length),3)));
-    rows=rows.slice(0,20).map(r=>Array.from({length:cols},(_,i)=>String(r[i]??'')));
-    return {...b,title:String(b.title||'Tabla'),caption:String(b.caption||''),header:b.header!==false,striped:b.striped!==false,rows};
+    const cols=Math.max(2,Math.min(12,Math.max(...rows.map(r=>r.length),3)));
+    rows=rows.slice(0,150).map(r=>Array.from({length:cols},(_,i)=>String(r[i]??'')));
+    const header=b.header!==false;
+    return {...b,title:String(b.title||'Tabla'),caption:String(b.caption||''),header,striped:b.striped!==false,repeatHeader:header&&b.repeatHeader!==false,preventRowSplit:b.preventRowSplit!==false,smartSplit:b.smartSplit!==false,keepTitle:b.keepTitle!==false,rows};
   }
   if(b.type==='chart')return {...b,title:String(b.title||'Gráfica'),chartType:['bar','horizontal','line','donut'].includes(b.chartType)?b.chartType:'bar',labels:Array.isArray(b.labels)?b.labels.map(String).slice(0,12):['A','B','C'],values:Array.isArray(b.values)?b.values.map(v=>Number(v)||0).slice(0,12):[30,55,80],showLegend:b.showLegend!==false,showValues:b.showValues!==false,animate:b.animate!==false,color1:cleanHex(b.color1||'#001F73'),color2:cleanHex(b.color2||'#EAC800'),color3:cleanHex(b.color3||'#2F80ED')};
   if(b.type==='kpi')return {...b,title:String(b.title||'Indicadores'),items:(Array.isArray(b.items)?b.items:[]).slice(0,6).map(x=>({label:String(x?.label||''),value:String(x?.value||''),detail:String(x?.detail||'')}))};
@@ -46,7 +67,7 @@ function normalizeWordBlock(raw){
   if(b.type==='citation')return {...b,refId:String(b.refId||''),page:String(b.page||''),prefix:String(b.prefix||''),suffix:String(b.suffix||'')};
   if(b.type==='references')return {...b,title:String(b.title||'REFERENCIAS'),style:['apa7','iso690','numeric'].includes(b.style)?b.style:'apa7'};
   if(b.type==='image')return {...b,src:safeImageSrc(b.src),caption:String(b.caption||''),alt:String(b.alt||''),width:Math.max(20,Math.min(100,Number(b.width)||80)),align:['left','center','right'].includes(b.align)?b.align:'center'};
-  if(b.type==='list')return {...b,title:String(b.title||''),ordered:!!b.ordered,items:(Array.isArray(b.items)?b.items:[]).slice(0,40).map(String)};
+  if(b.type==='list')return {...b,title:String(b.title||''),ordered:!!b.ordered,items:(Array.isArray(b.items)?b.items:[]).slice(0,80).map(String)};
   return {...b,type:'pagebreak'};
 }
 function ensureWordStudioDefaults(){
@@ -59,10 +80,20 @@ function ensureWordStudioDefaults(){
     surface:cleanHex(doc.wordTheme?.surface||p.surface,p.surface),
     animateCharts:doc.wordTheme?.animateCharts!==false
   };
+  doc.wordLayout={
+    pageContentPx:WORD_LAYOUT_DEFAULTS.pageContentPx,
+    tableChunkPx:WORD_LAYOUT_DEFAULTS.tableChunkPx,
+    minHeadingTailPx:WORD_LAYOUT_DEFAULTS.minHeadingTailPx,
+    smartNotes:doc.wordLayout?.smartNotes!==false,
+    repeatTableHeaders:doc.wordLayout?.repeatTableHeaders!==false,
+    preventRowSplit:doc.wordLayout?.preventRowSplit!==false,
+    keepHeadingsWithNext:doc.wordLayout?.keepHeadingsWithNext!==false,
+    widowOrphan:doc.wordLayout?.widowOrphan!==false
+  };
   doc.references=Array.isArray(doc.references)?doc.references.map(r=>({
     id:String(r?.id||wordUid('ref')),
     author:String(r?.author||''),year:String(r?.year||''),title:String(r?.title||''),source:String(r?.source||''),url:String(r?.url||''),doi:String(r?.doi||'')
-  })):[];
+  })) :[];
   doc.sections=Array.isArray(doc.sections)?doc.sections:[];
   doc.sections.forEach(s=>{
     s.blocks=(Array.isArray(s.blocks)?s.blocks:[]).map(normalizeWordBlock);
