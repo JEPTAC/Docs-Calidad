@@ -72,14 +72,13 @@ jobs:
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude '_site/' \
-            --exclude '_workflow_candidate.yml' \
             ./ _site/
           python - <<'PY'
           from pathlib import Path
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
-          addon='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=65">
+          css='<link rel="stylesheet" href="word-studio-pro.css?v=65">'
+          scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
           <script src="word-studio-01-core.js?v=65"></script>
           <script src="word-studio-02-editor.js?v=65"></script>
@@ -88,8 +87,10 @@ jobs:
           <script src="word-studio-05-docx.js?v=65"></script>
           <script src="word-studio-06-ui.js?v=65"></script>
           '''
+          if 'word-studio-pro.css?v=65' not in html:
+              html=html.replace('</head>',css+'\n</head>')
           if 'word-studio-01-core.js?v=65' not in html:
-              html=html.replace('</body>',addon+'\n</body>')
+              html=html.replace('</body>',scripts+'\n</body>')
           p.write_text(html,encoding='utf-8')
           PY
           touch _site/.nojekyll
