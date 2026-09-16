@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 const base=process.env.TEST_URL||'http://127.0.0.1:4173';
 const browser=await chromium.launch({headless:true});
-const page=await browser.newPage({viewport:{width:1600,height:1000});
+const page=await browser.newPage({viewport:{width:1600,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('dialog',d=>d.accept());
 function assert(ok,msg){if(!ok)throw new Error(msg)}
 try{
