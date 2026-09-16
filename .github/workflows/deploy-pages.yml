@@ -81,7 +81,7 @@ jobs:
                   raise SystemExit(f'Azul no institucional detectado en extensiones: {bad}')
           if 'margin:0 0 2px!important' not in ext:
               raise SystemExit('El espacio entre párrafos debe permanecer compacto')
-          if 'V71_BLUE=\'#001F73\'' not in structure:
+          if "V71_BLUE='#001F73'" not in structure:
               raise SystemExit('Diagramas V71 deben usar azul institucional #001F73')
           PY
 
@@ -99,7 +99,7 @@ jobs:
           grep -q 'V71_BULLETS' word-studio-09-structure.js
           grep -q 'v71ConceptSvgData' word-studio-09-structure.js
           grep -q 'v71FlowSvgData' word-studio-09-structure.js
-          grep -q 'type:\x27svg\x27' word-studio-09-structure.js
+          grep -q "type:'svg'" word-studio-09-structure.js
           grep -q 'spacing:{after:40,line:276}' word-studio-09-structure.js
 
       - name: Validate original inline JavaScript syntax
