@@ -25,21 +25,29 @@ try{
 
   const heuristics=await page.evaluate(()=>{
     const explicit=v84ExplicitHeading('6.1.1SUBCONTRATACIÓN');
-    const p=new DOMParser().parseFromString('<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:r><w:rPr><w:b/></w:rPr><w:t>OBJETIVO GENERAL</w:t></w:r></w:p>','application/xml').documentElement;
-    const meta=v84ParagraphMeta(p,new Map(),{nums:new Map(),abstracts:new Map()},new Map(),2);
+    const makeBold=(text)=>new DOMParser().parseFromString(`<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:r><w:rPr><w:b/></w:rPr><w:t>${text}</w:t></w:r></w:p>`,'application/xml').documentElement;
+    let structural=2;
+    const general=v84ParagraphMeta(makeBold('OBJETIVO GENERAL'),new Map(),{nums:new Map(),abstracts:new Map()},new Map(),structural);
+    if(v84AdvancesStructuralLevel(general))structural=general.heading;
+    const specific=v84ParagraphMeta(makeBold('OBJETIVOS ESPECÍFICOS'),new Map(),{nums:new Map(),abstracts:new Map()},new Map(),structural);
+    if(v84AdvancesStructuralLevel(specific))structural=specific.heading;
     const numXml=new DOMParser().parseFromString('<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="5"><w:lvl w:ilvl="0"><w:start w:val="3"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1"/></w:lvl><w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1.%2"/></w:lvl></w:abstractNum><w:num w:numId="26"><w:abstractNumId w:val="5"/></w:num></w:numbering>','application/xml');
     const numbering=v84NumberingMap(numXml),state=new Map();v84NumberLabel('26',0,numbering,state);const child=v84NumberLabel('26',1,numbering,state);
-    return{explicit,visual:{heading:meta.heading,text:meta.text,boldRatio:meta.boldRatio},number:child?.label};
+    return{explicit,siblings:[general.heading,specific.heading],visualAdvance:v84AdvancesStructuralLevel(general),structural,number:child?.label};
   });
   assert(heuristics.explicit?.level===3&&heuristics.explicit?.text==='SUBCONTRATACIÓN','No detectó encabezado numerado sin espacio');
-  assert(heuristics.visual.heading===3&&heuristics.visual.text==='OBJETIVO GENERAL','No promovió un encabezado visual Normal/negrita a nivel lógico');
+  assert(heuristics.siblings[0]===3&&heuristics.siblings[1]===3&&!heuristics.visualAdvance&&heuristics.structural===2,'Los encabezados visuales hermanos alteraron incorrectamente el padre semántico');
   assert(heuristics.number==='3.1','No reconstruyó numeración OOXML multinivel');
 
   await page.locator('[data-ei-ai-tab="model"]').click();
   const options=(await page.locator('#eiAiModel option').allTextContents()).join(' | ');
   assert(/Automática/i.test(options)&&/WASM/i.test(options),'Falta selector de IA automática con fallback WASM/CPU');
-  const env=await page.evaluate(()=>({wasm:typeof WebAssembly!=='undefined',ready:window.EI_AI_V84_READY===true}));
-  assert(env.wasm&&env.ready,'El fallback compatible no está disponible en el navegador');
+  const env=await page.evaluate(async()=>{
+    const mod=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm');
+    return{wasm:typeof WebAssembly!=='undefined',ready:window.EI_AI_V84_READY===true,hierarchy:window.EI_AI_V84_HIERARCHY_READY===true,pipeline:typeof mod.pipeline==='function',streamer:typeof mod.TextStreamer==='function'};
+  });
+  assert(env.wasm&&env.ready&&env.hierarchy,'El fallback compatible o la jerarquía V84 no están disponibles en el navegador');
+  assert(env.pipeline&&env.streamer,'Transformers.js no pudo importarse con pipeline/TextStreamer en el navegador');
   assert(errors.length===0,`Errores JS: ${errors.join(' | ')}`);
-  console.log('AI V84 PASS: CSV canónico, jerarquía DOCX visual/numerada y fallback WebGPU/WASM disponibles.');
+  console.log('AI V84 PASS: CSV canónico, jerarquía DOCX visual/numerada y runtime Transformers.js WebGPU/WASM disponibles.');
 }finally{await browser.close()}
