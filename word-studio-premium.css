@@ -1,4 +1,4 @@
-/* V78 · Premium UX aislado. NO modifica ninguna clase base SGC de la plantilla. */
+/* V79 · Premium UX aislado. NO modifica ninguna clase base SGC de la plantilla. */
 :root{--word-body-size:10.5pt;--word-body-line:1.38;--word-ui-size:11px}
 .word-studio-settings,.word-studio-settings input,.word-studio-settings select,.word-studio-settings textarea,.word-studio-settings button,.word-block-editor,.word-block-editor input,.word-block-editor select,.word-block-editor textarea,.word-block-editor button,.word-reference-manager,.word-reference-manager input,.word-reference-manager select,.word-reference-manager textarea,.word-reference-manager button{font-size:var(--word-ui-size)!important}
 .word-studio-settings{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-color:rgba(255,255,255,.42);box-shadow:0 10px 28px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.26)}
@@ -10,8 +10,8 @@
 .word-block-editor-head button:hover,.word-block-toolbar button:hover{background:#001F73;color:#fff;border-color:#001F73;transform:translateY(-1px)}
 .word-block-editor-head button.danger:hover{background:#B42318;border-color:#B42318;color:#fff}
 .premium-insert-toolbar{background:linear-gradient(135deg,rgba(234,200,0,.08),rgba(0,31,115,.06));border-style:solid}
-/* Superficie amarilla clara: SIEMPRE texto azul institucional. */
-.word-premium-note{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;margin:10px 0;padding:9px 10px;border-radius:11px;background:linear-gradient(135deg,rgba(234,200,0,.20),rgba(234,200,0,.08));border:1px solid rgba(234,200,0,.58);color:#001F73!important}
+/* Superficie amarilla clara opaca: SIEMPRE texto azul institucional. */
+.word-premium-note{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;margin:10px 0;padding:9px 10px;border-radius:11px;background:#FFF8D7!important;border:1px solid #EAC800!important;color:#001F73!important}
 .word-premium-note strong{font-size:var(--word-ui-size);color:#001F73!important}.word-premium-note span{font-size:10px;line-height:1.45;opacity:1;color:#001F73!important}
 .word-rich-field{display:grid;gap:5px;margin:7px 0}.word-rich-field-label{font-size:var(--word-ui-size);font-weight:900;color:#001F73}
 .word-rich-editor-wrap{overflow:hidden;border:1px solid #C9D3E2;border-radius:12px;background:#fff;box-shadow:inset 0 1px 2px rgba(16,24,40,.04);transition:border-color .16s ease,box-shadow .16s ease}
