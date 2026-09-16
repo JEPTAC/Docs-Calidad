@@ -1,4 +1,4 @@
-/* V78 · Workspace institucional: lateral azul continuo, contraste fijo y contenedores transparentes. No modifica SGC base. */
+/* V79 · Workspace institucional: lateral azul continuo, contraste fijo y contenedores transparentes. No modifica SGC base. */
 :root{--v76-blue:#001F73;--v76-yellow:#EAC800;--v76-ink:#182230;--v76-muted:#667085;--v76-line:#D9E0EA;--v76-soft:#F4F7FB;--v76-card:#FFFFFF}
 
 /* Lateral: azul institucional como superficie principal continua. */
@@ -24,10 +24,11 @@ body.v75-word-active .side button:not(.danger):not(.primary),body.v75-word-activ
 body.v75-word-active .side button:not(.danger):not(.primary):hover{background:#F7F9FC!important;border-color:var(--v76-yellow)!important;color:var(--v76-blue)!important}
 body.v75-word-active .side button.primary{background:var(--v76-blue)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important;box-shadow:none!important}
 
-/* Avisos amarillos claros: SIEMPRE texto azul institucional. */
-body.v75-word-active .word-type-notice{background:linear-gradient(135deg,rgba(234,200,0,.28),rgba(234,200,0,.12))!important;border:1px solid rgba(234,200,0,.72)!important;color:var(--v76-blue)!important;opacity:1!important}
-body.v75-word-active .word-type-notice *{color:var(--v76-blue)!important}
-body.v75-word-active .word-premium-note,body.v75-word-active .word-premium-note strong,body.v75-word-active .word-premium-note span{color:var(--v76-blue)!important}
+/* Avisos amarillos claros OPACOS: SIEMPRE texto azul institucional. */
+body.v75-word-active .word-type-notice{background:#FFF8D7!important;border:1px solid var(--v76-yellow)!important;color:var(--v76-blue)!important;opacity:1!important}
+body.v75-word-active .word-type-notice *{color:var(--v76-blue)!important;opacity:1!important}
+body.v75-word-active .word-premium-note{background:#FFF8D7!important;border:1px solid var(--v76-yellow)!important;color:var(--v76-blue)!important}
+body.v75-word-active .word-premium-note strong,body.v75-word-active .word-premium-note span,body.v75-word-active .word-premium-note *{color:var(--v76-blue)!important;opacity:1!important}
 
 /* Regla visual institucional de contraste para la UI nueva. */
 .v76-blue-surface,.v75-open-diagram,.v75-toolbar-group .v75-toolbar-btn.primary-tool{background:var(--v76-blue)!important;color:#fff!important;border-color:var(--v76-blue)!important}
