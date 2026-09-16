@@ -27,20 +27,47 @@ jobs:
             node --check "$f"
           done
 
-      - name: Validate original baseline and assets
+      - name: Lock approved SGC baseline
         run: |
-          test -f index.html
-          test -f procedimiento/index.html
-          test -f word-studio-pro.css
-          test -f word-studio-premium.css
+          test "$(git hash-object index.html)" = "1c507f6e851d9333760178c20d95d5f7a1436bda"
+          test "$(git hash-object procedimiento/index.html)" = "40e201d86fbc38a759109487da1288e5699b022d"
           test -f assets/intro.mp4
           test -f assets/happy-cat.gif
           test -f assets/footer-ei-calidad.png
-          grep -q 'sgc-header-ref' index.html
-          grep -q 'left:.35in;right:.35in' index.html
-          grep -q 'initIntroExperience' index.html
+
+      - name: Validate SGC visual contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          pro = Path('word-studio-pro.css').read_text(encoding='utf-8')
+          premium = Path('word-studio-premium.css').read_text(encoding='utf-8')
+
+          checks = {
+              'bandas SGC azul/amarillo': r'\.sgc-section-title\{[^}]*background:#001F73;[^}]*color:#EAC800;',
+              'subtitulo SGC azul 10.8pt': r'\.sgc-subsection-title\{[^}]*color:#001F73;[^}]*font-size:10\.8pt;',
+              'cuerpo SGC 10.5pt': r'\.sgc-section-content\{[^}]*font-size:10\.5pt;',
+              'TOC SGC 10.5pt': r'\.sgc-toc-row\{[^}]*color:#111;[^}]*font-size:10\.5pt;',
+          }
+          for label, pattern in checks.items():
+              if not re.search(pattern, html, re.S):
+                  raise SystemExit(f'Contrato visual roto: {label}')
+
+          for name, css in [('word-studio-pro.css', pro), ('word-studio-premium.css', premium)]:
+              if re.search(r'\.sgc-[A-Za-z0-9_-]+', css):
+                  raise SystemExit(f'{name} no puede redefinir clases base SGC')
+
+          if '--word-body-size:10.5pt' not in premium:
+              raise SystemExit('La tipografía premium debe usar 10.5pt')
+          PY
+
+      - name: Validate premium editor and DOCX
+        run: |
           grep -q 'word-rich-editor' word-studio-07-premium.js
           grep -q 'premiumDocxRichParagraphs' word-studio-07-premium.js
+          grep -q 'size:21' word-studio-05-docx.js
 
       - name: Validate original inline JavaScript syntax
         run: |
@@ -68,7 +95,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare original app plus additive Word Studio
+      - name: Prepare approved baseline plus isolated Word Studio
         run: |
           mkdir -p _site
           rsync -av --delete \
@@ -81,22 +108,22 @@ jobs:
           p=Path('_site/index.html')
           html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=66">
-          <link rel="stylesheet" href="word-studio-premium.css?v=66">
+          <link rel="stylesheet" href="word-studio-pro.css?v=67">
+          <link rel="stylesheet" href="word-studio-premium.css?v=67">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=66"></script>
-          <script src="word-studio-02-editor.js?v=66"></script>
-          <script src="word-studio-03-render.js?v=66"></script>
-          <script src="word-studio-04-bind.js?v=66"></script>
-          <script src="word-studio-05-docx.js?v=66"></script>
-          <script src="word-studio-06-ui.js?v=66"></script>
-          <script src="word-studio-07-premium.js?v=66"></script>
+          <script src="word-studio-01-core.js?v=67"></script>
+          <script src="word-studio-02-editor.js?v=67"></script>
+          <script src="word-studio-03-render.js?v=67"></script>
+          <script src="word-studio-04-bind.js?v=67"></script>
+          <script src="word-studio-05-docx.js?v=67"></script>
+          <script src="word-studio-06-ui.js?v=67"></script>
+          <script src="word-studio-07-premium.js?v=67"></script>
           '''
-          if 'word-studio-premium.css?v=66' not in html:
+          if 'word-studio-premium.css?v=67' not in html:
               html=html.replace('</head>',css+'\n</head>')
-          if 'word-studio-07-premium.js?v=66' not in html:
+          if 'word-studio-07-premium.js?v=67' not in html:
               html=html.replace('</body>',scripts+'\n</body>')
           p.write_text(html,encoding='utf-8')
           PY
