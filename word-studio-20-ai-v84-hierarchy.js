@@ -38,3 +38,56 @@ v84ReadDocxOoxml=async function(file){
   return{text:eiAiBlocksPlainText(normalized),blocks:normalized,headings,tables,tableNames:tables.map((_,i)=>`Tabla ${i+1}`),pages:null,warnings:[],documentTitle,parser:'ooxml-v84'};
 };
 window.EI_AI_V84_HIERARCHY_READY=true;
+
+/* V85 · orden de mensajes para Transformers.js/Qwen.
+   Qwen exige que el system prompt exista una sola vez y siempre sea el primer mensaje.
+   V84 agregaba un segundo system para el contexto documental, lo que generaba
+   SystemMessageOrderError en cualquier herramienta con contexto.
+*/
+function v85CleanHistory(){
+  const raw=typeof eiAiHistoryForModel==='function'?eiAiHistoryForModel():[];
+  const filtered=(raw||[])
+    .filter(m=>m&&['user','assistant'].includes(m.role)&&String(m.content||'').trim())
+    .map(m=>({role:m.role,content:String(m.content).trim()}));
+  while(filtered.length&&filtered[0].role==='assistant')filtered.shift();
+  const normalized=[];
+  for(const m of filtered){
+    const last=normalized[normalized.length-1];
+    if(last&&last.role===m.role)last.content=`${last.content}\n\n${m.content}`.trim();
+    else normalized.push({...m});
+  }
+  if(normalized.length&&normalized[normalized.length-1].role==='user')normalized.pop();
+  return normalized.slice(-6);
+}
+function v85SystemContent(context=''){
+  let content=String(typeof eiAiSystemPrompt==='function'?eiAiSystemPrompt():'Eres un asistente documental profesional.').trim();
+  const ctx=String(context||'').trim();
+  if(ctx)content+=`\n\nCONTEXTO DOCUMENTAL RELEVANTE:\n---\n${ctx.slice(0,4800)}\n---\nResponde usando este contexto cuando la pregunta dependa del documento. Si falta un dato, indícalo expresamente y no lo inventes.`;
+  return content;
+}
+v84Messages=function(instruction,context='',conversation=false){
+  const messages=[{role:'system',content:v85SystemContent(context)}];
+  if(conversation)messages.push(...v85CleanHistory());
+  messages.push({role:'user',content:String(instruction||'').trim()});
+  return messages;
+};
+function v85ValidateMessageOrder(messages){
+  if(!Array.isArray(messages)||!messages.length)return false;
+  if(messages[0]?.role!=='system')return false;
+  if(messages.slice(1).some(m=>m?.role==='system'))return false;
+  if(messages[messages.length-1]?.role!=='user')return false;
+  for(let i=1;i<messages.length-1;i++){
+    if(!['user','assistant'].includes(messages[i]?.role))return false;
+    if(i>1&&messages[i-1]?.role===messages[i]?.role)return false;
+  }
+  return true;
+}
+const v85GeneratePrevious=eiAiGenerate;
+eiAiGenerate=async function(instruction,options={}){
+  if(EI_AI.provider==='transformers'){
+    const preview=v84Messages(instruction,options?.context||'',!!options?.conversation);
+    if(!v85ValidateMessageOrder(preview))throw new Error('La conversación interna no tiene un orden válido. Reinicia el chat y vuelve a intentarlo.');
+  }
+  return v85GeneratePrevious(instruction,options);
+};
+window.EI_AI_V85_MESSAGE_ORDER_READY=true;
