@@ -1,0 +1,27 @@
+/* V86 · IA documental inteligente · capa aislada */
+:root{--v86-blue:#001F73;--v86-yellow:#EAC800;--v86-cream:#FFF8D7;--v86-border:#D9E0EE;--v86-text:#1A2438}
+.v86-length{display:flex!important;align-items:center;gap:6px!important;font-size:10px!important;font-weight:800!important;color:var(--v86-blue)!important}
+.v86-length select{min-width:88px!important;height:30px!important;padding:4px 24px 4px 9px!important;border:1px solid rgba(0,31,115,.18)!important;border-radius:9px!important;background:#fff!important;color:var(--v86-blue)!important;font-weight:800!important}
+.v86-research-card{margin-top:10px!important;background:#fff!important;color:var(--v86-text)!important}
+.v86-research-card p{margin:0 0 10px!important;font-size:10px!important;line-height:1.45!important;color:#4B5870!important}
+.v86-research-card label{display:block!important;margin-top:9px!important;font-size:10px!important;font-weight:800!important;color:var(--v86-blue)!important}
+.v86-research-card input[type="password"],.v86-research-card input[type="url"]{width:100%!important;box-sizing:border-box!important;margin-top:5px!important;border:1px solid rgba(0,31,115,.18)!important;border-radius:10px!important;background:#fff!important;color:#172036!important;padding:9px 10px!important;font:inherit!important;outline:none!important}
+.v86-research-card input:focus{border-color:var(--v86-blue)!important;box-shadow:0 0 0 3px rgba(0,31,115,.08)!important}
+.v86-research-actions,.v86-url-row{display:flex!important;gap:7px!important;align-items:center!important;margin-top:6px!important}
+.v86-research-actions button,.v86-url-row button{border:0!important;border-radius:9px!important;background:var(--v86-blue)!important;color:#fff!important;padding:8px 10px!important;font-size:10px!important;font-weight:900!important;cursor:pointer!important;white-space:nowrap!important}
+.v86-research-actions a{font-size:10px!important;font-weight:800!important;color:var(--v86-blue)!important;text-decoration:none!important}
+.v86-url-row input{flex:1!important;margin-top:0!important;min-width:0!important}
+.v86-check{display:flex!important;align-items:flex-start!important;gap:7px!important;font-weight:700!important;color:#33415B!important;line-height:1.35!important}
+.v86-check input{margin-top:1px!important;accent-color:var(--v86-blue)!important}
+.v86-research-status{margin-top:8px!important;padding:8px 9px!important;border-radius:9px!important;background:var(--v86-cream)!important;border:1px solid rgba(234,200,0,.75)!important;color:var(--v86-blue)!important;font-size:9.5px!important;font-weight:700!important;line-height:1.35!important}
+.v86-model-note{display:block!important;margin-top:8px!important;padding-top:8px!important;border-top:1px solid rgba(0,31,115,.10)!important;color:#42506A!important;line-height:1.45!important}
+.v86-model-note b{color:var(--v86-blue)!important}
+.v86-sources{margin:9px 10px 2px!important;padding:9px!important;border-radius:10px!important;background:#F7F9FC!important;border:1px solid var(--v86-border)!important;display:grid!important;gap:5px!important}
+.v86-sources>b{font-size:9.5px!important;color:var(--v86-blue)!important;text-transform:uppercase!important;letter-spacing:.04em!important}
+.v86-sources a{display:flex!important;gap:6px!important;align-items:flex-start!important;color:var(--v86-blue)!important;text-decoration:none!important;font-size:9.5px!important;line-height:1.35!important}
+.v86-sources a:hover{text-decoration:underline!important}
+.v86-sources a span{font-weight:900!important;color:var(--v86-blue)!important}
+.ei-ai-actions button[data-ei-ai-action="research"]{background:var(--v86-yellow)!important;color:var(--v86-blue)!important;border-color:rgba(234,200,0,.9)!important}
+.ei-ai-actions button[data-ei-ai-action="research"] *{color:var(--v86-blue)!important}
+.ei-ai-actions button[data-ei-ai-action="expand"]{background:#fff!important;color:var(--v86-blue)!important}
+@media(max-width:760px){.v86-research-actions,.v86-url-row{align-items:stretch!important;flex-direction:column!important}.v86-research-actions button,.v86-url-row button,.v86-research-actions a{width:100%!important;box-sizing:border-box!important}.v86-length{width:100%!important;justify-content:space-between!important}.v86-length select{flex:1!important}}
