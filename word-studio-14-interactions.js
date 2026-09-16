@@ -10,6 +10,17 @@ const V76_INSERT_GROUPS=[
 ];
 let v76InsertTarget={i:0,j:-1};
 
+/* V75 utilizaba v75Block() en el inspector, pero esa función no existía.
+   Se define aquí de forma compatible para que todo el inspector contextual
+   use la misma fuente de verdad del editor (getWordItem + blocks[]). */
+function v76ResolveBlock(path){
+  const a=String(path||'').split(':').map(Number);
+  const i=Number.isFinite(a[0])?a[0]:0,j=Number.isFinite(a[1])?a[1]:-1,k=Number.isFinite(a[2])?a[2]:-1;
+  if(k<0||typeof getWordItem!=='function')return null;
+  return getWordItem(i,j)?.blocks?.[k]||null;
+}
+if(typeof globalThis.v75Block!=='function')globalThis.v75Block=v76ResolveBlock;
+
 function v76OwnEvent(e,fn){
   e.preventDefault();e.stopImmediatePropagation();
   try{fn()}catch(err){window.V76_LAST_ERROR=String(err?.stack||err);console.error('[Word Studio V76]',err)}
@@ -89,15 +100,15 @@ function v76HandleClick(e){
 
 function v76HandleInput(e){
   const t=e.target;if(!(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement||t instanceof HTMLSelectElement))return;
-  if(t.matches('[data-v75-summary-title]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75SummaryTitle):null;if(!b)return;b.title=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
-  if(t.matches('[data-v75-drawer-title]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75DrawerTitle):null;if(!b)return;b.title=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
-  if(t.matches('[data-v75-drawer-caption]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75DrawerCaption):null;if(!b)return;b.caption=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
+  if(t.matches('[data-v75-summary-title]')){const b=v76ResolveBlock(t.dataset.v75SummaryTitle);if(!b)return;b.title=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
+  if(t.matches('[data-v75-drawer-title]')){const b=v76ResolveBlock(t.dataset.v75DrawerTitle);if(!b)return;b.title=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
+  if(t.matches('[data-v75-drawer-caption]')){const b=v76ResolveBlock(t.dataset.v75DrawerCaption);if(!b)return;b.caption=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
 }
 function v76HandleChange(e){
   const t=e.target;if(!(t instanceof HTMLSelectElement))return;
-  if(t.matches('[data-v75-summary-type]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75SummaryType):null;if(!b)return;if(typeof v74SwitchDiagramType==='function')v74SwitchDiagramType(b,t.value);if(typeof render==='function')render()}
-  if(t.matches('[data-v75-drawer-type]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75DrawerType):null;if(!b)return;if(typeof v74SwitchDiagramType==='function')v74SwitchDiagramType(b,t.value);if(typeof render==='function')render()}
-  if(t.matches('[data-v75-drawer-orientation]')){const b=typeof v75Block==='function'?v75Block(t.dataset.v75DrawerOrientation):null;if(!b)return;b.orientation=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
+  if(t.matches('[data-v75-summary-type]')){const b=v76ResolveBlock(t.dataset.v75SummaryType);if(!b)return;if(typeof v74SwitchDiagramType==='function')v74SwitchDiagramType(b,t.value);if(typeof render==='function')render()}
+  if(t.matches('[data-v75-drawer-type]')){const b=v76ResolveBlock(t.dataset.v75DrawerType);if(!b)return;if(typeof v74SwitchDiagramType==='function')v74SwitchDiagramType(b,t.value);if(typeof render==='function')render()}
+  if(t.matches('[data-v75-drawer-orientation]')){const b=v76ResolveBlock(t.dataset.v75DrawerOrientation);if(!b)return;b.orientation=t.value;if(typeof renderWordOnly==='function')renderWordOnly()}
 }
 if(document.body.dataset.v76Delegated!=='1'){
   document.body.dataset.v76Delegated='1';document.addEventListener('click',v76HandleClick,true);document.addEventListener('input',v76HandleInput,true);document.addEventListener('change',v76HandleChange,true);
