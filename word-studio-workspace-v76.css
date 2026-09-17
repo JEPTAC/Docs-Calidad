@@ -1,4 +1,4 @@
-/* V79 · Workspace institucional: lateral azul continuo, contraste fijo y contenedores transparentes. No modifica SGC base. */
+/* V87 · Workspace institucional: lateral azul continuo, contraste fijo y accesos de diseño visibles. No modifica SGC base. */
 :root{--v76-blue:#001F73;--v76-yellow:#EAC800;--v76-ink:#182230;--v76-muted:#667085;--v76-line:#D9E0EA;--v76-soft:#F4F7FB;--v76-card:#FFFFFF}
 
 /* Lateral: azul institucional como superficie principal continua. */
@@ -59,6 +59,9 @@ body.v75-word-active .toolbar>button,body.v75-word-active .toolbar .v75-toolbar-
 .v75-toolbar-group .v75-toolbar-btn{background:transparent!important;border:0!important;color:var(--v76-blue)!important}
 .v75-toolbar-group .v75-toolbar-btn:hover,.v75-toolbar-group .v75-toolbar-btn.active{background:#fff!important;color:var(--v76-blue)!important;box-shadow:0 1px 5px rgba(16,24,40,.08)!important}
 .v75-toolbar-group .v75-toolbar-btn.primary-tool{background:var(--v76-blue)!important;color:#fff!important}
+/* Acceso de primer nivel al editor visual: no puede confundirse con un botón secundario. */
+.v75-toolbar-group #v87DesignBtn{background:var(--v76-yellow)!important;color:var(--v76-blue)!important;border:1px solid var(--v76-yellow)!important;font-weight:900!important;padding-inline:11px!important}
+.v75-toolbar-group #v87DesignBtn:hover,.v75-toolbar-group #v87DesignBtn:focus-visible{background:#F5D926!important;color:var(--v76-blue)!important;border-color:var(--v76-blue)!important;box-shadow:0 0 0 3px rgba(234,200,0,.24)!important}
 
 /* Inspector contextual. */
 .v75-context-drawer{border:1px solid var(--v76-line)!important;border-radius:16px!important;box-shadow:0 22px 56px rgba(16,24,40,.18)!important}
@@ -83,6 +86,8 @@ body.v75-word-active .toolbar>button,body.v75-word-active .toolbar .v75-toolbar-
 .v76-insert-groups button:not(:disabled):hover{background:var(--v76-blue);border-color:var(--v76-blue);color:#fff}
 .v76-insert-groups button:disabled{opacity:.42;cursor:not-allowed;background:#F2F4F7;color:#98A2B3}
 .v76-insert-popover.has-target .v76-insert-location{background:#F8FAFC}
+.v76-insert-groups [data-v76-insert-type="design"]{background:var(--v76-yellow)!important;color:var(--v76-blue)!important;border-color:var(--v76-yellow)!important;font-weight:900!important}
+.v76-insert-groups [data-v76-insert-type="design"]:not(:disabled):hover{background:#F5D926!important;color:var(--v76-blue)!important;border-color:var(--v76-blue)!important}
 
 body.v75-word-active .side,.v75-context-body{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.34) transparent}
 body.v75-word-active .side::-webkit-scrollbar,.v75-context-body::-webkit-scrollbar{width:7px}
