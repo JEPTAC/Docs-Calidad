@@ -13,6 +13,12 @@
 .word-block-editor-head button{flex:0 0 auto;max-width:100%;white-space:nowrap}
 .word-block-editor p,.word-block-editor .hint{max-width:100%;overflow-wrap:anywhere;word-break:normal}
 
+/* Formularios de sección sobre el lateral azul: todos sus rótulos deben permanecer blancos. */
+body.v75-word-active .side .word-section-card>label,
+body.v75-word-active .side .word-section-card .grid2>label,
+body.v75-word-active .side .word-subsection-card>label,
+body.v75-word-active .side .word-subsection-card .grid2>label{color:#fff!important}
+
 /* Tarjetas compactas: sin título duplicado ni texto ilegible. */
 .word-heavy-card{min-width:0!important;overflow:hidden!important;background:#fff!important;border-color:rgba(0,31,115,.22)!important;color:var(--wm-ink)!important}
 .word-heavy-card .word-block-editor-head{padding-bottom:7px;border-bottom:1px solid #E4E7EC;margin-bottom:7px!important}
