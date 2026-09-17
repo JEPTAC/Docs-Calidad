@@ -151,7 +151,7 @@ function v75BlockKey(card,index){
 }
 function v75EnhanceAccordions(){
   const box=document.getElementById('wordSectionEditor');if(!box)return;
-  [...box.querySelectorAll('.word-block-editor:not(.v75-diagram-summary)')].forEach((card,index)=>{
+  [...box.querySelectorAll('.word-block-editor:not(.v75-diagram-summary):not(.word-heavy-card)')].forEach((card,index)=>{
     if(card.classList.contains('v75-collapsible'))return;const head=card.querySelector(':scope > .word-block-editor-head');if(!head)return;
     const key=v75BlockKey(card,index),content=document.createElement('div');content.className='v75-editor-content';
     [...card.childNodes].filter(n=>n!==head).forEach(n=>content.appendChild(n));card.appendChild(content);card.classList.add('v75-collapsible');if(v75OpenBlockKey===key)card.classList.add('v75-open');
