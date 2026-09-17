@@ -22,10 +22,14 @@
 .side .word-subsection-card>.grid2>label,
 .side .word-section-card>.word-section-card-title,
 .side .word-subsection-card>.word-section-card-title,
+.side .word-section-card>.word-rich-field>.word-rich-field-label,
+.side .word-subsection-card>.word-rich-field>.word-rich-field-label,
 body.v75-word-active .side .word-section-card>label,
 body.v75-word-active .side .word-section-card>.grid2>label,
 body.v75-word-active .side .word-subsection-card>label,
-body.v75-word-active .side .word-subsection-card>.grid2>label{color:#fff!important;text-shadow:none!important;opacity:1!important}
+body.v75-word-active .side .word-subsection-card>.grid2>label,
+body.v75-word-active .side .word-section-card>.word-rich-field>.word-rich-field-label,
+body.v75-word-active .side .word-subsection-card>.word-rich-field>.word-rich-field-label{color:#fff!important;text-shadow:none!important;opacity:1!important}
 
 /* Tarjetas compactas: sin título duplicado ni texto ilegible. */
 .word-heavy-card{min-width:0!important;overflow:hidden!important;background:#fff!important;border-color:rgba(0,31,115,.22)!important;color:var(--wm-ink)!important}
