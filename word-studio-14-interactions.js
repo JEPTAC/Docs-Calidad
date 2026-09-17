@@ -7,8 +7,8 @@
 const V76_BLUE='#001F73';
 const V76_INSERT_GROUPS=[
   ['Contenido',[['text','Texto premium'],['heading','Subtítulo'],['list','Lista'],['callout','Nota']]],
-  ['Diseño visual',[['design','✦ Diseño libre'],['diagram','Diagrama'],['chart','Gráfica']]],
-  ['Datos',[['table','Tabla'],['kpi','KPI']]],
+  ['Datos',[['design','✦ Diseño libre'],['table','Tabla'],['kpi','KPI']]],
+  ['Visualización',[['diagram','Diagrama'],['chart','Gráfica']]],
   ['Soporte',[['image','Imagen'],['citation','Cita'],['references','Referencias'],['pagebreak','Salto de página']]]
 ];
 let v76InsertTarget=null;
@@ -55,7 +55,6 @@ function v76EnsureInsertPalette(){
   }
   let groups=pop.querySelector('.v76-insert-groups');
   if(!groups){groups=document.createElement('div');groups.className='v76-insert-groups';pop.appendChild(groups)}
-  /* La paleta se deriva siempre del catálogo actual. Nunca conserva botones obsoletos de renders/capas anteriores. */
   groups.innerHTML=v76InsertGroupsHtml();
   const select=pop.querySelector('[data-v76-insert-location]');if(select){select.innerHTML=v76LocationOptions();select.value=v76TargetValue()}
   v76SyncInsertState(pop);return pop;
