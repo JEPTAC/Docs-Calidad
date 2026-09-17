@@ -41,7 +41,7 @@ try{
 
   await page.locator('[data-wm-minimize]').click();assert(await page.locator('#wordHeavyOverlay .word-heavy-dialog').evaluate(el=>el.classList.contains('wm-minimized')),'Minimizar no funcionó');
   await page.locator('[data-wm-minimize]').click();assert(!(await page.locator('#wordHeavyOverlay .word-heavy-dialog').evaluate(el=>el.classList.contains('wm-minimized'))),'Restaurar no funcionó');
-  await page.locator('[data-word-heavy-close]').click();
+  await page.locator('button.word-heavy-close[data-word-heavy-close]').click();
 
   await page.evaluate(()=>{doc.sections=[{n:'1',t:'CONTENIDO',c:'',sub:[],blocks:[newWordBlock('diagram')]}];render();v75OpenDrawer('0:-1:0')});
   await page.waitForSelector('#wordContextDrawer.open.wm-managed',{state:'visible',timeout:5000});
