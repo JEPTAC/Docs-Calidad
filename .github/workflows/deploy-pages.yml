@@ -28,13 +28,14 @@ jobs:
             word-studio-04-bind.js word-studio-05-docx.js word-studio-23-design-studio.js word-studio-06-ui.js \
             word-studio-07-premium.js word-studio-08-sgc-details.js word-studio-09-structure.js \
             word-studio-10-horizontal-flow.js word-studio-11-flow-pro.js word-studio-12-diagram-builder.js \
-            word-studio-13-immersive-ui.js word-studio-14-interactions.js word-studio-15-ai-local.js \
+            word-studio-13-immersive-ui.js word-studio-14-interactions.js word-studio-24-window-manager.js word-studio-15-ai-local.js \
             word-studio-16-document-import.js word-studio-17-ai-ui.js word-studio-18-ai-v84.js \
             word-studio-19-ai-v84-numbering.js word-studio-20-ai-v84-hierarchy.js \
             word-studio-21-ai-v86-smart.js word-studio-22-ai-v86-hardening.js; do
             node --check "$f"
           done
           node --check tests/ui-smoke.mjs
+          node --check tests/window-manager-smoke.mjs
           node --check tests/ai-local-smoke.mjs
           node --check tests/ai-v84-smoke.mjs
           node --check tests/ai-v86-smoke.mjs
@@ -56,12 +57,13 @@ jobs:
           css_names=[
             'word-studio-pro.css','word-studio-premium.css','word-studio-extensions.css',
             'word-studio-diagram-builder.css','word-studio-immersive.css','word-studio-workspace-v76.css',
-            'word-studio-design-studio.css','word-studio-ai-local.css','word-studio-ai-v83-fix.css',
+            'word-studio-design-studio.css','word-studio-window-manager.css','word-studio-ai-local.css','word-studio-ai-v83-fix.css',
             'word-studio-ai-v84.css','word-studio-ai-v86.css'
           ]
           css={n:Path(n).read_text(encoding='utf-8') for n in css_names}
           files={
             'design':Path('word-studio-23-design-studio.js').read_text(encoding='utf-8'),
+            'windows':Path('word-studio-24-window-manager.js').read_text(encoding='utf-8'),
             'core':Path('word-studio-15-ai-local.js').read_text(encoding='utf-8'),
             'import':Path('word-studio-16-document-import.js').read_text(encoding='utf-8'),
             'ui':Path('word-studio-17-ai-ui.js').read_text(encoding='utf-8'),
@@ -98,6 +100,16 @@ jobs:
           }
           for label,ok in design_checks.items():
             if not ok: raise SystemExit(f'Estudio de Diseño incompleto: {label}')
+
+          window_checks={
+            'ventanas listas':'EI_FLOATING_WINDOWS_READY' in files['windows'],
+            'no modal':'aria-modal' in files['windows'] and "'false'" in files['windows'],
+            'movibles':'wmBindDrag' in files['windows'],
+            'redimensionables':'ResizeObserver' in files['windows'],
+            'estado persistente':'localStorage' in files['windows'],
+          }
+          for label,ok in window_checks.items():
+            if not ok: raise SystemExit(f'Gestor de ventanas incompleto: {label}')
 
           checks={
             'WebLLM versionado':'@mlc-ai/web-llm@0.2.85' in files['core'],
@@ -149,7 +161,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build exact Pages candidate V87
+      - name: Build exact Pages candidate V89
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -157,21 +169,22 @@ jobs:
           from pathlib import Path
           p=Path('_site/index.html'); html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=87">
-          <link rel="stylesheet" href="word-studio-premium.css?v=87">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=87">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=87">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=87">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=87">
-          <link rel="stylesheet" href="word-studio-design-studio.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-local.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v84.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v86.css?v=87">
+          <link rel="stylesheet" href="word-studio-pro.css?v=89">
+          <link rel="stylesheet" href="word-studio-premium.css?v=89">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=89">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=89">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=89">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=89">
+          <link rel="stylesheet" href="word-studio-design-studio.css?v=89">
+          <link rel="stylesheet" href="word-studio-window-manager.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-local.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v84.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v86.css?v=89">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=87"></script><script src="word-studio-02-editor.js?v=87"></script><script src="word-studio-03-render.js?v=87"></script><script src="word-studio-04-bind.js?v=87"></script><script src="word-studio-05-docx.js?v=87"></script><script src="word-studio-23-design-studio.js?v=87"></script><script src="word-studio-06-ui.js?v=87"></script><script src="word-studio-07-premium.js?v=87"></script><script src="word-studio-08-sgc-details.js?v=87"></script><script src="word-studio-09-structure.js?v=87"></script><script src="word-studio-10-horizontal-flow.js?v=87"></script><script src="word-studio-11-flow-pro.js?v=87"></script><script src="word-studio-12-diagram-builder.js?v=87"></script><script src="word-studio-13-immersive-ui.js?v=87"></script><script src="word-studio-14-interactions.js?v=87"></script><script src="word-studio-15-ai-local.js?v=87"></script><script src="word-studio-16-document-import.js?v=87"></script><script src="word-studio-17-ai-ui.js?v=87"></script><script src="word-studio-18-ai-v84.js?v=87"></script><script src="word-studio-19-ai-v84-numbering.js?v=87"></script><script src="word-studio-20-ai-v84-hierarchy.js?v=87"></script><script src="word-studio-21-ai-v86-smart.js?v=87"></script><script src="word-studio-22-ai-v86-hardening.js?v=87"></script>
+          <script src="word-studio-01-core.js?v=89"></script><script src="word-studio-02-editor.js?v=89"></script><script src="word-studio-03-render.js?v=89"></script><script src="word-studio-04-bind.js?v=89"></script><script src="word-studio-05-docx.js?v=89"></script><script src="word-studio-23-design-studio.js?v=89"></script><script src="word-studio-06-ui.js?v=89"></script><script src="word-studio-07-premium.js?v=89"></script><script src="word-studio-08-sgc-details.js?v=89"></script><script src="word-studio-09-structure.js?v=89"></script><script src="word-studio-10-horizontal-flow.js?v=89"></script><script src="word-studio-11-flow-pro.js?v=89"></script><script src="word-studio-12-diagram-builder.js?v=89"></script><script src="word-studio-13-immersive-ui.js?v=89"></script><script src="word-studio-14-interactions.js?v=89"></script><script src="word-studio-24-window-manager.js?v=89"></script><script src="word-studio-15-ai-local.js?v=89"></script><script src="word-studio-16-document-import.js?v=89"></script><script src="word-studio-17-ai-ui.js?v=89"></script><script src="word-studio-18-ai-v84.js?v=89"></script><script src="word-studio-19-ai-v84-numbering.js?v=89"></script><script src="word-studio-20-ai-v84-hierarchy.js?v=89"></script><script src="word-studio-21-ai-v86-smart.js?v=89"></script><script src="word-studio-22-ai-v86-hardening.js?v=89"></script>
           '''
           html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
@@ -185,6 +198,7 @@ jobs:
           python3 -m http.server 4173 --directory _site >/tmp/docs-calidad-http.log 2>&1 &
           for i in {1..30}; do if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi; sleep 1; done
           TEST_URL=http://127.0.0.1:4173 node tests/ui-smoke.mjs
+          TEST_URL=http://127.0.0.1:4173 node tests/window-manager-smoke.mjs
           TEST_URL=http://127.0.0.1:4173 node tests/ai-local-smoke.mjs
           TEST_URL=http://127.0.0.1:4173 node tests/ai-v84-smoke.mjs
           TEST_URL=http://127.0.0.1:4173 node tests/ai-v86-smoke.mjs
@@ -200,7 +214,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Prepare approved baseline plus Word Studio V87
+      - name: Prepare approved baseline plus Word Studio V89
         run: |
           mkdir -p _site
           rsync -av --delete --exclude '.git/' --exclude '.github/' --exclude '_site/' ./ _site/
@@ -208,21 +222,22 @@ jobs:
           from pathlib import Path
           p=Path('_site/index.html'); html=p.read_text(encoding='utf-8')
           css='''
-          <link rel="stylesheet" href="word-studio-pro.css?v=87">
-          <link rel="stylesheet" href="word-studio-premium.css?v=87">
-          <link rel="stylesheet" href="word-studio-extensions.css?v=87">
-          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=87">
-          <link rel="stylesheet" href="word-studio-immersive.css?v=87">
-          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=87">
-          <link rel="stylesheet" href="word-studio-design-studio.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-local.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v84.css?v=87">
-          <link rel="stylesheet" href="word-studio-ai-v86.css?v=87">
+          <link rel="stylesheet" href="word-studio-pro.css?v=89">
+          <link rel="stylesheet" href="word-studio-premium.css?v=89">
+          <link rel="stylesheet" href="word-studio-extensions.css?v=89">
+          <link rel="stylesheet" href="word-studio-diagram-builder.css?v=89">
+          <link rel="stylesheet" href="word-studio-immersive.css?v=89">
+          <link rel="stylesheet" href="word-studio-workspace-v76.css?v=89">
+          <link rel="stylesheet" href="word-studio-design-studio.css?v=89">
+          <link rel="stylesheet" href="word-studio-window-manager.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-local.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v83-fix.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v84.css?v=89">
+          <link rel="stylesheet" href="word-studio-ai-v86.css?v=89">
           '''
           scripts='''
           <script src="https://cdn.jsdelivr.net/npm/docx@9.7.1/dist/index.iife.js"></script>
-          <script src="word-studio-01-core.js?v=87"></script><script src="word-studio-02-editor.js?v=87"></script><script src="word-studio-03-render.js?v=87"></script><script src="word-studio-04-bind.js?v=87"></script><script src="word-studio-05-docx.js?v=87"></script><script src="word-studio-23-design-studio.js?v=87"></script><script src="word-studio-06-ui.js?v=87"></script><script src="word-studio-07-premium.js?v=87"></script><script src="word-studio-08-sgc-details.js?v=87"></script><script src="word-studio-09-structure.js?v=87"></script><script src="word-studio-10-horizontal-flow.js?v=87"></script><script src="word-studio-11-flow-pro.js?v=87"></script><script src="word-studio-12-diagram-builder.js?v=87"></script><script src="word-studio-13-immersive-ui.js?v=87"></script><script src="word-studio-14-interactions.js?v=87"></script><script src="word-studio-15-ai-local.js?v=87"></script><script src="word-studio-16-document-import.js?v=87"></script><script src="word-studio-17-ai-ui.js?v=87"></script><script src="word-studio-18-ai-v84.js?v=87"></script><script src="word-studio-19-ai-v84-numbering.js?v=87"></script><script src="word-studio-20-ai-v84-hierarchy.js?v=87"></script><script src="word-studio-21-ai-v86-smart.js?v=87"></script><script src="word-studio-22-ai-v86-hardening.js?v=87"></script>
+          <script src="word-studio-01-core.js?v=89"></script><script src="word-studio-02-editor.js?v=89"></script><script src="word-studio-03-render.js?v=89"></script><script src="word-studio-04-bind.js?v=89"></script><script src="word-studio-05-docx.js?v=89"></script><script src="word-studio-23-design-studio.js?v=89"></script><script src="word-studio-06-ui.js?v=89"></script><script src="word-studio-07-premium.js?v=89"></script><script src="word-studio-08-sgc-details.js?v=89"></script><script src="word-studio-09-structure.js?v=89"></script><script src="word-studio-10-horizontal-flow.js?v=89"></script><script src="word-studio-11-flow-pro.js?v=89"></script><script src="word-studio-12-diagram-builder.js?v=89"></script><script src="word-studio-13-immersive-ui.js?v=89"></script><script src="word-studio-14-interactions.js?v=89"></script><script src="word-studio-24-window-manager.js?v=89"></script><script src="word-studio-15-ai-local.js?v=89"></script><script src="word-studio-16-document-import.js?v=89"></script><script src="word-studio-17-ai-ui.js?v=89"></script><script src="word-studio-18-ai-v84.js?v=89"></script><script src="word-studio-19-ai-v84-numbering.js?v=89"></script><script src="word-studio-20-ai-v84-hierarchy.js?v=89"></script><script src="word-studio-21-ai-v86-smart.js?v=89"></script><script src="word-studio-22-ai-v86-hardening.js?v=89"></script>
           '''
           html=html.replace('</head>',css+'\n</head>').replace('</body>',scripts+'\n</body>');p.write_text(html,encoding='utf-8')
           PY
