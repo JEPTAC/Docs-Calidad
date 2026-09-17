@@ -1,4 +1,4 @@
-/* ===== Word Studio V89 · Gestor de ventanas flotantes ======================
+/* ===== Word Studio V90 · Gestor de ventanas flotantes ======================
    Corrige desbordes de tarjetas y convierte editores complejos en ventanas
    no modales, movibles y redimensionables sin alterar la plantilla SGC.
 ============================================================================= */
@@ -13,11 +13,19 @@
 .word-block-editor-head button{flex:0 0 auto;max-width:100%;white-space:nowrap}
 .word-block-editor p,.word-block-editor .hint{max-width:100%;overflow-wrap:anywhere;word-break:normal}
 
-/* Formularios de sección sobre el lateral azul: todos sus rótulos deben permanecer blancos. */
+/* Contraste final del lateral azul.
+   No depende del estado v75-word-active: si estas tarjetas están en .side,
+   sus rótulos exteriores son blancos. Los inputs/textarea conservan texto oscuro. */
+.side .word-section-card>label,
+.side .word-section-card>.grid2>label,
+.side .word-subsection-card>label,
+.side .word-subsection-card>.grid2>label,
+.side .word-section-card>.word-section-card-title,
+.side .word-subsection-card>.word-section-card-title,
 body.v75-word-active .side .word-section-card>label,
-body.v75-word-active .side .word-section-card .grid2>label,
+body.v75-word-active .side .word-section-card>.grid2>label,
 body.v75-word-active .side .word-subsection-card>label,
-body.v75-word-active .side .word-subsection-card .grid2>label{color:#fff!important}
+body.v75-word-active .side .word-subsection-card>.grid2>label{color:#fff!important;text-shadow:none!important;opacity:1!important}
 
 /* Tarjetas compactas: sin título duplicado ni texto ilegible. */
 .word-heavy-card{min-width:0!important;overflow:hidden!important;background:#fff!important;border-color:rgba(0,31,115,.22)!important;color:var(--wm-ink)!important}
