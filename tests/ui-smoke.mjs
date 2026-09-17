@@ -93,6 +93,27 @@ try{
   await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');assert(await page.evaluate(()=>document.body.classList.contains('v75-focus-mode')),'Enfoque no se activó');
   await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
 
+  /* Editores complejos: cantidades directas + modal flotante fuera del lateral. */
+  await page.evaluate(()=>{doc.sections=[{n:'1',t:'CONTENIDO',c:'',sub:[],blocks:[newWordBlock('table'),newWordBlock('chart'),newWordBlock('kpi'),newWordBlock('list')]}];render()});
+  await page.waitForSelector('[data-word-heavy-open="0:-1:0"]',{state:'visible',timeout:5000});
+  assert(await page.locator('#wordSectionEditor .word-table-editor-grid').count()===0,'La cuadrícula de tabla no debe saturar la barra lateral');
+  await realClick(page.locator('[data-word-heavy-open="0:-1:0"]'),'Abrir tabla flotante','[data-word-heavy-open="0:-1:0"]');
+  await page.waitForSelector('#wordHeavyOverlay [data-wb-table-rows="0:-1:0"]',{state:'visible',timeout:5000});
+  const tableModalGeometry=await page.evaluate(()=>{const side=document.querySelector('.side')?.getBoundingClientRect(),dialog=document.querySelector('.word-heavy-dialog')?.getBoundingClientRect();return{side:side?.width||0,dialog:dialog?.width||0}});assert(tableModalGeometry.dialog>tableModalGeometry.side*1.5,'El editor de tabla no es suficientemente amplio respecto al lateral');
+  let rowsInput=page.locator('[data-wb-table-rows="0:-1:0"]');await rowsInput.fill('9');await rowsInput.press('Tab');await page.waitForFunction(()=>getWordItem(0,-1)?.blocks?.[0]?.rows?.length===9,{timeout:5000});
+  let colsInput=page.locator('[data-wb-table-cols="0:-1:0"]');await colsInput.fill('6');await colsInput.press('Tab');await page.waitForFunction(()=>getWordItem(0,-1)?.blocks?.[0]?.rows?.[0]?.length===6,{timeout:5000});
+  assert(await page.locator('#wordHeavyOverlay [data-wb-table-cell]').count()===54,'Escribir 9 filas × 6 columnas no creó exactamente 54 celdas');
+  await realClick(page.locator('#wordHeavyOverlay [data-word-heavy-close]').last(),'Cerrar tabla flotante','#wordHeavyOverlay [data-word-heavy-close]');
+
+  await realClick(page.locator('[data-word-heavy-open="0:-1:1"]'),'Abrir gráfica flotante','[data-word-heavy-open="0:-1:1"]');
+  const chartCount=page.locator('[data-wb-chart-count="0:-1:1"]');await chartCount.fill('8');await chartCount.press('Tab');await page.waitForFunction(()=>getWordItem(0,-1)?.blocks?.[1]?.labels?.length===8&&getWordItem(0,-1)?.blocks?.[1]?.values?.length===8,{timeout:5000});assert(await page.locator('#wordHeavyOverlay [data-wb-chart-point]').count()===16,'La cantidad directa de gráfica no creó 8 pares etiqueta/valor');await page.keyboard.press('Escape');
+
+  await realClick(page.locator('[data-word-heavy-open="0:-1:2"]'),'Abrir KPI flotante','[data-word-heavy-open="0:-1:2"]');
+  const kpiCount=page.locator('[data-wb-kpi-count="0:-1:2"]');await kpiCount.fill('5');await kpiCount.press('Tab');await page.waitForFunction(()=>getWordItem(0,-1)?.blocks?.[2]?.items?.length===5,{timeout:5000});assert(await page.locator('#wordHeavyOverlay .word-heavy-repeat-card').count()===5,'La cantidad directa de KPI no creó 5 indicadores');await page.keyboard.press('Escape');
+
+  await realClick(page.locator('[data-word-heavy-open="0:-1:3"]'),'Abrir lista flotante','[data-word-heavy-open="0:-1:3"]');
+  const listCount=page.locator('[data-wb-list-count="0:-1:3"]');await listCount.fill('12');await listCount.press('Tab');await page.waitForFunction(()=>getWordItem(0,-1)?.blocks?.[3]?.items?.length===12,{timeout:5000});assert(await page.locator('#wordHeavyOverlay [data-wb-list-item]').count()===12,'La cantidad directa de lista no creó 12 elementos');await page.keyboard.press('Escape');
+
   /* Motor documental: layout medido, semántica y tabla multipágina. */
   const layout=await page.evaluate(()=>{
     const rows=[['Columna A','Columna B','Columna C']];for(let i=1;i<=52;i++)rows.push([`Registro ${i}`,`Descripción operativa suficientemente amplia para validar la distribución de la fila ${i} sin cortes arbitrarios.`,`Estado ${i%2?'Activo':'Pendiente'}`]);
@@ -108,5 +129,5 @@ try{
   assert(layout.overflows.every(x=>x<=2),`Hay contenido desbordado en páginas: ${layout.overflows.join(', ')}`);
 
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS: acceso visible, Estudio de Diseño, contrato institucional y motor documental verificados.');
+  console.log('UI smoke PASS: acceso visible, editores flotantes, cantidades directas, Diseño y motor documental verificados.');
 } finally {await browser.close()}
