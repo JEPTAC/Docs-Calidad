@@ -27,29 +27,9 @@ try{
   await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true&&window.V77_EXPLICIT_TARGETING===true,{timeout:10000});
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
 
-  /* Contraste institucional y transparencia real del lateral. */
   const visual=await page.evaluate(()=>{
-    const side=getComputedStyle(document.querySelector('.side'));
-    const panelEl=document.querySelector('[data-panel="word"]');
-    const panel=panelEl?getComputedStyle(panelEl):null;
-    const studioEl=document.querySelector('.word-studio-settings');
-    const studio=studioEl?getComputedStyle(studioEl):null;
-    const noticeEl=document.querySelector('#wordTypeNotice');
-    const notice=noticeEl?getComputedStyle(noticeEl):null;
-    const premiumEl=document.querySelector('.word-premium-note');
-    const premium=premiumEl?getComputedStyle(premiumEl):null;
-    const primary=getComputedStyle(document.querySelector('#v75InsertBtn'));
-    const exportBtn=document.querySelector('#exportDocx');
-    const exp=exportBtn?getComputedStyle(exportBtn):null;
-    return {
-      sideBg:side.backgroundColor,sideColor:side.color,
-      panelBg:panel?.backgroundColor||null,panelImage:panel?.backgroundImage||null,
-      studioBg:studio?.backgroundColor||null,studioImage:studio?.backgroundImage||null,
-      noticeBg:notice?.backgroundColor||null,noticeColor:notice?.color||null,
-      premiumBg:premium?.backgroundColor||null,premiumColor:premium?.color||null,
-      primaryBg:primary.backgroundColor,primaryColor:primary.color,
-      exportBg:exp?.backgroundColor||null,exportColor:exp?.color||null
-    };
+    const side=getComputedStyle(document.querySelector('.side'));const panelEl=document.querySelector('[data-panel="word"]');const panel=panelEl?getComputedStyle(panelEl):null;const studioEl=document.querySelector('.word-studio-settings');const studio=studioEl?getComputedStyle(studioEl):null;const noticeEl=document.querySelector('#wordTypeNotice');const notice=noticeEl?getComputedStyle(noticeEl):null;const premiumEl=document.querySelector('.word-premium-note');const premium=premiumEl?getComputedStyle(premiumEl):null;const primary=getComputedStyle(document.querySelector('#v75InsertBtn'));const exportBtn=document.querySelector('#exportDocx');const exp=exportBtn?getComputedStyle(exportBtn):null;
+    return {sideBg:side.backgroundColor,sideColor:side.color,panelBg:panel?.backgroundColor||null,panelImage:panel?.backgroundImage||null,studioBg:studio?.backgroundColor||null,studioImage:studio?.backgroundImage||null,noticeBg:notice?.backgroundColor||null,noticeColor:notice?.color||null,premiumBg:premium?.backgroundColor||null,premiumColor:premium?.color||null,primaryBg:primary.backgroundColor,primaryColor:primary.color,exportBg:exp?.backgroundColor||null,exportColor:exp?.color||null};
   });
   assert(visual.sideBg==='rgb(0, 31, 115)',`El lateral debe ser #001F73, no ${visual.sideBg}`);
   assert(visual.panelBg==='rgba(0, 0, 0, 0)'&&visual.panelImage==='none',`El panel general debe ser transparente: ${JSON.stringify(visual)}`);
@@ -59,46 +39,50 @@ try{
   assert(visual.primaryBg==='rgb(0, 31, 115)'&&visual.primaryColor==='rgb(255, 255, 255)',`Botón azul debe llevar texto blanco: ${JSON.stringify(visual)}`);
   if(visual.exportBg)assert(visual.exportBg==='rgb(234, 200, 0)'&&visual.exportColor==='rgb(0, 31, 115)',`Botón amarillo debe llevar texto azul: ${JSON.stringify(visual)}`);
 
-  /* Barra superior: debe exigir ubicación explícita antes de insertar. */
   const before=await page.evaluate(()=>getWordItem(0,-1)?.blocks?.length||0);
   await realClick(page.locator('#v75InsertBtn'),'Insertar superior','#v75InsertBtn');
   await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000});
   const topTextBtn=page.locator('#v76InsertPopover [data-v76-insert-type="text"]');
   assert(await topTextBtn.isDisabled(),'La barra superior debe bloquear los tipos hasta elegir ubicación');
-  const location=page.locator('#v76InsertLocation');
-  await location.selectOption('0:-1');
+  const location=page.locator('#v76InsertLocation');await location.selectOption('0:-1');
   assert(!(await topTextBtn.isDisabled()),'Elegir OBJETIVO debe habilitar la inserción');
   await realClick(topTextBtn,'Texto premium','#v76InsertPopover [data-v76-insert-type="text"]');
   await page.waitForFunction(n=>(getWordItem(0,-1)?.blocks?.length||0)>n,before,{timeout:5000});
   assert((await page.evaluate(()=>getWordItem(0,-1)?.blocks?.length||0))>before,'La barra superior no insertó en la ubicación elegida');
 
-  /* El botón local conserva su destino conocido. */
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
-  const localInsert=page.locator('[data-v75-open-insert]').first();
-  await realClick(localInsert,'Insertar bloque local','[data-v75-open-insert]');
+  const localInsert=page.locator('[data-v75-open-insert]').first();await realClick(localInsert,'Insertar bloque local','[data-v75-open-insert]');
   await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000});
   assert(!(await page.locator('#v76InsertPopover [data-v76-insert-type="text"]').isDisabled()),'La inserción local debe abrir con su ubicación preseleccionada');
   await page.locator('[data-v76-close-insert]').click();
 
   await page.evaluate(()=>addWordBlock(0,-1,'diagram'));
   await page.waitForSelector('[data-v75-open-diagram]',{state:'visible',timeout:10000});
-  const diagramButton=page.locator('[data-v75-open-diagram]').last();
-  await realClick(diagramButton,'Abrir constructor visual','[data-v75-open-diagram]');
+  const diagramButton=page.locator('[data-v75-open-diagram]').last();await realClick(diagramButton,'Abrir constructor visual','[data-v75-open-diagram]');
   try{await page.waitForFunction(()=>document.getElementById('wordContextDrawer')?.classList.contains('open'),{timeout:5000})}catch(e){throw new Error(`Abrir constructor visual no abrió el inspector. ${JSON.stringify(await diagnostic('[data-v75-open-diagram]'))}. Consola: ${consoleErrors.join(' | ')}`)}
   await page.waitForSelector('#v75ContextBody .word-diagram-builder',{state:'visible',timeout:5000});
   assert(await page.locator('#wordContextDrawer').evaluate(el=>el.classList.contains('open')),'El inspector contextual no quedó abierto');
 
-  await realClick(page.locator('#v75ContextClose'),'Cerrar inspector','#v75ContextClose');
-  await page.waitForFunction(()=>!document.getElementById('wordContextDrawer')?.classList.contains('open'),{timeout:5000});
-  await realClick(page.locator('#v75PanelBtn'),'Panel','#v75PanelBtn');
-  assert(await page.evaluate(()=>document.body.classList.contains('v75-panel-hidden')),'Panel no ocultó el lateral');
-  await realClick(page.locator('#v75PanelBtn'),'Panel','#v75PanelBtn');
-  assert(await page.evaluate(()=>!document.body.classList.contains('v75-panel-hidden')),'Panel no restauró el lateral');
-  await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');
-  assert(await page.evaluate(()=>document.body.classList.contains('v75-focus-mode')),'Enfoque no se activó');
-  await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');
-  assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
+  await realClick(page.locator('#v75ContextClose'),'Cerrar inspector','#v75ContextClose');await page.waitForFunction(()=>!document.getElementById('wordContextDrawer')?.classList.contains('open'),{timeout:5000});
+  await realClick(page.locator('#v75PanelBtn'),'Panel','#v75PanelBtn');assert(await page.evaluate(()=>document.body.classList.contains('v75-panel-hidden')),'Panel no ocultó el lateral');
+  await realClick(page.locator('#v75PanelBtn'),'Panel','#v75PanelBtn');assert(await page.evaluate(()=>!document.body.classList.contains('v75-panel-hidden')),'Panel no restauró el lateral');
+  await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');assert(await page.evaluate(()=>document.body.classList.contains('v75-focus-mode')),'Enfoque no se activó');
+  await realClick(page.locator('#v75FocusBtn'),'Enfoque','#v75FocusBtn');assert(await page.evaluate(()=>!document.body.classList.contains('v75-focus-mode')),'Enfoque no se desactivó');
+
+  /* Motor documental: layout medido, semántica y tabla multipágina. */
+  const layout=await page.evaluate(()=>{
+    const rows=[['Columna A','Columna B','Columna C']];for(let i=1;i<=52;i++)rows.push([`Registro ${i}`,`Descripción operativa suficientemente amplia para validar la distribución de la fila ${i} sin cortes arbitrarios.`,`Estado ${i%2?'Activo':'Pendiente'}`]);
+    doc.sections=[{n:'1',t:'CONTENIDO',c:'Este contenido inicial valida que el título principal permanezca unido al primer párrafo cuando exista espacio suficiente.',sub:[],blocks:[{id:'h-layout',type:'heading',text:'Planeación y ejecución',content:'Este párrafo pertenece directamente al subtítulo y debe viajar con él.\n\nEste segundo párrafo puede continuar de forma natural si la página requiere un salto.',level:2,numbered:true,keepWithNext:true},{id:'n-layout',type:'text',text:'Nota: Esta observación fue detectada automáticamente por el motor semántico.',align:'justify',autoSemantic:true},{id:'t-layout',type:'table',title:'Matriz extensa de validación',caption:'Fuente: prueba automatizada Docs-Calidad.',header:true,repeatHeader:true,cantSplitRows:true,striped:true,rows}]}];render();
+    const pages=[...document.querySelectorAll('#stage .sgc-page')],contentPages=pages.filter(p=>p.querySelector('.word-title-group,.word-table-figure,.word-heading-group')),tables=[...document.querySelectorAll('#stage .word-table-figure')],headers=tables.map(t=>[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim()).join('|')),overflows=contentPages.map(p=>{const c=p.querySelector('.sgc-content');return c?Math.max(0,c.scrollHeight-c.clientHeight):0}),heading=document.querySelector('#stage .word-heading-group');
+    return {pages:pages.length,tables:tables.length,headers,continuations:document.querySelectorAll('#stage .word-table-figure.is-continuation').length,autoNotes:document.querySelectorAll('#stage .word-callout.auto-note').length,headingContent:heading?.querySelector('.word-heading-content')?.textContent||'',overflows};
+  });
+  assert(layout.pages>=4,'El motor nuevo no produjo paginación real para contenido extenso');
+  assert(layout.tables>=2&&layout.continuations>=1,'La tabla extensa no se fragmentó automáticamente entre páginas');
+  assert(layout.headers.every(h=>h==='Columna A|Columna B|Columna C'),'Los encabezados de tabla no se repitieron en cada fragmento');
+  assert(layout.autoNotes===1,'La detección automática de notas no funcionó');
+  assert(/pertenece directamente al subtítulo/i.test(layout.headingContent),'El subtítulo no conservó su contenido asociado');
+  assert(layout.overflows.every(x=>x<=2),`Hay contenido desbordado en páginas: ${layout.overflows.join(', ')}`);
 
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS V79: lateral azul continuo, contenedores transparentes, avisos crema opacos con texto azul, ubicación explícita, constructor visual, Panel y Enfoque.');
+  console.log('UI smoke PASS: contrato institucional, interacción y motor documental semántico multipágina verificados.');
 } finally {await browser.close()}
