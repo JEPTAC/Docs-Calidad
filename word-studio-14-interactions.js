@@ -43,13 +43,20 @@ function v76LocationOptions(){
   });
   return out;
 }
+function v76InsertGroupsHtml(){
+  return V76_INSERT_GROUPS.map(([title,items])=>`<section><span>${title}</span><div>${items.map(([type,label])=>`<button type="button" data-v76-insert-type="${type}" disabled>${label}</button>`).join('')}</div></section>`).join('');
+}
 function v76EnsureInsertPalette(){
   let pop=document.getElementById('v76InsertPopover');
   if(!pop){
     pop=document.createElement('div');pop.id='v76InsertPopover';pop.className='v76-insert-popover';pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Insertar contenido');
-    pop.innerHTML=`<div class="v76-insert-head"><div><strong>Insertar contenido</strong><small>Elige primero la ubicación exacta</small></div><button type="button" data-v76-close-insert aria-label="Cerrar">×</button></div><div class="v76-insert-location"><label for="v76InsertLocation">¿Dónde quieres insertarlo?</label><select id="v76InsertLocation" data-v76-insert-location></select><small>El bloque se agregará dentro de la sección o subtítulo elegido, después del contenido que ya exista allí.</small></div><div class="v76-insert-groups">${V76_INSERT_GROUPS.map(([title,items])=>`<section><span>${title}</span><div>${items.map(([type,label])=>`<button type="button" data-v76-insert-type="${type}" ${type==='design'?'style="background:#EAC800;color:#001F73;font-weight:800;border-color:#EAC800"':''} disabled>${label}</button>`).join('')}</div></section>`).join('')}</div>`;
+    pop.innerHTML=`<div class="v76-insert-head"><div><strong>Insertar contenido</strong><small>Elige primero la ubicación exacta</small></div><button type="button" data-v76-close-insert aria-label="Cerrar">×</button></div><div class="v76-insert-location"><label for="v76InsertLocation">¿Dónde quieres insertarlo?</label><select id="v76InsertLocation" data-v76-insert-location></select><small>El bloque se agregará dentro de la sección o subtítulo elegido, después del contenido que ya exista allí.</small></div><div class="v76-insert-groups"></div>`;
     document.body.appendChild(pop);
   }
+  let groups=pop.querySelector('.v76-insert-groups');
+  if(!groups){groups=document.createElement('div');groups.className='v76-insert-groups';pop.appendChild(groups)}
+  /* La paleta se deriva siempre del catálogo actual. Nunca conserva botones obsoletos de renders/capas anteriores. */
+  groups.innerHTML=v76InsertGroupsHtml();
   const select=pop.querySelector('[data-v76-insert-location]');if(select){select.innerHTML=v76LocationOptions();select.value=v76TargetValue()}
   v76SyncInsertState(pop);return pop;
 }
@@ -70,7 +77,7 @@ function v87InsertBlock(type,target=v76InsertTarget){
 }
 function v87EnsureDesignEntry(){
   const group=document.getElementById('wordImmersiveTools');if(!group||document.getElementById('v87DesignBtn'))return;
-  const btn=document.createElement('button');btn.type='button';btn.id='v87DesignBtn';btn.className='v75-toolbar-btn';btn.innerHTML='✦ Diseño';btn.title='Abrir el Estudio de Diseño en la sección activa';btn.setAttribute('aria-label','Abrir Estudio de Diseño');btn.style.background='#EAC800';btn.style.color='#001F73';btn.style.fontWeight='800';btn.style.borderColor='#EAC800';
+  const btn=document.createElement('button');btn.type='button';btn.id='v87DesignBtn';btn.className='v75-toolbar-btn';btn.innerHTML='✦ Diseño';btn.title='Abrir el Estudio de Diseño en la sección activa';btn.setAttribute('aria-label','Abrir Estudio de Diseño');
   const panel=document.getElementById('v75PanelBtn');group.insertBefore(btn,panel||null);
 }
 function v76EnsureReady(){if(typeof v75EnsureShell==='function')v75EnsureShell();if(typeof v75SyncMode==='function')v75SyncMode();if(typeof v75UpdateToolbarState==='function')v75UpdateToolbarState();v87EnsureDesignEntry();v76EnsureInsertPalette();const insert=document.getElementById('v75InsertBtn');if(insert)insert.title='Insertar contenido eligiendo sección o subtítulo';const panel=document.getElementById('v75PanelBtn');if(panel)panel.title='Mostrar u ocultar el panel lateral';const focus=document.getElementById('v75FocusBtn');if(focus)focus.title='Modo enfoque para trabajar sobre el documento'}
