@@ -11,12 +11,14 @@ try{
   const skip=page.locator('#introSkip');if(await skip.count()&&await skip.isVisible().catch(()=>false))await skip.click();
   await page.evaluate(()=>{doc.wordType='manual';setMode('word');doc.sections=[{n:'1',t:'CONTENIDO',c:'',sub:[],blocks:[newWordBlock('table'),newWordBlock('chart'),newWordBlock('kpi'),newWordBlock('list')]}];render()});
   await page.waitForSelector('[data-word-heavy-open="0:-1:0"]',{state:'visible',timeout:10000});
+  await page.waitForSelector('.word-section-card>.word-rich-field>.word-rich-field-label',{state:'visible',timeout:5000});
 
   const sidebarLabels=await page.evaluate(()=>{
     const pick=sel=>{const input=document.querySelector(sel);const label=input?.closest('label');return label?getComputedStyle(label).color:null};
-    return {numero:pick('[data-word-sec-n="0"]'),titulo:pick('[data-word-sec-t="0"]'),contenido:pick('[data-word-sec-c="0"]')};
+    const rich=[...document.querySelectorAll('.word-section-card>.word-rich-field>.word-rich-field-label')].find(el=>/Contenido desde panel|Cambios/i.test(el.textContent||''));
+    return {numero:pick('[data-word-sec-n="0"]'),titulo:pick('[data-word-sec-t="0"]'),contenido:rich?getComputedStyle(rich).color:null,contenidoTexto:rich?.textContent?.trim()||null};
   });
-  assert(Object.values(sidebarLabels).every(c=>c==='rgb(255, 255, 255)'),`Los rótulos sobre el lateral azul deben ser blancos: ${JSON.stringify(sidebarLabels)}`);
+  assert(sidebarLabels.numero==='rgb(255, 255, 255)'&&sidebarLabels.titulo==='rgb(255, 255, 255)'&&sidebarLabels.contenido==='rgb(255, 255, 255)',`Los rótulos visibles sobre el lateral azul deben ser blancos: ${JSON.stringify(sidebarLabels)}`);
 
   const cards=await page.evaluate(()=>[...document.querySelectorAll('.word-heavy-card')].map(card=>{const h=card.querySelector('.hint'),r=card.getBoundingClientRect();return{overflow:card.scrollWidth-card.clientWidth,width:r.width,hint:getComputedStyle(h).color,buttons:[...card.querySelectorAll('.word-block-editor-head button')].every(b=>{const x=b.getBoundingClientRect();return x.left>=r.left-1&&x.right<=r.right+1})}}));
   assert(cards.length===4,'Deben existir cuatro tarjetas compactas de prueba');
@@ -57,5 +59,5 @@ try{
   const drawerMoved=await page.evaluate(()=>{const r=document.getElementById('wordContextDrawer').getBoundingClientRect();return{left:r.left,top:r.top}});
   assert(Math.abs(drawerMoved.left-drawer.left)>25||Math.abs(drawerMoved.top-drawer.top)>25,'El constructor visual no se puede mover');
 
-  console.log('WINDOW MANAGER PASS: contraste del lateral, tarjetas adaptativas y ventanas no modales verificados.');
+  console.log('WINDOW MANAGER PASS: contraste real del lateral, tarjetas adaptativas y ventanas no modales verificados.');
 } finally {await browser.close()}
