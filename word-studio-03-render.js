@@ -98,25 +98,26 @@ function splitSemanticText(text,maxChars=1100){
 }
 function paragraphHtml(text,isSub=false,extra=''){
   const cls=isSub?'sgc-subsection-content':'sgc-section-content';
-  return `<div class="${cls} ${extra}">${esc(text).replace(/\n/g,'<br>')}</div>`;
+  return `<div class="${cls} word-paragraph ${extra}">${esc(text).replace(/\n/g,'<br class="word-soft-break">')}</div>`;
 }
 function sectionTitleHtml(item,isSub=false,fallbackNo=''){
   const no=cleanSectionNumber(item?.n,fallbackNo),cls=isSub?'sgc-subsection-title':'sgc-section-title';
   return `<div class="${cls}">${isSub?'':`<span>${esc(no)}</span>&nbsp;&nbsp;`}${isSub?esc(no)+'&nbsp;&nbsp;':''}${esc(item?.t||'')}</div>`;
 }
+function wordTocMarker(key){return `data-word-toc-key="${esc(String(key||''))}"`}
 function buildWordEntries(){
   ensureWordSubtitles();const entries=[];
   const addItem=(item,i,j,isSub=false,fallbackNo='')=>{
     const no=cleanSectionNumber(item?.n,fallbackNo),key=j>=0?`ss-${i}-${j}`:`s-${i}`,wrap=isSub?'sgc-subsection-block':'sgc-section-block',title=sectionTitleHtml(item,isSub,fallbackNo),texts=isControlChangesTitle(item?.t)?[]:splitSemanticText(item?.c||''),control=isControlChangesTitle(item?.t)?controlChangesTableHtml(item):'';
     let first='';if(control)first=control;else if(texts.length)first=paragraphHtml(texts.shift(),isSub,'word-first-paragraph');
-    entries.push({kind:'atomic',key,toc:true,level:isSub?2:1,label:`${no}  ${item?.t||''}`,keepWithNext:true,html:`<div class="${wrap} word-title-group">${title}${first}</div>`});
+    entries.push({kind:'atomic',key,toc:true,level:isSub?2:1,label:`${no}  ${item?.t||''}`,keepWithNext:true,html:`<div class="${wrap} word-title-group" ${wordTocMarker(key)}>${title}${first}</div>`});
     texts.forEach(txt=>entries.push({kind:'text',html:`<div class="${wrap} word-continuation">${paragraphHtml(txt,isSub)}</div>`}));
     (item?.blocks||[]).forEach((b,k)=>{
       if(b.type==='pagebreak'){entries.push({kind:'break'});return}
       if(b.type==='heading'){
-        const info=wordHeadingInfo(item,isSub,b,k),parts=splitSemanticText(b.content||''),firstContent=parts.shift()||'',html=`<div class="${wrap} word-continuation"><div class="word-heading-group"><div class="word-heading-block level-${info.level}">${esc(info.label)}</div>${firstContent?`<div class="word-heading-content">${esc(firstContent).replace(/\n/g,'<br>')}</div>`:''}</div></div>`;
-        entries.push({kind:'atomic',key:`h-${i}-${j}-${k}`,toc:true,level:info.level,label:info.label,keepWithNext:true,force:!!b.pageBreakBefore,html});
-        parts.forEach(txt=>entries.push({kind:'text',html:`<div class="${wrap} word-continuation"><div class="word-heading-content is-continuation">${esc(txt).replace(/\n/g,'<br>')}</div></div>`}));
+        const info=wordHeadingInfo(item,isSub,b,k),parts=splitSemanticText(b.content||''),firstContent=parts.shift()||'',headingKey=`h-${i}-${j}-${k}`,html=`<div class="${wrap} word-continuation" ${wordTocMarker(headingKey)}><div class="word-heading-group"><div class="word-heading-block level-${info.level}">${esc(info.label)}</div>${firstContent?`<div class="word-heading-content word-paragraph">${esc(firstContent).replace(/\n/g,'<br class="word-soft-break">')}</div>`:''}</div></div>`;
+        entries.push({kind:'atomic',key:headingKey,toc:true,level:info.level,label:info.label,keepWithNext:true,force:!!b.pageBreakBefore,html});
+        parts.forEach(txt=>entries.push({kind:'text',html:`<div class="${wrap} word-continuation"><div class="word-heading-content word-paragraph is-continuation">${esc(txt).replace(/\n/g,'<br class="word-soft-break">')}</div></div>`}));
       }else if(b.type==='table')entries.push({kind:'table',block:b,wrap});
       else entries.push({kind:'atomic',html:`<div class="${wrap} word-continuation">${wordBlockHtml(b,{item,isSub,blockIndex:k})}</div>`});
     });
@@ -167,20 +168,20 @@ function paginateWordEntries(entries){
   return pages.length?pages:[[]];
 }
 function buildPageMap(entries,pages,tocCount){
-  const map={};let cursor=0;
-  entries.filter(e=>e.toc).forEach(e=>{
-    for(let p=cursor;p<pages.length;p++){
-      if(pages[p].some(html=>html.includes(`>${esc(e.label).split('&').join('&amp;')}<`)||html.includes(esc(e.label)))){map[e.key]=tocCount+p+1;cursor=p;break}
+  const map={},tocEntries=entries.filter(e=>e.toc);
+  tocEntries.forEach(e=>{
+    const marker=`data-word-toc-key="${esc(String(e.key))}"`;
+    for(let p=0;p<pages.length;p++){
+      if(pages[p].some(html=>html.includes(marker))){map[e.key]=tocCount+p+1;break}
     }
   });
   return map;
 }
-function sgcTocHtml(rows,pageMap){return rows.map(r=>`<p class="sgc-toc-row sgc-toc-level-${r.level} ${r.level===2?'sgc-toc-sub':''}"><span>${esc(r.label)}</span><span>${pageMap[r.key]||''}</span></p>`).join('')}
+function sgcTocHtml(rows,pageMap){return rows.map(r=>{const page=pageMap[r.key];return `<p class="sgc-toc-row sgc-toc-level-${r.level} ${r.level===2?'sgc-toc-sub':''}" data-toc-entry="${esc(r.key)}"><span class="word-toc-label">${esc(r.label)}</span><span class="word-toc-page" aria-label="Página ${page||''}">${page||'—'}</span></p>`}).join('')}
 function sgcSectionsHtml(){return buildWordEntries().filter(e=>e.html).map(e=>e.html).join('')}
 function sgcFooter(n,total=2){return `<div class="sgc-footer-ref"><img class="sgc-footer-img" src="assets/footer-ei-calidad.png" alt="Pie de página Electroingeniería"></div><div class="sgc-date">${today()}</div><div class="sgc-page-num">Pág. ${n} de ${total}</div>`}
 function sgcPages(){
-  const entries=buildWordEntries(),contentPages=paginateWordEntries(entries),tocRows=entries.filter(e=>e.toc).map(e=>({key:e.key,level:e.level,label:e.label})),perToc=27,tocCount=Math.max(1,Math.ceil(tocRows.length/perToc)),total=tocCount+contentPages.length;
-  const pageMap={};entries.filter(e=>e.toc).forEach(e=>{for(let pi=0;pi<contentPages.length;pi++){const needle=esc(e.label);if(contentPages[pi].some(h=>h.includes(needle))){pageMap[e.key]=tocCount+pi+1;break}}});
+  const entries=buildWordEntries(),contentPages=paginateWordEntries(entries),tocRows=entries.filter(e=>e.toc).map(e=>({key:e.key,level:e.level,label:e.label})),perToc=27,tocCount=Math.max(1,Math.ceil(tocRows.length/perToc)),total=tocCount+contentPages.length,pageMap=buildPageMap(entries,contentPages,tocCount);
   let html='';
   for(let ti=0;ti<tocCount;ti++)html+=`<div class="page sgc-page" style="${wordThemeStyle()}">${sgcHeader(ti+1)}<div class="sgc-content"><h3 class="center sgc-toc-title">TABLA DE CONTENIDO${tocCount>1?` · ${ti+1}/${tocCount}`:''}</h3>${sgcTocHtml(tocRows.slice(ti*perToc,(ti+1)*perToc),pageMap)}</div>${sgcFooter(ti+1,total)}</div>`;
   contentPages.forEach((parts,pi)=>{const n=tocCount+pi+1;html+=`<div class="page sgc-page" style="${wordThemeStyle()}">${sgcHeader(n)}<div class="sgc-content">${parts.length?parts.join(''):'<p class="word-empty-page">Agregue secciones y contenido para construir el documento.</p>'}</div>${sgcFooter(n,total)}</div>`});
