@@ -24,7 +24,7 @@ try{
 
   await page.evaluate(()=>{if(typeof doc!=='undefined')doc.wordType='manual';setMode('word');render()});
   await page.waitForFunction(()=>{const panel=document.querySelector('[data-panel="word"]');return panel&&!panel.classList.contains('hidden')},{timeout:10000});
-  await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true&&window.V77_EXPLICIT_TARGETING===true,{timeout:10000});
+  await page.waitForFunction(()=>window.V76_INTERACTIONS_READY===true&&window.V77_EXPLICIT_TARGETING===true&&window.EI_DESIGN_STUDIO_READY===true,{timeout:10000});
   await page.waitForSelector('[data-v75-open-insert]',{state:'visible',timeout:10000});
 
   const visual=await page.evaluate(()=>{
@@ -44,6 +44,7 @@ try{
   await page.waitForFunction(()=>document.getElementById('v76InsertPopover')?.classList.contains('open'),{timeout:5000});
   const topTextBtn=page.locator('#v76InsertPopover [data-v76-insert-type="text"]');
   assert(await topTextBtn.isDisabled(),'La barra superior debe bloquear los tipos hasta elegir ubicación');
+  assert(await page.locator('#v76InsertPopover [data-v76-insert-type="design"]').count()===1,'El Estudio de Diseño no quedó integrado al menú de inserción');
   const location=page.locator('#v76InsertLocation');await location.selectOption('0:-1');
   assert(!(await topTextBtn.isDisabled()),'Elegir OBJETIVO debe habilitar la inserción');
   await realClick(topTextBtn,'Texto premium','#v76InsertPopover [data-v76-insert-type="text"]');
@@ -83,6 +84,34 @@ try{
   assert(/pertenece directamente al subtítulo/i.test(layout.headingContent),'El subtítulo no conservó su contenido asociado');
   assert(layout.overflows.every(x=>x<=2),`Hay contenido desbordado en páginas: ${layout.overflows.join(', ')}`);
 
+  /* Estudio de Diseño: objetos libres, transformación, agrupación e historial. */
+  await page.evaluate(()=>{doc.sections=[{n:'1',t:'CONTENIDO',c:'',sub:[],blocks:[]}];addWordBlock(0,-1,'design')});
+  await page.waitForSelector('[data-ds-open]',{state:'visible',timeout:10000});
+  await realClick(page.locator('[data-ds-open]').last(),'Abrir Estudio de Diseño','[data-ds-open]');
+  await page.waitForSelector('#designStudioOverlay:not([hidden]) #dsCanvas',{state:'visible',timeout:10000});
+  const initialDesign=await page.evaluate(()=>({count:dsBlock().elements.length,type:getWordItem(0,-1).blocks[0].type,svg:!!document.querySelector('#dsCanvas'),history:dsHistory(dsBlock()).undo.length}));
+  assert(initialDesign.type==='design'&&initialDesign.svg,'El bloque de diseño no se normalizó o no abrió el lienzo');
+  await realClick(page.locator('[data-ds-add="rect"]'),'Agregar rectángulo','[data-ds-add="rect"]');
+  await realClick(page.locator('[data-ds-add="text"]'),'Agregar texto','[data-ds-add="text"]');
+  const afterAdd=await page.evaluate(()=>({count:dsBlock().elements.length,undo:dsHistory(dsBlock()).undo.length}));
+  assert(afterAdd.count===initialDesign.count+2&&afterAdd.undo>=2,'La inserción visual o el historial no registraron las operaciones');
+
+  const firstLayer=page.locator('#dsLayers [data-ds-layer-select]').last();await realClick(firstLayer,'Seleccionar capa','#dsLayers [data-ds-layer-select]');
+  const xBefore=await page.evaluate(()=>dsById(dsBlock(),dsSelected[0]).x);await page.keyboard.press('ArrowRight');
+  const xAfter=await page.evaluate(()=>dsById(dsBlock(),dsSelected[0]).x);assert(xAfter===xBefore+1,'El movimiento fino por teclado no funcionó');
+
+  const element=page.locator('#dsCanvas [data-ds-element]').first();const bb=await element.boundingBox();assert(!!bb,'No existe elemento transformable en el lienzo');
+  const dragBefore=await page.evaluate(()=>{const e=dsBlock().elements[0];return{x:e.x,y:e.y}});await page.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await page.mouse.down();await page.mouse.move(bb.x+bb.width/2+36,bb.y+bb.height/2+24,{steps:5});await page.mouse.up();
+  const dragAfter=await page.evaluate(()=>{const e=dsBlock().elements[0];return{x:e.x,y:e.y}});assert(dragAfter.x!==dragBefore.x||dragAfter.y!==dragBefore.y,'Arrastrar directamente sobre el lienzo no modificó la posición');
+
+  await page.keyboard.press('Control+A');await page.keyboard.press('Control+G');
+  const grouped=await page.evaluate(()=>{const ids=dsSelected.map(id=>dsById(dsBlock(),id)?.groupId).filter(Boolean);return{selected:dsSelected.length,groups:new Set(ids).size,grouped:ids.length}});assert(grouped.selected>=2&&grouped.groups===1&&grouped.grouped===grouped.selected,'La agrupación múltiple estilo Canva no funcionó');
+  await page.keyboard.press('Control+Z');const undone=await page.evaluate(()=>dsSelected.every(id=>!dsById(dsBlock(),id)?.groupId));assert(undone,'Deshacer no restauró el estado anterior del grupo');
+  await page.keyboard.press('Control+Y');const redone=await page.evaluate(()=>dsSelected.every(id=>!!dsById(dsBlock(),id)?.groupId));assert(redone,'Rehacer no restauró la agrupación');
+
+  await page.keyboard.press('Escape');await page.waitForFunction(()=>document.getElementById('designStudioOverlay')?.hidden===true,{timeout:5000});
+  assert(await page.locator('#stage .word-design-figure svg').count()>=1,'El diseño no quedó integrado en la vista documental');
+
   assert(pageErrors.length===0,`Errores JavaScript: ${pageErrors.join(' | ')}`);
-  console.log('UI smoke PASS: contrato institucional, interacción y motor documental semántico multipágina verificados.');
+  console.log('UI smoke PASS: contrato institucional, motor documental y Estudio de Diseño interactivo verificados.');
 } finally {await browser.close()}
